@@ -49,7 +49,8 @@ public class Agent {
     private String nidCard;
     
     private String photo;
-    
+
+    @NotBlank(message = "Moninee is mandatory")
     private String nominee;
     
     private String role = "Agent";
