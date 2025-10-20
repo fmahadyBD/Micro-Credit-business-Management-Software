@@ -40,9 +40,6 @@ public class Member {
     private LocalDate joinDate;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<Product> products;
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Installment> installments;
 
     @ManyToMany

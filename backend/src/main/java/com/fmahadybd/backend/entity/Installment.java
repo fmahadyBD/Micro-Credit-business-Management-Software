@@ -6,10 +6,13 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "installments")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = {"product", "member"})
+@EqualsAndHashCode(exclude = {"product", "member"})
 public class Installment {
 
     @Id

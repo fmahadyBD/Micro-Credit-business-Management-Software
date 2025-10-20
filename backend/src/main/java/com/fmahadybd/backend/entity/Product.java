@@ -3,14 +3,18 @@ package com.fmahadybd.backend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "products")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = "installments")
+@EqualsAndHashCode(exclude = "installments")
 public class Product {
 
     @Id
@@ -28,6 +32,7 @@ public class Product {
     private LocalDate dateAdded; // Date product added
 
     // One product can have multiple installment plans
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<Installment> installments;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Installment> installments = new ArrayList<>();
 }
