@@ -83,4 +83,6 @@ export class SideBarComponent implements OnInit, OnDestroy {
   onSidebarClick(event: Event) {
     event.stopPropagation();
   }
+  
 }
+

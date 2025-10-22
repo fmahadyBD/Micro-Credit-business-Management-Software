@@ -33,14 +33,25 @@ export class TopBarComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.sidebarService.isCollapsed$.subscribe(state => {
-      this.isSidebarCollapsed = state;
+    // Subscribe to sidebar collapse state
+    this.sidebarService.isCollapsed$.subscribe(collapsed => {
+      console.log('Topbar - Sidebar collapsed:', collapsed);
+      this.isSidebarCollapsed = collapsed;
     });
+    
     this.themeService.initSystemThemeListener();
   }
 
+  // Desktop sidebar toggle
   toggleSidebar() {
+    console.log('Toggle sidebar clicked');
     this.sidebarService.toggleSidebar();
+  }
+
+  // Mobile sidebar toggle
+  toggleMobileSidebar() {
+    console.log('Toggle mobile sidebar clicked');
+    this.sidebarService.toggleMobileSidebar();
   }
 
   markAsRead(index: number, event: Event) {
