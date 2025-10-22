@@ -1,1 +1,46 @@
-<p>side-bar works!</p>
+<!-- Toggle Button (Mobile Only) -->
+<button class="btn btn-primary d-md-none sidebar-toggle" (click)="toggleSidebar()">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" (click)="closeSidebar()" [class.show]="sidebarOpen"></div>
+
+<!-- Sidebar -->
+<nav class="sidebar" [class.show]="sidebarOpen">
+  <div class="sidebar-header">
+    <div class="sidebar-logo"><i class="fas fa-bolt"></i></div>
+    <div class="sidebar-title">AdminPro</div>
+
+    <!-- Close Button (Mobile Only) -->
+    <button class="sidebar-close d-md-none" (click)="closeSidebar()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <ul class="sidebar-menu">
+    <li *ngFor="let item of menu; let i = index" class="menu-item">
+      <a
+        href="{{item.link || '#'}}"
+        class="menu-link"
+        (click)="item.submenu ? toggleSubmenu(i) : closeSidebar()"
+        [class.expanded]="activeSubmenu === i"
+      >
+        <span class="menu-icon"><i class="fas" [ngClass]="item.icon"></i></span>
+        <span class="menu-text">{{ item.title }}</span>
+        <span *ngIf="item.submenu" class="menu-arrow">
+          <i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === i"></i>
+        </span>
+      </a>
+
+      <!-- Submenu -->
+      <ul *ngIf="item.submenu" class="submenu" [class.show]="activeSubmenu === i">
+        <li *ngFor="let sub of item.submenu">
+          <a href="{{sub.link || '#'}}" class="submenu-link" (click)="closeSidebar()">
+            {{ sub.title }}
+          </a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>

@@ -1,0 +1,1167 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "OpenAPI definition",
+        "version": "v0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "Generated server url"
+        }
+    ],
+    "paths": {
+        "/api/agents/updatebyid/{id}": {
+            "put": {
+                "tags": [
+                    "agent-controller"
+                ],
+                "operationId": "updateAgent",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Agent"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/agents/update/status/{id}": {
+            "put": {
+                "tags": [
+                    "agent-controller"
+                ],
+                "operationId": "updateAgentStatus",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users": {
+            "get": {
+                "tags": [
+                    "user-controller"
+                ],
+                "operationId": "getAllUsers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/User"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "user-controller"
+                ],
+                "operationId": "createUser",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/shareholders": {
+            "get": {
+                "tags": [
+                    "shareholder-controller"
+                ],
+                "operationId": "getAllShareholders",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Shareholder"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "shareholder-controller"
+                ],
+                "operationId": "createShareholder",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Shareholder"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Shareholder"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/request-products": {
+            "get": {
+                "tags": [
+                    "request-product-controller"
+                ],
+                "operationId": "getAllRequests",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/RequestProduct"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "request-product-controller"
+                ],
+                "operationId": "createRequest",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RequestProduct"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RequestProduct"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/products": {
+            "get": {
+                "tags": [
+                    "product-controller"
+                ],
+                "operationId": "getAllProducts",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Product"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "product-controller"
+                ],
+                "operationId": "createProduct",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Product"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Product"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/members": {
+            "get": {
+                "tags": [
+                    "member-controller"
+                ],
+                "operationId": "getAllMembers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Member"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "member-controller"
+                ],
+                "operationId": "createMember",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Member"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Member"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/installments": {
+            "get": {
+                "tags": [
+                    "installment-controller"
+                ],
+                "operationId": "getAllInstallments",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Installment"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "installment-controller"
+                ],
+                "operationId": "createInstallment",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Installment"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Installment"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/agents/create": {
+            "post": {
+                "tags": [
+                    "agent-controller"
+                ],
+                "operationId": "createAgent",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Agent"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Agent"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/{id}": {
+            "get": {
+                "tags": [
+                    "user-controller"
+                ],
+                "operationId": "getUserById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "user-controller"
+                ],
+                "operationId": "deleteUser",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/shareholders/{id}": {
+            "get": {
+                "tags": [
+                    "shareholder-controller"
+                ],
+                "operationId": "getShareholderById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Shareholder"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "shareholder-controller"
+                ],
+                "operationId": "deleteShareholder",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/request-products/{id}": {
+            "get": {
+                "tags": [
+                    "request-product-controller"
+                ],
+                "operationId": "getRequestById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RequestProduct"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "request-product-controller"
+                ],
+                "operationId": "deleteRequest",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/products/{id}": {
+            "get": {
+                "tags": [
+                    "product-controller"
+                ],
+                "operationId": "getProductById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Product"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "product-controller"
+                ],
+                "operationId": "deleteProduct",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/members/{id}": {
+            "get": {
+                "tags": [
+                    "member-controller"
+                ],
+                "operationId": "getMemberById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Member"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "member-controller"
+                ],
+                "operationId": "deleteMember",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/installments/{id}": {
+            "get": {
+                "tags": [
+                    "installment-controller"
+                ],
+                "operationId": "getInstallmentById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Installment"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "installment-controller"
+                ],
+                "operationId": "deleteInstallment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/agents/get/status/{status}": {
+            "get": {
+                "tags": [
+                    "agent-controller"
+                ],
+                "operationId": "getAgentsByStatus",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Agent"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/agents/findbyid/{id}": {
+            "get": {
+                "tags": [
+                    "agent-controller"
+                ],
+                "operationId": "getAgentById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/agents/all": {
+            "get": {
+                "tags": [
+                    "agent-controller"
+                ],
+                "operationId": "getAllAgents",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Agent"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/agents/deletebyid/{id}": {
+            "delete": {
+                "tags": [
+                    "agent-controller"
+                ],
+                "operationId": "deleteAgent",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Agent": {
+                "required": [
+                    "name",
+                    "nidCard",
+                    "nominee",
+                    "phone",
+                    "village",
+                    "zila"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "maxLength": 100,
+                        "minLength": 2,
+                        "type": "string"
+                    },
+                    "phone": {
+                        "maxLength": 15,
+                        "minLength": 10,
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "zila": {
+                        "type": "string"
+                    },
+                    "village": {
+                        "type": "string"
+                    },
+                    "nidCard": {
+                        "type": "string"
+                    },
+                    "photo": {
+                        "type": "string"
+                    },
+                    "nominee": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "joinDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "User": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "ADMIN",
+                            "AGENT",
+                            "SHAREHOLDER"
+                        ]
+                    },
+                    "referenceId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Shareholder": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "nidCard": {
+                        "type": "string"
+                    },
+                    "nominee": {
+                        "type": "string"
+                    },
+                    "zila": {
+                        "type": "string"
+                    },
+                    "house": {
+                        "type": "string"
+                    },
+                    "investment": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "totalShare": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "earning": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "joinDate": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                }
+            },
+            "Installment": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "product": {
+                        "$ref": "#/components/schemas/Product"
+                    },
+                    "member": {
+                        "$ref": "#/components/schemas/Member"
+                    },
+                    "totalAmount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "paidAmount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "dueAmount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "installmentMonths": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "nextPaymentDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Member": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "zila": {
+                        "type": "string"
+                    },
+                    "village": {
+                        "type": "string"
+                    },
+                    "nidCard": {
+                        "type": "string"
+                    },
+                    "photo": {
+                        "type": "string"
+                    },
+                    "nominee": {
+                        "type": "string"
+                    },
+                    "joinDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "installments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Installment"
+                        }
+                    },
+                    "agents": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Agent"
+                        }
+                    }
+                }
+            },
+            "Product": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "costPrice": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "stock": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "addedBy": {
+                        "type": "string"
+                    },
+                    "dateAdded": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "installments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Installment"
+                        }
+                    }
+                }
+            },
+            "RequestProduct": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "productName": {
+                        "type": "string"
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "agent": {
+                        "$ref": "#/components/schemas/Agent"
+                    },
+                    "member": {
+                        "$ref": "#/components/schemas/Member"
+                    },
+                    "requestDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "approvedBy": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
