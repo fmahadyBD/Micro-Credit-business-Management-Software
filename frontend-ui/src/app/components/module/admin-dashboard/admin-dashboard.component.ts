@@ -12,9 +12,9 @@ import { AdminMainComponent } from '../admin-main/admin-main.component';
   styleUrl: './admin-dashboard.component.css'
 })
 export class AdminDashboardComponent {
-  sidebarCollapsed = false;
+  // sidebarCollapsed = false;
 
-  toggleSidebar() {
-    this.sidebarCollapsed = !this.sidebarCollapsed;
-  }
+  // toggleSidebar() {
+  //   this.sidebarCollapsed = !this.sidebarCollapsed;
+  // }
 }

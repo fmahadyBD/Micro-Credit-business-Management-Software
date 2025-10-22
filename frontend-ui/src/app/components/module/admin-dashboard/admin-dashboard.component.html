@@ -1,11 +1,22 @@
 <div class="admin-layout">
-  <app-top-bar (sidebarToggle)="toggleSidebar()"></app-top-bar>
-  
-  <div class="layout-content">
-    <app-side-bar [class.collapsed]="sidebarCollapsed"></app-side-bar>
+  <div class="layout-container">
+    <!-- Sidebar positioned first -->
+    <app-side-bar 
+           class="sidebar">
+    </app-side-bar>
     
-    <main class="main-content-wrapper" [class.sidebar-collapsed]="sidebarCollapsed">
-      <app-admin-main></app-admin-main>
-    </main>
+    <!-- Main content area -->
+    <div class="main-content-area">
+      <!-- Top bar inside main content area -->
+      <app-top-bar 
+       
+        class="top-bar">
+      </app-top-bar>
+      
+      <!-- Main content wrapper -->
+      <main class="main-content-wrapper">
+        <app-admin-main></app-admin-main>
+      </main>
+    </div>
   </div>
 </div>
