@@ -19,28 +19,118 @@
   </div>
 
   <ul class="sidebar-menu">
-    <li *ngFor="let item of menu; let i = index" class="menu-item">
-      <a
-        href="{{item.link || '#'}}"
-        class="menu-link"
-        (click)="item.submenu ? toggleSubmenu(i) : closeSidebar()"
-        [class.expanded]="activeSubmenu === i"
-      >
-        <span class="menu-icon"><i class="fas" [ngClass]="item.icon"></i></span>
-        <span class="menu-text">{{ item.title }}</span>
-        <span *ngIf="item.submenu" class="menu-arrow">
-          <i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === i"></i>
+    <!-- Dashboard -->
+    <li class="menu-item">
+      <a href="#" class="menu-link" (click)="closeSidebar(); $event.preventDefault()">
+        <span class="menu-icon"><i class="fas fa-home"></i></span>
+        <span class="menu-text">Dashboard</span>
+      </a>
+    </li>
+
+    <!-- Users -->
+    <li class="menu-item">
+      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 0)" [class.expanded]="activeSubmenu === 0">
+        <span class="menu-icon"><i class="fas fa-users"></i></span>
+        <span class="menu-text">Users</span>
+        <span class="menu-arrow">
+          <i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === 0"></i>
         </span>
       </a>
-
-      <!-- Submenu -->
-      <ul *ngIf="item.submenu" class="submenu" [class.show]="activeSubmenu === i">
-        <li *ngFor="let sub of item.submenu">
-          <a href="{{sub.link || '#'}}" class="submenu-link" (click)="closeSidebar()">
-            {{ sub.title }}
-          </a>
-        </li>
+      <ul class="submenu" [class.show]="activeSubmenu === 0">
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">All Users</a></li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Add New</a></li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Roles</a></li>
       </ul>
+    </li>
+
+    <!-- E-Commerce -->
+    <li class="menu-item">
+      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 1)" [class.expanded]="activeSubmenu === 1">
+        <span class="menu-icon"><i class="fas fa-shopping-cart"></i></span>
+        <span class="menu-text">E-Commerce</span>
+        <span class="menu-arrow">
+          <i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === 1"></i>
+        </span>
+      </a>
+      <ul class="submenu" [class.show]="activeSubmenu === 1">
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Products</a></li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Orders</a></li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Customers</a></li>
+      </ul>
+    </li>
+
+    <!-- Analytics -->
+    <li class="menu-item">
+      <a href="#" class="menu-link" (click)="closeSidebar(); $event.preventDefault()">
+        <span class="menu-icon"><i class="fas fa-chart-line"></i></span>
+        <span class="menu-text">Analytics</span>
+      </a>
+    </li>
+
+    <!-- Messages -->
+    <li class="menu-item">
+      <a href="#" class="menu-link" (click)="closeSidebar(); $event.preventDefault()">
+        <span class="menu-icon"><i class="fas fa-envelope"></i></span>
+        <span class="menu-text">Messages</span>
+      </a>
+    </li>
+
+    <!-- Installment -->
+    <li class="menu-item">
+      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 2)" [class.expanded]="activeSubmenu === 2">
+        <span class="menu-icon"><i class="fas fa-credit-card"></i></span>
+        <span class="menu-text">Installment</span>
+        <span class="menu-arrow">
+          <i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === 2"></i>
+        </span>
+      </a>
+      <ul class="submenu" [class.show]="activeSubmenu === 2">
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Payment Plans</a></li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Active Installments</a></li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Payment History</a></li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Overdue Payments</a></li>
+      </ul>
+    </li>
+
+    <!-- Shareholders -->
+    <li class="menu-item">
+      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 3)" [class.expanded]="activeSubmenu === 3">
+        <span class="menu-icon"><i class="fas fa-user-tie"></i></span>
+        <span class="menu-text">Shareholders</span>
+        <span class="menu-arrow">
+          <i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === 3"></i>
+        </span>
+      </a>
+      <ul class="submenu" [class.show]="activeSubmenu === 3">
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">All Shareholders</a></li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Share Distribution</a></li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Dividends</a></li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Reports</a></li>
+      </ul>
+    </li>
+
+    <!-- Settings -->
+    <li class="menu-item">
+      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 4)" [class.expanded]="activeSubmenu === 4">
+        <span class="menu-icon"><i class="fas fa-cog"></i></span>
+        <span class="menu-text">Settings</span>
+        <span class="menu-arrow">
+          <i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === 4"></i>
+        </span>
+      </a>
+      <ul class="submenu" [class.show]="activeSubmenu === 4">
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">General</a></li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Security</a></li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Notifications</a></li>
+      </ul>
+    </li>
+
+    <!-- Help & Support -->
+    <li class="menu-item">
+      <a href="#" class="menu-link" (click)="closeSidebar(); $event.preventDefault()">
+        <span class="menu-icon"><i class="fas fa-question-circle"></i></span>
+        <span class="menu-text">Help & Support</span>
+      </a>
     </li>
   </ul>
 </nav>
