@@ -1,0 +1,138 @@
+.main-content {
+  flex: 1;
+  background: #f8f9fc;
+  overflow-y: auto;
+  padding-top: 0;
+  transition: margin-left 0.3s ease; /* Add smooth transition */
+  margin-left: 0; /* Default when sidebar is collapsed */
+}
+
+/* Add this class for when sidebar is open */
+.main-content.with-sidebar {
+  margin-left: 280px;
+}
+
+.main-content.with-sidebar-collapsed {
+  margin-left: 70px;
+}
+
+/* Rest of your existing main content CSS remains the same */
+.stat-card {
+  border-left: 4px solid !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+}
+
+.border-left-primary {
+  border-left-color: #4e73df !important;
+}
+
+.border-left-success {
+  border-left-color: #1cc88a !important;
+}
+
+.border-left-warning {
+  border-left-color: #f6c23e !important;
+}
+
+.border-left-info {
+  border-left-color: #36b9cc !important;
+}
+
+.text-primary {
+  color: #4e73df !important;
+}
+
+.text-success {
+  color: #1cc88a !important;
+}
+
+.text-warning {
+  color: #f6c23e !important;
+}
+
+.text-info {
+  color: #36b9cc !important;
+}
+
+.card {
+  border: none;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1) !important;
+}
+
+.card-header {
+  background: white;
+  border-bottom: 1px solid #e3e6f0;
+  border-radius: 10px 10px 0 0 !important;
+}
+
+.chart-area, .chart-pie {
+  position: relative;
+  height: 320px;
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.table thead th {
+  border-bottom: 2px solid #e3e6f0;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: #6e707e;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8f9fc;
+}
+
+.badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.35em 0.65em;
+}
+
+.badge-success {
+  background-color: #1cc88a;
+  color: white;
+}
+
+.badge-warning {
+  background-color: #f6c23e;
+  color: white;
+}
+
+.badge-danger {
+  background-color: #e74a3b;
+  color: white;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 10px;
+    margin-left: 0 !important; /* Remove margin on mobile */
+  }
+  
+  .container-fluid {
+    padding: 0 10px;
+  }
+  
+  .table-responsive {
+    font-size: 0.9rem;
+  }
+  
+  .chart-area, .chart-pie {
+    height: 250px;
+  }
+}

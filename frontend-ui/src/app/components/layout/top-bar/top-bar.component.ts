@@ -1,7 +1,8 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ThemeService } from '../../../services/theme.service';
+// src/app/components/layout/top-bar/top-bar.component.ts
+import { Component, OnInit } from '@angular/core';
 import { SidebarTopbarService } from '../../../services/sidebar-topbar.service';
+import { ThemeService } from '../../../services/theme.service';
+import { CommonModule, NgFor, NgClass } from '@angular/common';
 
 interface Notification {
   icon: string[];
@@ -12,13 +13,12 @@ interface Notification {
 
 @Component({
   selector: 'app-top-bar',
-  standalone: true,
-  imports: [CommonModule],
+  standalone: true, // make sure it's standalone
+  imports: [CommonModule, NgFor, NgClass], // <-- IMPORT THESE
   templateUrl: './top-bar.component.html',
-  styleUrls: ['./top-bar.component.css']
 })
 export class TopBarComponent implements OnInit {
-  @Output() sidebarToggle = new EventEmitter<void>();
+  isSidebarCollapsed = false;
 
   notifications: Notification[] = [
     { icon: ['fas', 'fa-user'], title: 'New user registered', time: '2 minutes ago', unread: true },
@@ -28,42 +28,34 @@ export class TopBarComponent implements OnInit {
     { icon: ['fas', 'fa-chart-line'], title: 'Monthly report ready', time: '3 hours ago', unread: true },
   ];
 
-  isSidebarCollapsed = false;
-
   constructor(
-    private themeService: ThemeService,
-    private sidebarService: SidebarTopbarService
+    private sidebarService: SidebarTopbarService,
+    private themeService: ThemeService
   ) {}
 
   ngOnInit() {
-    // Initialize system theme listener
+    this.sidebarService.isCollapsed$.subscribe(state => {
+      this.isSidebarCollapsed = state;
+    });
     this.themeService.initSystemThemeListener();
   }
 
-  /** Toggle the sidebar (mobile & desktop) */
   toggleSidebar() {
-    this.isSidebarCollapsed = !this.isSidebarCollapsed;
-    this.sidebarToggle.emit();
-
-    // Toggle sidebar using the shared service
     this.sidebarService.toggleSidebar();
   }
 
-  /** Mark one notification as read */
   markAsRead(index: number, event: Event) {
     event.preventDefault();
     event.stopPropagation();
     this.notifications[index].unread = false;
   }
 
-  /** Mark all notifications as read */
   markAllAsRead(event: Event) {
     event.preventDefault();
     event.stopPropagation();
     this.notifications.forEach(n => n.unread = false);
   }
 
-  /** Set application theme */
   setTheme(theme: 'light' | 'dark' | 'auto', event?: Event) {
     if (event) {
       event.preventDefault();
@@ -72,7 +64,6 @@ export class TopBarComponent implements OnInit {
     this.themeService.setTheme(theme);
   }
 
-  /** Count unread notifications */
   getUnreadCount(): number {
     return this.notifications.filter(n => n.unread).length;
   }

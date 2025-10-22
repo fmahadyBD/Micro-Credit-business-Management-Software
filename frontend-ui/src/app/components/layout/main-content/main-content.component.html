@@ -1,0 +1,102 @@
+<main class="main-content">
+  <div class="container-fluid py-4">
+    <!-- Statistics Cards -->
+    <div class="row">
+      <div class="col-xl-3 col-md-6 mb-4" *ngFor="let stat of stats">
+        <div class="card stat-card border-left-{{stat.color}} shadow h-100 py-2">
+          <div class="card-body">
+            <div class="row no-gutters align-items-center">
+              <div class="col mr-2">
+                <div class="text-xs font-weight-bold text-{{stat.color}} text-uppercase mb-1">
+                  {{stat.title}}
+                </div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">{{stat.value}}</div>
+              </div>
+              <div class="col-auto">
+                <i [class]="stat.icon + ' fa-2x text-gray-300'"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+      <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Revenue & Users Overview</h6>
+          </div>
+          <div class="card-body">
+            <div class="chart-area">
+              <canvas #lineChartCanvas></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Weekly Sales</h6>
+          </div>
+          <div class="card-body">
+            <div class="chart-pie pt-4 pb-2">
+              <canvas #barChartCanvas></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Transactions Table -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Recent Transactions</h6>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead class="thead-light">
+                  <tr>
+                    <th>ID</th>
+                    <th>Member</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let t of recentTransactions">
+                    <td>#{{t.id}}</td>
+                    <td>{{t.member}}</td>
+                    <td>{{t.type}}</td>
+                    <td>${{t.amount}}</td>
+                    <td>{{t.date}}</td>
+                    <td>
+                      <span class="badge"
+                        [class.badge-success]="t.status === 'Completed'"
+                        [class.badge-warning]="t.status === 'Pending'"
+                        [class.badge-danger]="t.status === 'Failed'">
+                        {{t.status}}
+                      </span>
+                    </td>
+                    <td>
+                      <button class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></button>
+                      <button class="btn btn-sm btn-outline-info ms-1"><i class="fas fa-edit"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

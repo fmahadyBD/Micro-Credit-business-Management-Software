@@ -1,19 +1,12 @@
 <div class="admin-layout">
   <div class="layout-container">
-    <!-- Sidebar positioned first -->
-    <app-side-bar 
-           class="sidebar">
-    </app-side-bar>
-    
-    <!-- Main content area -->
-    <div class="main-content-area">
-      <!-- Top bar inside main content area -->
-      <app-top-bar 
-       
-        class="top-bar">
-      </app-top-bar>
-      
-      <!-- Main content wrapper -->
+    <!-- Sidebar -->
+    <app-side-bar class="sidebar" [ngClass]="{ 'collapsed': isSidebarCollapsed }"></app-side-bar>
+
+    <!-- Main Content Area -->
+    <div class="main-content-area" [ngClass]="{ 'expanded': isSidebarCollapsed }">
+      <app-top-bar class="top-bar"></app-top-bar>
+
       <main class="main-content-wrapper">
         <app-admin-main></app-admin-main>
       </main>
