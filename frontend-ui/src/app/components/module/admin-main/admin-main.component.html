@@ -1,227 +1,227 @@
-  <main class="main-content">
-    <div class="container-fluid">
-      <!-- Page Title (Desktop Only) -->
-      <h2 class="page-title mb-4 d-none d-md-block">Dashboard Overview</h2>
+<main class="main-content" [class.collapsed]="isSidebarCollapsed">
+  <div class="container-fluid">
+    <!-- Page Title (Desktop Only) -->
+    <h2 class="page-title mb-4 d-none d-md-block">Dashboard Overview</h2>
 
-      <!-- Stats Cards -->
-      <div class="stats-grid">
-        <div class="card stat-card" *ngFor="let stat of stats">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <p class="text-muted mb-1 stat-title">{{ stat.title }}</p>
-                <h4 class="mb-1 stat-value">{{ stat.value }}</h4>
-                <small [class]="stat.trend === 'up' ? 'text-success' : 'text-danger'">
-                  <i [class]="stat.trend === 'up' ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
-                  {{ stat.change }}
-                </small>
-              </div>
-              <div class="stat-icon" [ngClass]="[stat.iconBg, stat.iconColor]">
-                <i [class]="stat.icon"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Charts Row -->
-      <div class="chart-row">
-        <!-- Revenue Chart -->
-        <div class="card chart-card">
-          <div class="card-header">
-            <h5 class="mb-0">Revenue Overview</h5>
-          </div>
-          <div class="card-body">
-            <div class="chart-container">
-              <canvas id="revenueChart"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Installment Status Chart -->
-        <div class="card chart-card">
-          <div class="card-header">
-            <h5 class="mb-0">Installment Status</h5>
-          </div>
-          <div class="card-body">
-            <div class="chart-container">
-              <canvas id="installmentChart"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Installment Payments Table -->
-      <div class="card table-card">
-        <div class="card-header">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">Installment Payments</h5>
-          </div>
-          <div class="search-box">
-            <i class="fas fa-search"></i>
-            <input 
-              type="text" 
-              class="form-control" 
-              [(ngModel)]="installmentSearchTerm"
-              (input)="onInstallmentSearch()"
-              placeholder="Search by customer name, plan, or status...">
-          </div>
-        </div>
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="card stat-card" *ngFor="let stat of stats">
         <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th>Customer</th>
-                  <th>Plan</th>
-                  <th>Amount</th>
-                  <th>Paid</th>
-                  <th>Next Payment</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let payment of paginatedInstallments">
-                  <td>{{ payment.customer }}</td>
-                  <td>{{ payment.plan }}</td>
-                  <td>{{ payment.amount }}</td>
-                  <td>{{ payment.paid }}</td>
-                  <td>{{ payment.nextPayment }}</td>
-                  <td>
-                    <span class="badge" [ngClass]="'bg-' + getInstallmentStatusClass(payment.status)">
-                      {{ payment.status }}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Pagination -->
-          <div class="pagination-container">
-            <div class="pagination-info">
-              Showing 
-              {{ installmentFilteredData.length > 0 ? (installmentCurrentPage - 1) * installmentRowsPerPage + 1 : 0 }} 
-              to 
-              {{ Math.min(installmentCurrentPage * installmentRowsPerPage, installmentFilteredData.length) }} 
-              of 
-              {{ installmentFilteredData.length }} 
-              entries
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="text-muted mb-1 stat-title">{{ stat.title }}</p>
+              <h4 class="mb-1 stat-value">{{ stat.value }}</h4>
+              <small [class]="stat.trend === 'up' ? 'text-success' : 'text-danger'">
+                <i [class]="stat.trend === 'up' ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                {{ stat.change }}
+              </small>
             </div>
-            <nav>
-              <ul class="pagination mb-0">
-                <li class="page-item" [class.disabled]="installmentCurrentPage === 1">
-                  <a class="page-link" href="#" (click)="$event.preventDefault(); changeInstallmentPage(installmentCurrentPage - 1)">
-                    Previous
-                  </a>
-                </li>
-                <li class="page-item" 
-                    *ngFor="let page of getPageNumbers(installmentTotalPages, installmentCurrentPage)"
-                    [class.active]="page === installmentCurrentPage"
-                    [class.disabled]="page === '...'">
-                  <a class="page-link" 
-                     href="#" 
-                     (click)="$event.preventDefault(); page !== '...' && changeInstallmentPage(+page)">
-                    {{ page }}
-                  </a>
-                </li>
-                <li class="page-item" [class.disabled]="installmentCurrentPage === installmentTotalPages">
-                  <a class="page-link" href="#" (click)="$event.preventDefault(); changeInstallmentPage(installmentCurrentPage + 1)">
-                    Next
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </div>
-
-      <!-- Recent Activity Table -->
-      <div class="card table-card">
-        <div class="card-header">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">Recent Activity</h5>
-          </div>
-          <div class="search-box">
-            <i class="fas fa-search"></i>
-            <input 
-              type="text" 
-              class="form-control"
-              [(ngModel)]="activitySearchTerm"
-              (input)="onActivitySearch()"
-              placeholder="Search by user or action...">
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Action</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let activity of paginatedActivities">
-                  <td>
-                    <div class="d-flex align-items-center gap-2">
-                      <div class="activity-avatar" [style.background]="activity.gradient">
-                        {{ activity.initials }}
-                      </div>
-                      <span>{{ activity.user }}</span>
-                    </div>
-                  </td>
-                  <td>{{ activity.action }}</td>
-                  <td>{{ activity.date }}</td>
-                  <td>
-                    <span class="badge" [ngClass]="'bg-' + getActivityStatusClass(activity.status)">
-                      {{ activity.status }}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Pagination -->
-          <div class="pagination-container">
-            <div class="pagination-info">
-              Showing 
-              {{ activityFilteredData.length > 0 ? (activityCurrentPage - 1) * activityRowsPerPage + 1 : 0 }} 
-              to 
-              {{ Math.min(activityCurrentPage * activityRowsPerPage, activityFilteredData.length) }} 
-              of 
-              {{ activityFilteredData.length }} 
-              entries
+            <div class="stat-icon" [ngClass]="[stat.iconBg, stat.iconColor]">
+              <i [class]="stat.icon"></i>
             </div>
-            <nav>
-              <ul class="pagination mb-0">
-                <li class="page-item" [class.disabled]="activityCurrentPage === 1">
-                  <a class="page-link" href="#" (click)="$event.preventDefault(); changeActivityPage(activityCurrentPage - 1)">
-                    Previous
-                  </a>
-                </li>
-                <li class="page-item" 
-                    *ngFor="let page of getPageNumbers(activityTotalPages, activityCurrentPage)"
-                    [class.active]="page === activityCurrentPage"
-                    [class.disabled]="page === '...'">
-                  <a class="page-link" 
-                     href="#" 
-                     (click)="$event.preventDefault(); page !== '...' && changeActivityPage(+page)">
-                    {{ page }}
-                  </a>
-                </li>
-                <li class="page-item" [class.disabled]="activityCurrentPage === activityTotalPages">
-                  <a class="page-link" href="#" (click)="$event.preventDefault(); changeActivityPage(activityCurrentPage + 1)">
-                    Next
-                  </a>
-                </li>
-              </ul>
-            </nav>
           </div>
         </div>
       </div>
     </div>
-  </main>
+
+    <!-- Charts Row -->
+    <div class="chart-row">
+      <!-- Revenue Chart -->
+      <div class="card chart-card">
+        <div class="card-header">
+          <h5 class="mb-0">Revenue Overview</h5>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="revenueChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Installment Status Chart -->
+      <div class="card chart-card">
+        <div class="card-header">
+          <h5 class="mb-0">Installment Status</h5>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="installmentChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Installment Payments Table -->
+    <div class="card table-card">
+      <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Installment Payments</h5>
+        </div>
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input 
+            type="text" 
+            class="form-control" 
+            [(ngModel)]="installmentSearchTerm"
+            (input)="onInstallmentSearch()"
+            placeholder="Search by customer name, plan, or status...">
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Plan</th>
+                <th>Amount</th>
+                <th>Paid</th>
+                <th>Next Payment</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let payment of paginatedInstallments">
+                <td>{{ payment.customer }}</td>
+                <td>{{ payment.plan }}</td>
+                <td>{{ payment.amount }}</td>
+                <td>{{ payment.paid }}</td>
+                <td>{{ payment.nextPayment }}</td>
+                <td>
+                  <span class="badge" [ngClass]="'bg-' + getInstallmentStatusClass(payment.status)">
+                    {{ payment.status }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container">
+          <div class="pagination-info">
+            Showing 
+            {{ installmentFilteredData.length > 0 ? (installmentCurrentPage - 1) * installmentRowsPerPage + 1 : 0 }} 
+            to 
+            {{ Math.min(installmentCurrentPage * installmentRowsPerPage, installmentFilteredData.length) }} 
+            of 
+            {{ installmentFilteredData.length }} 
+            entries
+          </div>
+          <nav>
+            <ul class="pagination mb-0">
+              <li class="page-item" [class.disabled]="installmentCurrentPage === 1">
+                <a class="page-link" href="#" (click)="$event.preventDefault(); changeInstallmentPage(installmentCurrentPage - 1)">
+                  Previous
+                </a>
+              </li>
+              <li class="page-item" 
+                  *ngFor="let page of getPageNumbers(installmentTotalPages, installmentCurrentPage)"
+                  [class.active]="page === installmentCurrentPage"
+                  [class.disabled]="page === '...'">
+                <a class="page-link" 
+                   href="#" 
+                   (click)="$event.preventDefault(); page !== '...' && changeInstallmentPage(+page)">
+                  {{ page }}
+                </a>
+              </li>
+              <li class="page-item" [class.disabled]="installmentCurrentPage === installmentTotalPages">
+                <a class="page-link" href="#" (click)="$event.preventDefault(); changeInstallmentPage(installmentCurrentPage + 1)">
+                  Next
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Table -->
+    <div class="card table-card">
+      <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Recent Activity</h5>
+        </div>
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input 
+            type="text" 
+            class="form-control"
+            [(ngModel)]="activitySearchTerm"
+            (input)="onActivitySearch()"
+            placeholder="Search by user or action...">
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Action</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let activity of paginatedActivities">
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="activity-avatar" [style.background]="activity.gradient">
+                      {{ activity.initials }}
+                    </div>
+                    <span>{{ activity.user }}</span>
+                  </div>
+                </td>
+                <td>{{ activity.action }}</td>
+                <td>{{ activity.date }}</td>
+                <td>
+                  <span class="badge" [ngClass]="'bg-' + getActivityStatusClass(activity.status)">
+                    {{ activity.status }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container">
+          <div class="pagination-info">
+            Showing 
+            {{ activityFilteredData.length > 0 ? (activityCurrentPage - 1) * activityRowsPerPage + 1 : 0 }} 
+            to 
+            {{ Math.min(activityCurrentPage * activityRowsPerPage, activityFilteredData.length) }} 
+            of 
+            {{ activityFilteredData.length }} 
+            entries
+          </div>
+          <nav>
+            <ul class="pagination mb-0">
+              <li class="page-item" [class.disabled]="activityCurrentPage === 1">
+                <a class="page-link" href="#" (click)="$event.preventDefault(); changeActivityPage(activityCurrentPage - 1)">
+                  Previous
+                </a>
+              </li>
+              <li class="page-item" 
+                  *ngFor="let page of getPageNumbers(activityTotalPages, activityCurrentPage)"
+                  [class.active]="page === activityCurrentPage"
+                  [class.disabled]="page === '...'">
+                <a class="page-link" 
+                   href="#" 
+                   (click)="$event.preventDefault(); page !== '...' && changeActivityPage(+page)">
+                  {{ page }}
+                </a>
+              </li>
+              <li class="page-item" [class.disabled]="activityCurrentPage === activityTotalPages">
+                <a class="page-link" href="#" (click)="$event.preventDefault(); changeActivityPage(activityCurrentPage + 1)">
+                  Next
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

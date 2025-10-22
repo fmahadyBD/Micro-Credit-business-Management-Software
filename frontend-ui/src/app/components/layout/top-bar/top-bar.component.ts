@@ -1,4 +1,3 @@
-// src/app/components/layout/top-bar/top-bar.component.ts
 import { Component, OnInit } from '@angular/core';
 import { SidebarTopbarService } from '../../../services/sidebar-topbar.service';
 import { ThemeService } from '../../../services/theme.service';
@@ -13,8 +12,8 @@ interface Notification {
 
 @Component({
   selector: 'app-top-bar',
-  standalone: true, // make sure it's standalone
-  imports: [CommonModule, NgFor, NgClass], // <-- IMPORT THESE
+  standalone: true,
+  imports: [CommonModule, NgFor, NgClass],
   templateUrl: './top-bar.component.html',
 })
 export class TopBarComponent implements OnInit {

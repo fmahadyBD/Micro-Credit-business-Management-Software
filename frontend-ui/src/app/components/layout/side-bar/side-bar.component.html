@@ -7,7 +7,7 @@
 <div class="sidebar-overlay" (click)="closeSidebar()" [class.show]="sidebarOpen"></div>
 
 <!-- Sidebar -->
-<nav class="sidebar" [class.show]="sidebarOpen">
+<nav class="sidebar" [class.show]="sidebarOpen" [class.collapsed]="collapsed">
   <div class="sidebar-header">
     <div class="sidebar-logo"><i class="fas fa-bolt"></i></div>
     <div class="sidebar-title">AdminPro</div>

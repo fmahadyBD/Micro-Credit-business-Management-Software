@@ -1,6 +1,6 @@
 import { Component, HostListener, OnInit, OnDestroy, Input } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { SidebarService } from '../../../services/sidebar.service';
+import { SidebarTopbarService } from '../../../services/sidebar-topbar.service';
 
 @Component({
   selector: 'app-side-bar',
@@ -11,13 +11,14 @@ export class SideBarComponent implements OnInit, OnDestroy {
   @Input() collapsed = false;
   sidebarOpen = false;
   activeSubmenu: number | null = null;
-  private sidebarSubscription?: Subscription;
+  private mobileSubscription?: Subscription;
+  private collapseSubscription?: Subscription;
 
-  constructor(private sidebarService: SidebarService) {}
+  constructor(private sidebarService: SidebarTopbarService) {}
 
   ngOnInit() {
-    // Subscribe to sidebar state changes from the service
-    this.sidebarSubscription = this.sidebarService.sidebarState$.subscribe(state => {
+    // Subscribe to mobile open/close state
+    this.mobileSubscription = this.sidebarService.isMobileOpen$.subscribe(state => {
       this.sidebarOpen = state;
       if (state) {
         document.body.classList.add('sidebar-open');
@@ -25,20 +26,31 @@ export class SideBarComponent implements OnInit, OnDestroy {
         document.body.classList.remove('sidebar-open');
       }
     });
+
+    // Subscribe to desktop collapse state
+    this.collapseSubscription = this.sidebarService.isCollapsed$.subscribe(collapsed => {
+      this.collapsed = collapsed;
+    });
   }
 
   ngOnDestroy() {
-    this.sidebarSubscription?.unsubscribe();
+    this.mobileSubscription?.unsubscribe();
+    this.collapseSubscription?.unsubscribe();
   }
 
-  /** Toggle Sidebar (mobile) - used by internal close button */
+  /** Toggle Sidebar (mobile) */
   toggleSidebar() {
-    this.sidebarService.toggleSidebar();
+    this.sidebarService.toggleMobileSidebar();
   }
 
-  /** Close Sidebar */
+  /** Close Sidebar (mobile) */
   closeSidebar() {
-    this.sidebarService.closeSidebar();
+    this.sidebarService.closeMobileSidebar();
+  }
+
+  /** Toggle Desktop Sidebar */
+  toggleDesktopSidebar() {
+    this.sidebarService.toggleSidebar();
   }
 
   /** Toggle Submenu */

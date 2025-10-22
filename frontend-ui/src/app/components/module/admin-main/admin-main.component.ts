@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Chart, registerables } from 'chart.js';
+import { SidebarTopbarService } from '../../../services/sidebar-topbar.service';
+
 Chart.register(...registerables);
 
 interface StatCard {
@@ -34,7 +36,7 @@ interface Activity {
 
 @Component({
   selector: 'app-admin-main',
-
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './admin-main.component.html',
   styleUrl: './admin-main.component.css'
@@ -120,11 +122,21 @@ export class AdminMainComponent implements OnInit, AfterViewInit, OnDestroy {
   activityFilteredData: Activity[] = [];
   activitySearchTerm = '';
 
+  // Sidebar state - FIXED: Make sure this property exists
+  isSidebarCollapsed = false;
+
   // Charts
   private revenueChart?: Chart;
   private installmentChart?: Chart;
 
+  constructor(private sidebarService: SidebarTopbarService) {}
+
   ngOnInit() {
+    // Subscribe to sidebar collapse state
+    this.sidebarService.isCollapsed$.subscribe(collapsed => {
+      this.isSidebarCollapsed = collapsed;
+    });
+
     this.installmentFilteredData = [...this.installmentData];
     this.activityFilteredData = [...this.activityData];
   }
