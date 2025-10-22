@@ -1,0 +1,49 @@
+:root {
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 70px;
+    --topbar-height: 60px;
+    --mobile-topbar-height: 50px;
+}
+
+.admin-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+}
+
+.layout-content {
+  display: flex;
+  flex: 1;
+  margin-top: var(--topbar-height);
+  position: relative;
+  width: 100%;
+}
+
+.main-content-wrapper {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.3s ease;
+  background-color: var(--bs-body-bg);
+  min-height: calc(100vh - var(--topbar-height));
+  overflow-x: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.main-content-wrapper.sidebar-collapsed {
+  margin-left: var(--sidebar-collapsed-width);
+}
+
+/* Mobile styles */
+@media (max-width: 767.98px) {
+  .layout-content {
+    margin-top: var(--mobile-topbar-height);
+  }
+  
+  .main-content-wrapper {
+    margin-left: 0 !important;
+    min-height: calc(100vh - var(--mobile-topbar-height));
+    width: 100%;
+  }
+}

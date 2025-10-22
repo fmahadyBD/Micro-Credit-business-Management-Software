@@ -1,5 +1,11 @@
-<div class="admin-container">
-  <app-side-bar></app-side-bar>
+<div class="admin-layout">
+  <app-top-bar (sidebarToggle)="toggleSidebar()"></app-top-bar>
   
- 
+  <div class="layout-content">
+    <app-side-bar [class.collapsed]="sidebarCollapsed"></app-side-bar>
+    
+    <main class="main-content-wrapper" [class.sidebar-collapsed]="sidebarCollapsed">
+      <app-admin-main></app-admin-main>
+    </main>
+  </div>
 </div>
