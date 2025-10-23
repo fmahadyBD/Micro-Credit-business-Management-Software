@@ -1,0 +1,20 @@
+<main class="main-content">
+  <div class="container-fluid">
+    <h2>All Users</h2>
+
+<ul *ngIf="users.length > 0; else noUsers">
+  <li *ngFor="let user of users">
+    {{ user.username }} - {{ user.id }}
+  </li>
+</ul>
+
+<ng-template #noUsers>
+  <p>No users found.</p>
+</ng-template>
+
+    <!-- Empty state -->
+    <div *ngIf="users.length === 0" class="alert alert-info mt-3">
+      No users found.
+    </div>
+  </div>
+</main>

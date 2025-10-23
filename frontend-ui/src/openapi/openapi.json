@@ -1,13 +1,33 @@
 {
     "openapi": "3.0.1",
     "info": {
-        "title": "OpenAPI definition",
-        "version": "v0"
+        "title": "User Management API",
+        "description": "OpenAPI documentation for User Management System",
+        "termsOfService": "Terms of service",
+        "contact": {
+            "name": "Your Name",
+            "url": "https://yourapp.com",
+            "email": "contact@yourapp.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+        },
+        "version": "1.0"
     },
     "servers": [
         {
-            "url": "http://localhost:8080",
-            "description": "Generated server url"
+            "url": "http://localhost:8088",
+            "description": "Local ENV"
+        },
+        {
+            "url": "https://yourapp.com",
+            "description": "PROD ENV"
+        }
+    ],
+    "security": [
+        {
+            "bearerAuth": []
         }
     ],
     "paths": {
@@ -1161,6 +1181,23 @@
                         "type": "string"
                     }
                 }
+            }
+        },
+        "responses": {
+            "DefaultResponse": {
+                "description": "Default response",
+                "content": {
+                    "application/json": {}
+                }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "JWT authentication",
+                "in": "header",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
             }
         }
     }

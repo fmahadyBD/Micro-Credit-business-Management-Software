@@ -1,6 +1,7 @@
 import { Component, HostListener, OnInit, OnDestroy, Input } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { SidebarTopbarService } from '../../../services/sidebar-topbar.service';
+import { SidebarTopbarService } from '../../../service/side-bar.service';
+
 
 @Component({
   selector: 'app-side-bar',

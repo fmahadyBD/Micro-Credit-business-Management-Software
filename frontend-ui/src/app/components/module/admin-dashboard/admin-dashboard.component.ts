@@ -5,11 +5,12 @@ import { SideBarComponent } from '../../layout/side-bar/side-bar.component';
 import { TopBarComponent } from '../../layout/top-bar/top-bar.component';
 import { AdminMainComponent } from '../admin-main/admin-main.component';
 import { SidebarTopbarService } from '../../../services/sidebar-topbar.service';
+import { AllUsersComponent } from '../../page/all-users/all-users.component';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, SideBarComponent, TopBarComponent, AdminMainComponent],
+  imports: [CommonModule, RouterModule, SideBarComponent, TopBarComponent,AllUsersComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
 })

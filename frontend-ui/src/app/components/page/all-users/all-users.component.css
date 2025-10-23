@@ -1,0 +1,14 @@
+/* all-users.component.css */
+.main-content {
+  min-height: 400px;
+}
+
+.table-card {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+}
+
+/* Debug border - remove after fixing */
+.main-content {
+  border: 2px solid red;
+}
