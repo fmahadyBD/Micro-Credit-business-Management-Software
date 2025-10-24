@@ -1,4 +1,4 @@
-package com.fmahadybd.backend;
+package com.fmahadybd.backend.config;
 
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -37,7 +37,7 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
         servers = {
                 @Server(
                         description = "Local ENV",
-                        url = "http://localhost:8088"
+                        url = "http://localhost:8080"
                 ),
                 @Server(
                         description = "PROD ENV",

@@ -7,24 +7,24 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { User } from '../../models/user';
+import { RequestProduct } from '../../models/request-product';
 
-export interface GetAllUsers$Params {
+export interface GetAllRequests$Params {
 }
 
-export function getAllUsers(http: HttpClient, rootUrl: string, params?: GetAllUsers$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<User>>> {
-  const rb = new RequestBuilder(rootUrl, getAllUsers.PATH, 'get');
+export function getAllRequests(http: HttpClient, rootUrl: string, params?: GetAllRequests$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<RequestProduct>>> {
+  const rb = new RequestBuilder(rootUrl, getAllRequests.PATH, 'get');
   if (params) {
   }
 
   return http.request(
-    rb.build({ responseType: 'blob', accept: '*/*', context })
+    rb.build({ responseType: 'json', accept: 'application/json', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<Array<User>>;
+      return r as StrictHttpResponse<Array<RequestProduct>>;
     })
   );
 }
 
-getAllUsers.PATH = '/api/users';
+getAllRequests.PATH = '/api/request-products';

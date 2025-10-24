@@ -2,13 +2,14 @@ package com.fmahadybd.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-@Entity
-@Table(name = "users")
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
+@SuperBuilder
 @AllArgsConstructor
-@Builder
+@NoArgsConstructor
+@Entity
 public class User {
 
     @Id

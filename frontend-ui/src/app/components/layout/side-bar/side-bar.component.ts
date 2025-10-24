@@ -1,6 +1,6 @@
 import { Component, HostListener, OnInit, OnDestroy, Input } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { SidebarTopbarService } from '../../../service/side-bar.service';
+import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
 
 
 @Component({

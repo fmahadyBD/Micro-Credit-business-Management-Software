@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/ng-openapi-gen/ng-openapi-gen-schema.json",
+  "input": "src/assets/openapi.json",
+  "output": "src/app/api",
+  "service": true,
+  "module": true,
+  "enumStyle": "enum",
+  "modelIndex": true
+}

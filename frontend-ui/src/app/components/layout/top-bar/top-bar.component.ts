@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { SidebarTopbarService } from '../../../services/sidebar-topbar.service';
-import { ThemeService } from '../../../services/theme.service';
+
 import { CommonModule, NgFor, NgClass } from '@angular/common';
+import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
+import { ThemeService } from '../../../service/theme.service.ts.service';
 
 interface Notification {
   icon: string[];

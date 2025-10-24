@@ -2,7 +2,8 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Chart, registerables } from 'chart.js';
-import { SidebarTopbarService } from '../../../services/sidebar-topbar.service';
+import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
+
 
 Chart.register(...registerables);
 

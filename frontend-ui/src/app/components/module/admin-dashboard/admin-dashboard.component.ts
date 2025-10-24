@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { SideBarComponent } from '../../layout/side-bar/side-bar.component';
 import { TopBarComponent } from '../../layout/top-bar/top-bar.component';
 import { AdminMainComponent } from '../admin-main/admin-main.component';
-import { SidebarTopbarService } from '../../../services/sidebar-topbar.service';
+import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
 import { AllUsersComponent } from '../../page/all-users/all-users.component';
 
 @Component({

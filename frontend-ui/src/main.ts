@@ -1,6 +1,17 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { appConfig } from './app/app.config';
-import { AppComponent } from './app/app.component';
+import { importProvidersFrom } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
 
-bootstrapApplication(AppComponent, appConfig)
-  .catch((err) => console.error(err));
+import { AppComponent } from './app/app.component';
+import { ApiConfiguration } from './app/services/api-configuration';
+import { appConfig } from './app/app.config';
+
+bootstrapApplication(AppComponent, {
+  ...appConfig,
+  providers: [
+    ...appConfig.providers || [],
+    ApiConfiguration,                     // provide OpenAPI config
+    importProvidersFrom(HttpClientModule) // provide HttpClient globally
+  ]
+})
+.catch((err) => console.error(err));
