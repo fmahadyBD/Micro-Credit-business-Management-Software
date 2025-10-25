@@ -1,16 +1,20 @@
 <div class="admin-layout">
   <div class="layout-container">
     <!-- Sidebar -->
-    <app-side-bar class="sidebar" [ngClass]="{ 'collapsed': isSidebarCollapsed }"></app-side-bar>
+    <app-side-bar 
+      class="sidebar" 
+      [ngClass]="{ 'collapsed': isSidebarCollapsed }"
+      (submenuSelected)="setView($event)">
+    </app-side-bar>
 
     <!-- Main Content Area -->
     <div class="main-content-area" [ngClass]="{ 'expanded': isSidebarCollapsed }">
       <app-top-bar class="top-bar"></app-top-bar>
 
       <main class="main-content-wrapper">
-         <!-- <app-admin-main></app-admin-main> -->
-        <app-all-users></app-all-users>
-        <!-- <app-userdetails></app-userdetails> -->
+        <!-- Dynamically switch between dashboard and all users -->
+        <app-admin-main *ngIf="currentView === 'dashboard'"></app-admin-main>
+        <app-all-users *ngIf="currentView === 'all-users'"></app-all-users>
       </main>
     </div>
   </div>

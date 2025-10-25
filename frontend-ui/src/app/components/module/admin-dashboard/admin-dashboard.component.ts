@@ -10,18 +10,27 @@ import { AllUsersComponent } from '../../page/all-users/all-users.component';
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, SideBarComponent, TopBarComponent,AllUsersComponent],
+  imports: [CommonModule, RouterModule, SideBarComponent, TopBarComponent, AdminMainComponent, AllUsersComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
 })
 export class AdminDashboardComponent implements OnInit {
   isSidebarCollapsed = false;
 
+  // Track which component is currently displayed
+  currentView: 'dashboard' | 'all-users' = 'dashboard';
+
   constructor(private sidebarService: SidebarTopbarService) {}
 
   ngOnInit() {
+    // Maintain sidebar collapse state
     this.sidebarService.isCollapsed$.subscribe(state => {
       this.isSidebarCollapsed = state;
     });
+  }
+
+  // Method to switch views from sidebar
+  setView(view: 'dashboard' | 'all-users') {
+    this.currentView = view;
   }
 }

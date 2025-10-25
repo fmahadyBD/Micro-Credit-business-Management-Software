@@ -21,7 +21,7 @@
   <ul class="sidebar-menu">
     <!-- Dashboard -->
     <li class="menu-item">
-      <a href="#" class="menu-link" (click)="closeSidebar(); $event.preventDefault()">
+      <a href="#" class="menu-link" (click)="handleSubmenuClick($event, 'dashboard')">
         <span class="menu-icon"><i class="fas fa-home"></i></span>
         <span class="menu-text">Dashboard</span>
       </a>
@@ -29,7 +29,7 @@
 
     <!-- Users -->
     <li class="menu-item">
-      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 0)" [class.expanded]="activeSubmenu === 0">
+      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 0)">
         <span class="menu-icon"><i class="fas fa-users"></i></span>
         <span class="menu-text">Users</span>
         <span class="menu-arrow">
@@ -37,9 +37,13 @@
         </span>
       </a>
       <ul class="submenu" [class.show]="activeSubmenu === 0">
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">All Users</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Add New</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Roles</a></li>
+        <li>
+          <a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'all-users')">
+            All Users
+          </a>
+        </li>
+        <li><a href="#" class="submenu-link">Add New</a></li>
+        <li><a href="#" class="submenu-link">Roles</a></li>
       </ul>
     </li>
 
@@ -53,15 +57,15 @@
         </span>
       </a>
       <ul class="submenu" [class.show]="activeSubmenu === 1">
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Products</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Orders</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Customers</a></li>
+        <li><a href="#" class="submenu-link">Products</a></li>
+        <li><a href="#" class="submenu-link">Orders</a></li>
+        <li><a href="#" class="submenu-link">Customers</a></li>
       </ul>
     </li>
 
     <!-- Analytics -->
     <li class="menu-item">
-      <a href="#" class="menu-link" (click)="closeSidebar(); $event.preventDefault()">
+      <a href="#" class="menu-link">
         <span class="menu-icon"><i class="fas fa-chart-line"></i></span>
         <span class="menu-text">Analytics</span>
       </a>
@@ -69,7 +73,7 @@
 
     <!-- Messages -->
     <li class="menu-item">
-      <a href="#" class="menu-link" (click)="closeSidebar(); $event.preventDefault()">
+      <a href="#" class="menu-link">
         <span class="menu-icon"><i class="fas fa-envelope"></i></span>
         <span class="menu-text">Messages</span>
       </a>
@@ -85,10 +89,10 @@
         </span>
       </a>
       <ul class="submenu" [class.show]="activeSubmenu === 2">
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Payment Plans</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Active Installments</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Payment History</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Overdue Payments</a></li>
+        <li><a href="#" class="submenu-link">Payment Plans</a></li>
+        <li><a href="#" class="submenu-link">Active Installments</a></li>
+        <li><a href="#" class="submenu-link">Payment History</a></li>
+        <li><a href="#" class="submenu-link">Overdue Payments</a></li>
       </ul>
     </li>
 
@@ -102,10 +106,10 @@
         </span>
       </a>
       <ul class="submenu" [class.show]="activeSubmenu === 3">
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">All Shareholders</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Share Distribution</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Dividends</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Reports</a></li>
+        <li><a href="#" class="submenu-link">All Shareholders</a></li>
+        <li><a href="#" class="submenu-link">Share Distribution</a></li>
+        <li><a href="#" class="submenu-link">Dividends</a></li>
+        <li><a href="#" class="submenu-link">Reports</a></li>
       </ul>
     </li>
 
@@ -119,15 +123,15 @@
         </span>
       </a>
       <ul class="submenu" [class.show]="activeSubmenu === 4">
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">General</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Security</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event)">Notifications</a></li>
+        <li><a href="#" class="submenu-link">General</a></li>
+        <li><a href="#" class="submenu-link">Security</a></li>
+        <li><a href="#" class="submenu-link">Notifications</a></li>
       </ul>
     </li>
 
     <!-- Help & Support -->
     <li class="menu-item">
-      <a href="#" class="menu-link" (click)="closeSidebar(); $event.preventDefault()">
+      <a href="#" class="menu-link">
         <span class="menu-icon"><i class="fas fa-question-circle"></i></span>
         <span class="menu-text">Help & Support</span>
       </a>
