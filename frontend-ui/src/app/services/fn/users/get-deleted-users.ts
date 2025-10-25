@@ -8,18 +8,14 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { DeletedUser } from '../../models/deleted-user';
 
-export interface DeleteUser$Params {
-  id: number;
+export interface GetDeletedUsers$Params {
 }
 
-export function deleteUser(http: HttpClient, rootUrl: string, params: DeleteUser$Params, context?: HttpContext): Observable<StrictHttpResponse<{
-[key: string]: {
-};
-}>> {
-  const rb = new RequestBuilder(rootUrl, deleteUser.PATH, 'delete');
+export function getDeletedUsers(http: HttpClient, rootUrl: string, params?: GetDeletedUsers$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<DeletedUser>>> {
+  const rb = new RequestBuilder(rootUrl, getDeletedUsers.PATH, 'get');
   if (params) {
-    rb.path('id', params.id, {});
   }
 
   return http.request(
@@ -27,12 +23,9 @@ export function deleteUser(http: HttpClient, rootUrl: string, params: DeleteUser
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<{
-      [key: string]: {
-      };
-      }>;
+      return r as StrictHttpResponse<Array<DeletedUser>>;
     })
   );
 }
 
-deleteUser.PATH = '/api/users/{id}';
+getDeletedUsers.PATH = '/api/users/deleted';

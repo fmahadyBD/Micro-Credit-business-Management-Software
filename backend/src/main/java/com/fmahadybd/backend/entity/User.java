@@ -16,28 +16,28 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // User ID
+    private Long id;
 
     @NotBlank(message = "Username is required")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     @Column(nullable = false, unique = true, length = 50)
-    private String username; // Login username
+    private String username;
 
     @NotBlank(message = "Password is required")
     @Size(min = 6, message = "Password must be at least 6 characters long")
     @Column(nullable = false)
-    private String password; // Encrypted password
+    private String password;
 
     @NotNull(message = "Role is required")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private Role role; // ADMIN / AGENT / SHAREHOLDER
+    private Role role;
 
     @PositiveOrZero(message = "Reference ID must be zero or positive")
-    private Long referenceId; // Links to Agent, Shareholder, etc.
-    
-    @NotBlank(message = "Status is required")
-    @Pattern(regexp = "Active|Inactive", message = "Status must be either 'Active' or 'Inactive'")
-    @Column(nullable = false, length = 10)
-    private String status; // Active / Inactive
+    private Long referenceId;
+
+    @NotNull(message = "Status is required")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 25)
+    private UserStatus status;
 }

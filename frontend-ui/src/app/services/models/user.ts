@@ -4,9 +4,9 @@
 
 export interface User {
   id?: number;
-  password?: string;
+  password: string;
   referenceId?: number;
-  role?: 'ADMIN' | 'AGENT' | 'SHAREHOLDER';
-  status?: string;
-  username?: string;
+  role: 'ADMIN' | 'AGENT' | 'SHAREHOLDER';
+  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'PENDING_VERIFICATION';
+  username: string;
 }

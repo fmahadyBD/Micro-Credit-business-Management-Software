@@ -36,15 +36,14 @@
           <i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === 0"></i>
         </span>
       </a>
+      <!-- Users Submenu -->
       <ul class="submenu" [class.show]="activeSubmenu === 0">
-        <li>
-          <a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'all-users')">
-            All Users
-          </a>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'all-users')">All Users</a></li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'add-user')">Add New</a></li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'deleted-users')">Deleted Users</a>
         </li>
-        <li><a href="#" class="submenu-link">Add New</a></li>
-        <li><a href="#" class="submenu-link">Roles</a></li>
       </ul>
+
     </li>
 
     <!-- E-Commerce -->

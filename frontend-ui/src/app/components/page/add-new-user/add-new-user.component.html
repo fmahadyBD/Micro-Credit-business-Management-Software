@@ -1,0 +1,84 @@
+<main class="main-content" [class.collapsed]="isSidebarCollapsed">
+  <div class="container-fluid">
+    <div class="card mt-4 shadow-sm border-0">
+      <div class="card-header">
+        <h5 class="mb-0">Add New User</h5>
+      </div>
+      <div class="card-body">
+        <!-- Message Alert -->
+        <div *ngIf="message" class="mb-3">
+          <div [ngClass]="{
+              'alert alert-success': message.type === 'success',
+              'alert alert-danger': message.type === 'error'
+            }" role="alert">
+            {{ message.text }}
+          </div>
+        </div>
+
+        <!-- User Form -->
+        <form (ngSubmit)="submitUser()" class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Username</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              [(ngModel)]="user.username" 
+              name="username" 
+              required 
+              placeholder="Enter username"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Password</label>
+            <input 
+              type="password" 
+              class="form-control" 
+              [(ngModel)]="user.password" 
+              name="password" 
+              required 
+              placeholder="Enter password"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Role</label>
+            <select class="form-select" [(ngModel)]="user.role" name="role" required>
+              <option *ngFor="let role of roles" [ngValue]="role">
+                {{ role }}
+              </option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Status</label>
+            <select class="form-select" [(ngModel)]="user.status" name="status" required>
+              <option *ngFor="let status of statuses" [ngValue]="status">
+                {{ status }}
+              </option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Reference ID (Optional)</label>
+            <input 
+              type="number" 
+              class="form-control" 
+              [(ngModel)]="user.referenceId" 
+              name="referenceId" 
+              min="0"
+              placeholder="Enter reference ID (default: 0)"
+            />
+          </div>
+
+          <div class="col-12">
+            <button class="btn btn-primary" type="submit" [disabled]="submitting">
+              <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              {{ submitting ? "Saving..." : "Create User" }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>

@@ -15,7 +15,8 @@ export interface UpdateUser$Params {
       body: User
 }
 
-export function updateUser(http: HttpClient, rootUrl: string, params: UpdateUser$Params, context?: HttpContext): Observable<StrictHttpResponse<User>> {
+export function updateUser(http: HttpClient, rootUrl: string, params: UpdateUser$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
   const rb = new RequestBuilder(rootUrl, updateUser.PATH, 'put');
   if (params) {
     rb.path('id', params.id, {});
@@ -27,7 +28,8 @@ export function updateUser(http: HttpClient, rootUrl: string, params: UpdateUser
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<User>;
+      return r as StrictHttpResponse<{
+      }>;
     })
   );
 }

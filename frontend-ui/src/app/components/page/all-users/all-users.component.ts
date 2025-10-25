@@ -11,7 +11,6 @@ interface Message {
 }
 declare var bootstrap: any;
 
-
 @Component({
   selector: 'app-all-users',
   standalone: true,
@@ -22,12 +21,12 @@ declare var bootstrap: any;
 export class AllUsersComponent implements OnInit {
 
   users: User[] = [];
-  loading: boolean = false;
+  loading = false;
   message: Message | null = null;
   isSidebarCollapsed = false;
 
   selectedUser: User | null = null;
-  newStatus: string = '';
+  newStatus: User['status'] = 'ACTIVE';
 
   constructor(private userService: UsersService, private sidebarService: SidebarTopbarService) { }
 
@@ -67,27 +66,59 @@ export class AllUsersComponent implements OnInit {
 
   deleteUser(user: User): void {
     if (!user.id) {
-      this.message = { type: 'error', text: `Cannot delete ${user.username}: ID missing.` };
+      this.message = { type: 'error', text: 'Invalid user ID.' };
       return;
     }
-    if (!confirm(`Are you sure you want to delete ${user.username}?`)) return;
 
-    this.userService.deleteUser({ id: user.id }).subscribe({
-      next: () => {
-        this.users = this.users.filter(u => u.id !== user.id);
-        this.message = { type: 'success', text: `Deleted user ${user.username}.` };
+    if (!confirm(`Are you sure you want to delete ${user.username}?`)) {
+      return;
+    }
+
+    const userId = user.id;
+    const username = user.username;
+
+    this.userService.deleteUser({ id: userId }).subscribe({
+      next: (response) => {
+        console.log('Delete response:', response);
+        
+        // Remove user from the list immediately (optimistic update)
+        this.users = this.users.filter(u => u.id !== userId);
+        
+        this.message = { 
+          type: 'success', 
+          text: `User "${username}" deleted successfully.` 
+        };
+
+        // Auto-hide success message after 3 seconds
+        setTimeout(() => {
+          this.message = null;
+        }, 3000);
       },
       error: (err) => {
         console.error('Delete user error:', err);
-        this.message = { type: 'error', text: `Failed to delete ${user.username}.` };
+        console.error('Error details:', err.error);
+        
+        // Still remove from list if backend says 404 (already deleted)
+        if (err.status === 404) {
+          this.users = this.users.filter(u => u.id !== userId);
+          this.message = { 
+            type: 'success', 
+            text: `User "${username}" deleted successfully.` 
+          };
+        } else {
+          this.message = { 
+            type: 'error', 
+            text: `Failed to delete "${username}". ${err.error?.message || err.message || ''}` 
+          };
+        }
       }
     });
   }
 
-  /** Open confirmation modal to change status */
   confirmStatusChange(user: User) {
     this.selectedUser = user;
-    this.newStatus = user.status === 'Active' ? 'Inactive' : 'Active';
+    this.newStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+
     const modalElement = document.getElementById('statusModal');
     if (modalElement) {
       const modal = new bootstrap.Modal(modalElement);
@@ -95,32 +126,70 @@ export class AllUsersComponent implements OnInit {
     }
   }
 
-  /** Update status after confirmation */
   updateStatus() {
-    if (!this.selectedUser || this.selectedUser.id === undefined) return;
+    if (!this.selectedUser || this.selectedUser.id === undefined) {
+      this.message = { type: 'error', text: 'Invalid user selected.' };
+      return;
+    }
+
+    const updatedUser: User = {
+      ...this.selectedUser,
+      status: this.newStatus
+    };
 
     const userId = this.selectedUser.id;
+    const username = this.selectedUser.username;
 
-    this.userService.updateUser({
-      id: userId,
-      body: { ...this.selectedUser, status: this.newStatus }
-    }).subscribe({
-      next: (updated) => {
-        if (this.selectedUser) this.selectedUser.status = updated.status;
-        this.message = { type: 'success', text: `User ${this.selectedUser?.username} status updated.` };
-        this.selectedUser = null;
+    this.userService.updateUser({ id: userId, body: updatedUser }).subscribe({
+      next: (response) => {
+        console.log('Update response:', response);
+        
+        // Update user in the list
+        const index = this.users.findIndex(u => u.id === userId);
+        if (index !== -1) {
+          this.users[index].status = this.newStatus;
+        }
+
+        this.message = { 
+          type: 'success', 
+          text: `Status of "${username}" updated to ${this.displayStatus(this.newStatus)}.` 
+        };
+        
+        this.closeModal();
+
+        // Auto-hide success message after 3 seconds
+        setTimeout(() => {
+          this.message = null;
+        }, 3000);
       },
       error: (err) => {
-        console.error('Toggle status error:', err);
-        this.message = { type: 'error', text: `Failed to update status.` };
-        this.selectedUser = null;
+        console.error('Update status error:', err);
+        console.error('Error details:', err.error);
+        
+        this.message = { 
+          type: 'error', 
+          text: `Failed to update status for "${username}". ${err.error?.message || ''}` 
+        };
+        
+        this.closeModal();
       }
     });
+  }
 
+  closeModal() {
+    this.selectedUser = null;
+    this.newStatus = 'ACTIVE';
     const modalElement = document.getElementById('statusModal');
-    if (modalElement) {
-      const modal = bootstrap.Modal.getInstance(modalElement);
-      modal?.hide();
+    const modal = bootstrap.Modal.getInstance(modalElement!);
+    modal?.hide();
+  }
+
+  displayStatus(status: User['status']): string {
+    switch (status) {
+      case 'ACTIVE': return 'Active';
+      case 'INACTIVE': return 'Inactive';
+      case 'SUSPENDED': return 'Suspended';
+      case 'PENDING_VERIFICATION': return 'Pending Verification';
     }
   }
 }

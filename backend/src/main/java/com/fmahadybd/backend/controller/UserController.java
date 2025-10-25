@@ -11,7 +11,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -27,7 +29,10 @@ public class UserController {
     public ResponseEntity<?> createUser(@Valid @RequestBody User user, BindingResult result) {
         if (result.hasErrors()) {
             String errorMessage = result.getAllErrors().get(0).getDefaultMessage();
-            return ResponseEntity.badRequest().body(errorMessage);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", errorMessage);
+            return ResponseEntity.badRequest().body(errorResponse);
         }
         User savedUser = userService.saveUser(user);
         return ResponseEntity.ok(savedUser);
@@ -49,7 +54,10 @@ public class UserController {
                     .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
             return ResponseEntity.ok(user);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(404).body(errorResponse);
         }
     }
 
@@ -60,7 +68,10 @@ public class UserController {
             BindingResult result) {
         if (result.hasErrors()) {
             String errorMessage = result.getAllErrors().get(0).getDefaultMessage();
-            return ResponseEntity.badRequest().body(errorMessage);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", errorMessage);
+            return ResponseEntity.badRequest().body(errorResponse);
         }
 
         try {
@@ -76,19 +87,28 @@ public class UserController {
             User savedUser = userService.saveUser(existingUser);
             return ResponseEntity.ok(savedUser);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(404).body(errorResponse);
         }
     }
 
     /** Delete user by ID safely using orElseThrow */
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete user by ID (moves to deleted_users table)")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
         try {
             userService.deleteUser(id);
-            return ResponseEntity.ok("User deleted and stored in DeletedUser table successfully");
+            response.put("success", true);
+            response.put("message", "User deleted and stored in DeletedUser table successfully");
+            response.put("id", id);
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(404).body(response);
         }
     }
 

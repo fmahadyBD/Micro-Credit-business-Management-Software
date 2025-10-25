@@ -55,7 +55,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/User"
+                                    "type": "object"
                                 }
                             }
                         }
@@ -95,7 +95,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/User"
+                                    "type": "object"
                                 }
                             }
                         }
@@ -106,7 +106,7 @@
                 "tags": [
                     "users"
                 ],
-                "summary": "Delete user by ID",
+                "summary": "Delete user by ID (moves to deleted_users table)",
                 "operationId": "deleteUser",
                 "parameters": [
                     {
@@ -121,7 +121,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -251,7 +261,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/User"
+                                    "type": "object"
                                 }
                             }
                         }
@@ -537,6 +547,30 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/Agent"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/deleted": {
+            "get": {
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get all deleted users (deletion history)",
+                "operationId": "getDeletedUsers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DeletedUser"
+                                    }
                                 }
                             }
                         }
@@ -931,6 +965,12 @@
     "components": {
         "schemas": {
             "User": {
+                "required": [
+                    "password",
+                    "role",
+                    "status",
+                    "username"
+                ],
                 "type": "object",
                 "properties": {
                     "id": {
@@ -938,9 +978,13 @@
                         "format": "int64"
                     },
                     "username": {
+                        "maxLength": 50,
+                        "minLength": 3,
                         "type": "string"
                     },
                     "password": {
+                        "maxLength": 2147483647,
+                        "minLength": 6,
                         "type": "string"
                     },
                     "role": {
@@ -956,7 +1000,13 @@
                         "format": "int64"
                     },
                     "status": {
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "ACTIVE",
+                            "INACTIVE",
+                            "SUSPENDED",
+                            "PENDING_VERIFICATION"
+                        ]
                     }
                 }
             },
@@ -1223,6 +1273,39 @@
                     },
                     "approvedBy": {
                         "type": "string"
+                    }
+                }
+            },
+            "DeletedUser": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "originalUserId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "referenceId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "deletedAt": {
+                        "type": "string",
+                        "format": "date-time"
                     }
                 }
             }

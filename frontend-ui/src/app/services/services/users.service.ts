@@ -13,10 +13,13 @@ import { StrictHttpResponse } from '../strict-http-response';
 
 import { createUser } from '../fn/users/create-user';
 import { CreateUser$Params } from '../fn/users/create-user';
+import { DeletedUser } from '../models/deleted-user';
 import { deleteUser } from '../fn/users/delete-user';
 import { DeleteUser$Params } from '../fn/users/delete-user';
 import { getAllUsers } from '../fn/users/get-all-users';
 import { GetAllUsers$Params } from '../fn/users/get-all-users';
+import { getDeletedUsers } from '../fn/users/get-deleted-users';
+import { GetDeletedUsers$Params } from '../fn/users/get-deleted-users';
 import { getUserById } from '../fn/users/get-user-by-id';
 import { GetUserById$Params } from '../fn/users/get-user-by-id';
 import { updateUser } from '../fn/users/update-user';
@@ -42,7 +45,8 @@ export class UsersService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  getUserById$Response(params: GetUserById$Params, context?: HttpContext): Observable<StrictHttpResponse<User>> {
+  getUserById$Response(params: GetUserById$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
     return getUserById(this.http, this.rootUrl, params, context);
   }
 
@@ -56,9 +60,12 @@ export class UsersService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  getUserById(params: GetUserById$Params, context?: HttpContext): Observable<User> {
+  getUserById(params: GetUserById$Params, context?: HttpContext): Observable<{
+}> {
     return this.getUserById$Response(params, context).pipe(
-      map((r: StrictHttpResponse<User>): User => r.body)
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
     );
   }
 
@@ -75,7 +82,8 @@ export class UsersService extends BaseService {
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  updateUser$Response(params: UpdateUser$Params, context?: HttpContext): Observable<StrictHttpResponse<User>> {
+  updateUser$Response(params: UpdateUser$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
     return updateUser(this.http, this.rootUrl, params, context);
   }
 
@@ -89,9 +97,12 @@ export class UsersService extends BaseService {
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  updateUser(params: UpdateUser$Params, context?: HttpContext): Observable<User> {
+  updateUser(params: UpdateUser$Params, context?: HttpContext): Observable<{
+}> {
     return this.updateUser$Response(params, context).pipe(
-      map((r: StrictHttpResponse<User>): User => r.body)
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
     );
   }
 
@@ -99,7 +110,7 @@ export class UsersService extends BaseService {
   static readonly DeleteUserPath = '/api/users/{id}';
 
   /**
-   * Delete user by ID.
+   * Delete user by ID (moves to deleted_users table).
    *
    *
    *
@@ -108,12 +119,15 @@ export class UsersService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  deleteUser$Response(params: DeleteUser$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+  deleteUser$Response(params: DeleteUser$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+[key: string]: {
+};
+}>> {
     return deleteUser(this.http, this.rootUrl, params, context);
   }
 
   /**
-   * Delete user by ID.
+   * Delete user by ID (moves to deleted_users table).
    *
    *
    *
@@ -122,9 +136,18 @@ export class UsersService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  deleteUser(params: DeleteUser$Params, context?: HttpContext): Observable<void> {
+  deleteUser(params: DeleteUser$Params, context?: HttpContext): Observable<{
+[key: string]: {
+};
+}> {
     return this.deleteUser$Response(params, context).pipe(
-      map((r: StrictHttpResponse<void>): void => r.body)
+      map((r: StrictHttpResponse<{
+[key: string]: {
+};
+}>): {
+[key: string]: {
+};
+} => r.body)
     );
   }
 
@@ -174,7 +197,8 @@ export class UsersService extends BaseService {
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  createUser$Response(params: CreateUser$Params, context?: HttpContext): Observable<StrictHttpResponse<User>> {
+  createUser$Response(params: CreateUser$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
     return createUser(this.http, this.rootUrl, params, context);
   }
 
@@ -188,9 +212,45 @@ export class UsersService extends BaseService {
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  createUser(params: CreateUser$Params, context?: HttpContext): Observable<User> {
+  createUser(params: CreateUser$Params, context?: HttpContext): Observable<{
+}> {
     return this.createUser$Response(params, context).pipe(
-      map((r: StrictHttpResponse<User>): User => r.body)
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
+    );
+  }
+
+  /** Path part for operation `getDeletedUsers()` */
+  static readonly GetDeletedUsersPath = '/api/users/deleted';
+
+  /**
+   * Get all deleted users (deletion history).
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getDeletedUsers()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getDeletedUsers$Response(params?: GetDeletedUsers$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<DeletedUser>>> {
+    return getDeletedUsers(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * Get all deleted users (deletion history).
+   *
+   *
+   *
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getDeletedUsers$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getDeletedUsers(params?: GetDeletedUsers$Params, context?: HttpContext): Observable<Array<DeletedUser>> {
+    return this.getDeletedUsers$Response(params, context).pipe(
+      map((r: StrictHttpResponse<Array<DeletedUser>>): Array<DeletedUser> => r.body)
     );
   }
 

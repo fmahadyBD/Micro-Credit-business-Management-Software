@@ -26,10 +26,15 @@ public class UserService {
         return userRepository.save(user);
     }
 
+
     /** Get all users */
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
+     public List<DeletedUser> getAllDeletedUsers() {
+        return deletedUserRepository.findAll();
+    }
+
 
     /** Get user by ID */
     public Optional<User> getUserById(Long id) {
@@ -58,7 +63,7 @@ public class UserService {
                 .password(user.getPassword())
                 .role(user.getRole() != null ? user.getRole().name() : null)
                 .referenceId(user.getReferenceId())
-                .status(user.getStatus())
+                .status(user.getStatus().name())
                 .deletedAt(LocalDateTime.now())
                 .build();
 
@@ -68,9 +73,5 @@ public class UserService {
         // Delete from users table
         userRepository.deleteById(id);
     }
-
-    public List<DeletedUser> getAllDeletedUsers() {
-        return deletedUserRepository.findAll();
-    }
-
+    
 }

@@ -1,18 +1,22 @@
-import { Component, EventEmitter, Output, OnInit, OnDestroy, HostListener, Input } from '@angular/core';
+// side-bar.component.ts
+import { Component, EventEmitter, Output, Input, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-side-bar',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './side-bar.component.html',
   styleUrls: ['./side-bar.component.css']
 })
 export class SideBarComponent implements OnInit, OnDestroy {
   @Input() collapsed = false;
+  @Output() submenuSelected = new EventEmitter<'dashboard' | 'all-users' | 'add-user' | 'deleted-users'>();
+
   sidebarOpen = false;
   activeSubmenu: number | null = null;
-
-  @Output() submenuSelected = new EventEmitter<'dashboard' | 'all-users'>();
 
   private mobileSubscription?: Subscription;
   private collapseSubscription?: Subscription;
@@ -45,7 +49,7 @@ export class SideBarComponent implements OnInit, OnDestroy {
     this.activeSubmenu = this.activeSubmenu === index ? null : index;
   }
 
-  handleSubmenuClick(event: Event, view?: 'dashboard' | 'all-users') {
+  handleSubmenuClick(event: Event, view?: 'dashboard' | 'all-users' | 'add-user' | 'deleted-users') {
     event.preventDefault();
     event.stopPropagation();
     if (view) this.submenuSelected.emit(view);

@@ -14,7 +14,8 @@ export interface CreateUser$Params {
       body: User
 }
 
-export function createUser(http: HttpClient, rootUrl: string, params: CreateUser$Params, context?: HttpContext): Observable<StrictHttpResponse<User>> {
+export function createUser(http: HttpClient, rootUrl: string, params: CreateUser$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
   const rb = new RequestBuilder(rootUrl, createUser.PATH, 'post');
   if (params) {
     rb.body(params.body, 'application/json');
@@ -25,7 +26,8 @@ export function createUser(http: HttpClient, rootUrl: string, params: CreateUser
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<User>;
+      return r as StrictHttpResponse<{
+      }>;
     })
   );
 }
