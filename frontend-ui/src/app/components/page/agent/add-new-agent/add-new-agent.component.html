@@ -1,0 +1,72 @@
+<main class="main-content" [class.collapsed]="isSidebarCollapsed">
+  <div class="container-fluid">
+    <div class="card mt-4 shadow-sm border-0">
+      <div class="card-header">
+        <h5 class="mb-0">Add New Agent</h5>
+      </div>
+      <div class="card-body">
+        <!-- Alert Message -->
+        <div *ngIf="message" class="mb-3">
+          <div [ngClass]="{
+              'alert alert-success': message.type === 'success',
+              'alert alert-danger': message.type === 'error'
+            }">
+            {{ message.text }}
+          </div>
+        </div>
+
+        <!-- Form -->
+        <form (ngSubmit)="submitAgent()" class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-control" [(ngModel)]="agent.name" name="name" required />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Phone</label>
+            <input type="text" class="form-control" [(ngModel)]="agent.phone" name="phone" required />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" [(ngModel)]="agent.email" name="email" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Zila</label>
+            <input type="text" class="form-control" [(ngModel)]="agent.zila" name="zila" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Village</label>
+            <input type="text" class="form-control" [(ngModel)]="agent.village" name="village" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">NID Card</label>
+            <input type="text" class="form-control" [(ngModel)]="agent.nidCard" name="nidCard" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Nominee</label>
+            <input type="text" class="form-control" [(ngModel)]="agent.nominee" name="nominee" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Status</label>
+            <select class="form-select" [(ngModel)]="agent.status" name="status" required>
+              <option *ngFor="let status of statuses" [ngValue]="status">{{ status }}</option>
+            </select>
+          </div>
+
+          <div class="col-12">
+            <button class="btn btn-primary" type="submit" [disabled]="submitting">
+              <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+              {{ submitting ? "Saving..." : "Create Agent" }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>

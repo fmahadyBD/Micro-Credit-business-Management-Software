@@ -7,11 +7,11 @@ import { HttpClient } from '@angular/common/http';
 import { ApiConfiguration, ApiConfigurationParams } from './api-configuration';
 
 import { UsersService } from './services/users.service';
-import { AgentControllerService } from './services/agent-controller.service';
+import { MembersService } from './services/members.service';
+import { AgentsService } from './services/agents.service';
 import { ShareholderControllerService } from './services/shareholder-controller.service';
 import { RequestProductControllerService } from './services/request-product-controller.service';
 import { ProductControllerService } from './services/product-controller.service';
-import { MemberControllerService } from './services/member-controller.service';
 import { InstallmentControllerService } from './services/installment-controller.service';
 
 /**
@@ -23,11 +23,11 @@ import { InstallmentControllerService } from './services/installment-controller.
   declarations: [],
   providers: [
     UsersService,
-    AgentControllerService,
+    MembersService,
+    AgentsService,
     ShareholderControllerService,
     RequestProductControllerService,
     ProductControllerService,
-    MemberControllerService,
     InstallmentControllerService,
     ApiConfiguration
   ],

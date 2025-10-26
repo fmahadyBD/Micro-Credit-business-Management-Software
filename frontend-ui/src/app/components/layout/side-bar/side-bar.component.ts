@@ -1,4 +1,3 @@
-// side-bar.component.ts
 import { Component, EventEmitter, Output, Input, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
@@ -13,7 +12,13 @@ import { CommonModule } from '@angular/common';
 })
 export class SideBarComponent implements OnInit, OnDestroy {
   @Input() collapsed = false;
-  @Output() submenuSelected = new EventEmitter<'dashboard' | 'all-users' | 'add-user' | 'deleted-users'>();
+
+  @Output() submenuSelected = new EventEmitter<
+    | 'dashboard'
+    | 'all-users' | 'add-user' | 'deleted-users'
+    | 'all-members' | 'add-member'
+    | 'all-agents' | 'add-agent'
+  >();
 
   sidebarOpen = false;
   activeSubmenu: number | null = null;
@@ -26,8 +31,7 @@ export class SideBarComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.mobileSubscription = this.sidebarService.isMobileOpen$.subscribe(state => {
       this.sidebarOpen = state;
-      if (state) document.body.classList.add('sidebar-open');
-      else document.body.classList.remove('sidebar-open');
+      document.body.classList.toggle('sidebar-open', state);
     });
 
     this.collapseSubscription = this.sidebarService.isCollapsed$.subscribe(collapsed => {
@@ -40,8 +44,13 @@ export class SideBarComponent implements OnInit, OnDestroy {
     this.collapseSubscription?.unsubscribe();
   }
 
-  toggleSidebar() { this.sidebarService.toggleMobileSidebar(); }
-  closeSidebar() { this.sidebarService.closeMobileSidebar(); }
+  toggleSidebar() {
+    this.sidebarService.toggleMobileSidebar();
+  }
+
+  closeSidebar() {
+    this.sidebarService.closeMobileSidebar();
+  }
 
   toggleSubmenu(event: Event, index: number) {
     event.preventDefault();
@@ -49,9 +58,17 @@ export class SideBarComponent implements OnInit, OnDestroy {
     this.activeSubmenu = this.activeSubmenu === index ? null : index;
   }
 
-  handleSubmenuClick(event: Event, view?: 'dashboard' | 'all-users' | 'add-user' | 'deleted-users') {
+  handleSubmenuClick(
+    event: Event,
+    view?:
+      | 'dashboard'
+      | 'all-users' | 'add-user' | 'deleted-users'
+      | 'all-members' | 'add-member'
+      | 'all-agents' | 'add-agent'
+  ) {
     event.preventDefault();
     event.stopPropagation();
+
     if (view) this.submenuSelected.emit(view);
     if (window.innerWidth < 768) this.closeSidebar();
   }

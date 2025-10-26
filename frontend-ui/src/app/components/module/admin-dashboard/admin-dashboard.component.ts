@@ -1,4 +1,3 @@
-// admin-dashboard.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -9,7 +8,13 @@ import { AdminMainComponent } from '../admin-main/admin-main.component';
 import { AllUsersComponent } from '../../page/all-users/all-users.component';
 import { AddNewUserComponent } from '../../page/add-new-user/add-new-user.component';
 import { DeletedUsersComponent } from '../../page/deleted-users/deleted-users.component';
+
+
 import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
+import { AllMembersComponent } from '../../page/members/all-members/all-members.component';
+import { AllAgentsComponent } from '../../page/agent/all-agents/all-agents.component';
+import { AddNewMemberComponent } from '../../page/members/add-new-member/add-new-member.component';
+import { AddNewAgentComponent } from '../../page/agent/add-new-agent/add-new-agent.component';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -22,14 +27,24 @@ import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
     AdminMainComponent,
     AllUsersComponent,
     AddNewUserComponent,
-    DeletedUsersComponent
+    DeletedUsersComponent,
+    AllMembersComponent,
+    AddNewMemberComponent,
+    AllAgentsComponent,
+    AddNewAgentComponent
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
 })
 export class AdminDashboardComponent implements OnInit {
   isSidebarCollapsed = false;
-  currentView: 'dashboard' | 'all-users' | 'add-user' | 'deleted-users' = 'dashboard';
+
+  currentView:
+    | 'dashboard'
+    | 'all-users' | 'add-user' | 'deleted-users'
+    | 'all-members' | 'add-member'
+    | 'all-agents' | 'add-agent'
+    = 'dashboard';
 
   constructor(private sidebarService: SidebarTopbarService) {}
 
@@ -39,7 +54,11 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  setView(view: 'dashboard' | 'all-users' | 'add-user' | 'deleted-users') {
+  setView(view:
+    | 'dashboard'
+    | 'all-users' | 'add-user' | 'deleted-users'
+    | 'all-members' | 'add-member'
+    | 'all-agents' | 'add-agent') {
     this.currentView = view;
   }
 }

@@ -39,6 +39,7 @@ public class MemberService {
     }
 
     /** Update existing member */
+    /** Update existing member */
     public Member updateMember(Long id, Member updatedMember) {
         return memberRepository.findById(id).map(member -> {
             member.setName(updatedMember.getName());
@@ -49,6 +50,12 @@ public class MemberService {
             member.setPhoto(updatedMember.getPhoto());
             member.setNominee(updatedMember.getNominee());
             member.setAgents(updatedMember.getAgents());
+
+            // ✅ Handle status update
+            if (updatedMember.getStatus() != null) {
+                member.setStatus(updatedMember.getStatus());
+            }
+
             return memberRepository.save(member);
         }).orElseThrow(() -> new RuntimeException("Member not found with ID: " + id));
     }

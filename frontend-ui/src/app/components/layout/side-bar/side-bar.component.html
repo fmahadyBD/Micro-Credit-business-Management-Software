@@ -32,62 +32,49 @@
       <a href="#" class="menu-link" (click)="toggleSubmenu($event, 0)">
         <span class="menu-icon"><i class="fas fa-users"></i></span>
         <span class="menu-text">Users</span>
-        <span class="menu-arrow">
-          <i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === 0"></i>
-        </span>
+        <span class="menu-arrow"><i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === 0"></i></span>
       </a>
-      <!-- Users Submenu -->
       <ul class="submenu" [class.show]="activeSubmenu === 0">
         <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'all-users')">All Users</a></li>
         <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'add-user')">Add New</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'deleted-users')">Deleted Users</a>
-        </li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'deleted-users')">Deleted Users</a></li>
       </ul>
-
     </li>
 
-    <!-- E-Commerce -->
+    <!-- ✅ Members -->
     <li class="menu-item">
-      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 1)" [class.expanded]="activeSubmenu === 1">
-        <span class="menu-icon"><i class="fas fa-shopping-cart"></i></span>
-        <span class="menu-text">E-Commerce</span>
-        <span class="menu-arrow">
-          <i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === 1"></i>
-        </span>
+      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 1)">
+        <span class="menu-icon"><i class="fas fa-id-badge"></i></span>
+        <span class="menu-text">Members</span>
+        <span class="menu-arrow"><i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === 1"></i></span>
       </a>
       <ul class="submenu" [class.show]="activeSubmenu === 1">
-        <li><a href="#" class="submenu-link">Products</a></li>
-        <li><a href="#" class="submenu-link">Orders</a></li>
-        <li><a href="#" class="submenu-link">Customers</a></li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'all-members')">All Members</a></li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'add-member')">Add Member</a></li>
       </ul>
     </li>
 
-    <!-- Analytics -->
+    <!-- ✅ Agents -->
     <li class="menu-item">
-      <a href="#" class="menu-link">
-        <span class="menu-icon"><i class="fas fa-chart-line"></i></span>
-        <span class="menu-text">Analytics</span>
+      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 2)">
+        <span class="menu-icon"><i class="fas fa-user-secret"></i></span>
+        <span class="menu-text">Agents</span>
+        <span class="menu-arrow"><i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === 2"></i></span>
       </a>
-    </li>
-
-    <!-- Messages -->
-    <li class="menu-item">
-      <a href="#" class="menu-link">
-        <span class="menu-icon"><i class="fas fa-envelope"></i></span>
-        <span class="menu-text">Messages</span>
-      </a>
+      <ul class="submenu" [class.show]="activeSubmenu === 2">
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'all-agents')">All Agents</a></li>
+        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'add-agent')">Add Agent</a></li>
+      </ul>
     </li>
 
     <!-- Installment -->
     <li class="menu-item">
-      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 2)" [class.expanded]="activeSubmenu === 2">
+      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 3)">
         <span class="menu-icon"><i class="fas fa-credit-card"></i></span>
         <span class="menu-text">Installment</span>
-        <span class="menu-arrow">
-          <i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === 2"></i>
-        </span>
+        <span class="menu-arrow"><i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === 3"></i></span>
       </a>
-      <ul class="submenu" [class.show]="activeSubmenu === 2">
+      <ul class="submenu" [class.show]="activeSubmenu === 3">
         <li><a href="#" class="submenu-link">Payment Plans</a></li>
         <li><a href="#" class="submenu-link">Active Installments</a></li>
         <li><a href="#" class="submenu-link">Payment History</a></li>
@@ -97,14 +84,12 @@
 
     <!-- Shareholders -->
     <li class="menu-item">
-      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 3)" [class.expanded]="activeSubmenu === 3">
+      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 4)">
         <span class="menu-icon"><i class="fas fa-user-tie"></i></span>
         <span class="menu-text">Shareholders</span>
-        <span class="menu-arrow">
-          <i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === 3"></i>
-        </span>
+        <span class="menu-arrow"><i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === 4"></i></span>
       </a>
-      <ul class="submenu" [class.show]="activeSubmenu === 3">
+      <ul class="submenu" [class.show]="activeSubmenu === 4">
         <li><a href="#" class="submenu-link">All Shareholders</a></li>
         <li><a href="#" class="submenu-link">Share Distribution</a></li>
         <li><a href="#" class="submenu-link">Dividends</a></li>
@@ -114,14 +99,12 @@
 
     <!-- Settings -->
     <li class="menu-item">
-      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 4)" [class.expanded]="activeSubmenu === 4">
+      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 5)">
         <span class="menu-icon"><i class="fas fa-cog"></i></span>
         <span class="menu-text">Settings</span>
-        <span class="menu-arrow">
-          <i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === 4"></i>
-        </span>
+        <span class="menu-arrow"><i class="fas fa-chevron-right" [class.rotated]="activeSubmenu === 5"></i></span>
       </a>
-      <ul class="submenu" [class.show]="activeSubmenu === 4">
+      <ul class="submenu" [class.show]="activeSubmenu === 5">
         <li><a href="#" class="submenu-link">General</a></li>
         <li><a href="#" class="submenu-link">Security</a></li>
         <li><a href="#" class="submenu-link">Notifications</a></li>

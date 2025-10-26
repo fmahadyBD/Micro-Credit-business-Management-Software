@@ -48,6 +48,11 @@ public class Member {
 
     private LocalDate joinDate;
 
+    // ✅ New field for status
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MemberStatus status = MemberStatus.ACTIVE;
+
     @ManyToMany
     @JoinTable(
         name = "member_agents",

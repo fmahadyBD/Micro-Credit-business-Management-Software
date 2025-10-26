@@ -1,0 +1,61 @@
+/* Card styling */
+.card {
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* optional shadow */
+}
+
+/* Card header */
+.card-header h5 {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Table adjustments */
+.table td, .table th {
+  vertical-align: middle;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Standard small buttons */
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Action buttons container */
+.table td .d-flex {
+  gap: 0.4rem; /* spacing between buttons */
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  /* Action buttons smaller on mobile */
+  .table td .btn, 
+  .btn-mobile {
+    padding: 0.2rem 0.35rem;
+    font-size: 0.7rem;
+  }
+
+  /* Reduce gap between buttons */
+  .table td .d-flex {
+    gap: 0.2rem;
+  }
+
+  /* Table font smaller */
+  table th, table td {
+    font-size: 0.8rem;
+  }
+
+  /* Table row padding */
+  .table td, .table th {
+    padding: 0.2rem 0.35rem;
+  }
+
+  /* Card header smaller text */
+  .card-header h5 {
+    font-size: 1rem;
+  }
+}

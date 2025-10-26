@@ -9,11 +9,12 @@ export interface Member {
   id?: number;
   installments?: Array<Installment>;
   joinDate?: string;
-  name?: string;
-  nidCard?: string;
-  nominee?: string;
-  phone?: string;
+  name: string;
+  nidCard: string;
+  nominee: string;
+  phone: string;
   photo?: string;
-  village?: string;
-  zila?: string;
+  status?: 'ACTIVE' | 'INACTIVE';
+  village: string;
+  zila: string;
 }

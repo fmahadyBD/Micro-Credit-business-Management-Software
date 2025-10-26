@@ -1,13 +1,29 @@
+<!-- Sidebar -->
 <app-side-bar
   [collapsed]="isSidebarCollapsed"
   (submenuSelected)="setView($event)">
 </app-side-bar>
 
+<!-- Topbar -->
 <app-top-bar></app-top-bar>
 
-<main class="main-content-wrapper">
+<!-- Main Content -->
+<main class="main-content-wrapper" [class.collapsed]="isSidebarCollapsed">
+
+  <!-- 🏠 Dashboard -->
   <app-admin-main *ngIf="currentView === 'dashboard'"></app-admin-main>
+
+  <!-- 👥 Users -->
   <app-all-users *ngIf="currentView === 'all-users'"></app-all-users>
   <app-add-new-user *ngIf="currentView === 'add-user'"></app-add-new-user>
   <app-deleted-users *ngIf="currentView === 'deleted-users'"></app-deleted-users>
+
+  <!-- 👨‍👩‍👧 Members -->
+  <app-all-members *ngIf="currentView === 'all-members'"></app-all-members>
+  <app-add-new-member *ngIf="currentView === 'add-member'"></app-add-new-member>
+
+  <!-- 🧑‍💼 Agents -->
+  <app-all-agents *ngIf="currentView === 'all-agents'"></app-all-agents>
+  <app-add-new-agent *ngIf="currentView === 'add-agent'"></app-add-new-agent>
+
 </main>

@@ -136,11 +136,147 @@
                 }
             }
         },
-        "/api/agents/updatebyid/{id}": {
+        "/api/members/{id}": {
+            "get": {
+                "tags": [
+                    "members"
+                ],
+                "summary": "Get member by ID",
+                "operationId": "getMemberById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "put": {
                 "tags": [
-                    "agent-controller"
+                    "members"
                 ],
+                "summary": "Update member by ID",
+                "operationId": "updateMember",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Member"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "members"
+                ],
+                "summary": "Delete member by ID (moves to deleted_members)",
+                "operationId": "deleteMember",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/agents/{id}": {
+            "get": {
+                "tags": [
+                    "agents"
+                ],
+                "summary": "Get agent by ID",
+                "operationId": "getAgentById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "agents"
+                ],
+                "summary": "Update existing agent",
                 "operationId": "updateAgent",
                 "parameters": [
                     {
@@ -175,13 +311,47 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "tags": [
+                    "agents"
+                ],
+                "summary": "Delete agent by ID",
+                "operationId": "deleteAgent",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
-        "/api/agents/update/status/{id}": {
+        "/api/agents/{id}/status": {
             "put": {
                 "tags": [
-                    "agent-controller"
+                    "agents"
                 ],
+                "summary": "Update agent status",
                 "operationId": "updateAgentStatus",
                 "parameters": [
                     {
@@ -425,8 +595,9 @@
         "/api/members": {
             "get": {
                 "tags": [
-                    "member-controller"
+                    "members"
                 ],
+                "summary": "Get all members",
                 "operationId": "getAllMembers",
                 "responses": {
                     "200": {
@@ -446,8 +617,9 @@
             },
             "post": {
                 "tags": [
-                    "member-controller"
+                    "members"
                 ],
+                "summary": "Create new member",
                 "operationId": "createMember",
                 "requestBody": {
                     "content": {
@@ -465,7 +637,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Member"
+                                    "type": "object"
                                 }
                             }
                         }
@@ -524,11 +696,34 @@
                 }
             }
         },
-        "/api/agents/create": {
+        "/api/agents": {
+            "get": {
+                "tags": [
+                    "agents"
+                ],
+                "summary": "Get all agents",
+                "operationId": "getAllAgents",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Agent"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "tags": [
-                    "agent-controller"
+                    "agents"
                 ],
+                "summary": "Create a new agent",
                 "operationId": "createAgent",
                 "requestBody": {
                     "content": {
@@ -546,7 +741,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Agent"
+                                    "type": "object"
                                 }
                             }
                         }
@@ -737,55 +932,26 @@
                 }
             }
         },
-        "/api/members/{id}": {
+        "/api/members/deleted": {
             "get": {
                 "tags": [
-                    "member-controller"
+                    "members"
                 ],
-                "operationId": "getMemberById",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    }
-                ],
+                "summary": "Get all deleted members (deletion history)",
+                "operationId": "getDeletedMembers",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Member"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DeletedMember"
+                                    }
                                 }
                             }
                         }
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "member-controller"
-                ],
-                "operationId": "deleteMember",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
                     }
                 }
             }
@@ -843,11 +1009,12 @@
                 }
             }
         },
-        "/api/agents/get/status/{status}": {
+        "/api/agents/status/{status}": {
             "get": {
                 "tags": [
-                    "agent-controller"
+                    "agents"
                 ],
+                "summary": "Get agents by status",
                 "operationId": "getAgentsByStatus",
                 "parameters": [
                     {
@@ -876,43 +1043,13 @@
                 }
             }
         },
-        "/api/agents/findbyid/{id}": {
+        "/api/agents/deleted": {
             "get": {
                 "tags": [
-                    "agent-controller"
+                    "agents"
                 ],
-                "operationId": "getAgentById",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/agents/all": {
-            "get": {
-                "tags": [
-                    "agent-controller"
-                ],
-                "operationId": "getAllAgents",
+                "summary": "Get all deleted agents (deletion history)",
+                "operationId": "getDeletedAgents",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -921,39 +1058,8 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/Agent"
+                                        "$ref": "#/components/schemas/DeletedAgent"
                                     }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/agents/deletebyid/{id}": {
-            "delete": {
-                "tags": [
-                    "agent-controller"
-                ],
-                "operationId": "deleteAgent",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
                                 }
                             }
                         }
@@ -1065,55 +1171,6 @@
                     }
                 }
             },
-            "Shareholder": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "phone": {
-                        "type": "string"
-                    },
-                    "nidCard": {
-                        "type": "string"
-                    },
-                    "nominee": {
-                        "type": "string"
-                    },
-                    "zila": {
-                        "type": "string"
-                    },
-                    "house": {
-                        "type": "string"
-                    },
-                    "investment": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "totalShare": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "earning": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "role": {
-                        "type": "string"
-                    },
-                    "status": {
-                        "type": "string"
-                    },
-                    "joinDate": {
-                        "type": "string",
-                        "format": "date"
-                    }
-                }
-            },
             "Installment": {
                 "type": "object",
                 "properties": {
@@ -1153,6 +1210,14 @@
                 }
             },
             "Member": {
+                "required": [
+                    "name",
+                    "nidCard",
+                    "nominee",
+                    "phone",
+                    "village",
+                    "zila"
+                ],
                 "type": "object",
                 "properties": {
                     "id": {
@@ -1160,9 +1225,13 @@
                         "format": "int64"
                     },
                     "name": {
+                        "maxLength": 100,
+                        "minLength": 2,
                         "type": "string"
                     },
                     "phone": {
+                        "maxLength": 15,
+                        "minLength": 10,
                         "type": "string"
                     },
                     "zila": {
@@ -1184,16 +1253,23 @@
                         "type": "string",
                         "format": "date"
                     },
-                    "installments": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Installment"
-                        }
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "ACTIVE",
+                            "INACTIVE"
+                        ]
                     },
                     "agents": {
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/Agent"
+                        }
+                    },
+                    "installments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Installment"
                         }
                     }
                 }
@@ -1241,6 +1317,55 @@
                         "items": {
                             "$ref": "#/components/schemas/Installment"
                         }
+                    }
+                }
+            },
+            "Shareholder": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "nidCard": {
+                        "type": "string"
+                    },
+                    "nominee": {
+                        "type": "string"
+                    },
+                    "zila": {
+                        "type": "string"
+                    },
+                    "house": {
+                        "type": "string"
+                    },
+                    "investment": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "totalShare": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "earning": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "joinDate": {
+                        "type": "string",
+                        "format": "date"
                     }
                 }
             },
@@ -1302,6 +1427,99 @@
                     },
                     "status": {
                         "type": "string"
+                    },
+                    "deletedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "DeletedMember": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "originalMemberId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "zila": {
+                        "type": "string"
+                    },
+                    "village": {
+                        "type": "string"
+                    },
+                    "nidCard": {
+                        "type": "string"
+                    },
+                    "photo": {
+                        "type": "string"
+                    },
+                    "nominee": {
+                        "type": "string"
+                    },
+                    "joinDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "deletedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "DeletedAgent": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "originalAgentId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "zila": {
+                        "type": "string"
+                    },
+                    "village": {
+                        "type": "string"
+                    },
+                    "nidCard": {
+                        "type": "string"
+                    },
+                    "photo": {
+                        "type": "string"
+                    },
+                    "nominee": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "joinDate": {
+                        "type": "string",
+                        "format": "date-time"
                     },
                     "deletedAt": {
                         "type": "string",

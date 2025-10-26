@@ -1,0 +1,58 @@
+<main class="main-content" [class.collapsed]="isSidebarCollapsed">
+  <div class="container-fluid">
+    <div class="card mt-4 shadow-sm border-0">
+      <div class="card-header">
+        <h5 class="mb-0">Add New Member</h5>
+      </div>
+      <div class="card-body">
+        <div *ngIf="message" class="mb-3">
+          <div [ngClass]="{
+              'alert alert-success': message.type === 'success',
+              'alert alert-danger': message.type === 'error'
+            }">
+            {{ message.text }}
+          </div>
+        </div>
+
+        <form (ngSubmit)="submitMember()" class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-control" [(ngModel)]="member.name" name="name" required />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Phone</label>
+            <input type="text" class="form-control" [(ngModel)]="member.phone" name="phone" required />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Zila</label>
+            <input type="text" class="form-control" [(ngModel)]="member.zila" name="zila" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Village</label>
+            <input type="text" class="form-control" [(ngModel)]="member.village" name="village" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">NID Card</label>
+            <input type="text" class="form-control" [(ngModel)]="member.nidCard" name="nidCard" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Nominee</label>
+            <input type="text" class="form-control" [(ngModel)]="member.nominee" name="nominee" />
+          </div>
+
+          <div class="col-12">
+            <button class="btn btn-primary" type="submit" [disabled]="submitting">
+              <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+              {{ submitting ? "Saving..." : "Create Member" }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
