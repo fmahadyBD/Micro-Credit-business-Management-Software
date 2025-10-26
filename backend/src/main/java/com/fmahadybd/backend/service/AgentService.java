@@ -1,7 +1,9 @@
 package com.fmahadybd.backend.service;
 
 import com.fmahadybd.backend.entity.Agent;
+import com.fmahadybd.backend.entity.DeletedAgent;
 import com.fmahadybd.backend.repository.AgentRepository;
+import com.fmahadybd.backend.repository.DeletedAgentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,9 @@ public class AgentService {
 
     @Autowired
     private AgentRepository agentRepository;
+
+    @Autowired
+    private DeletedAgentRepository deletedAgentRepository;
 
     // Create new Agent
     public Agent createAgent(Agent agent) {
@@ -48,13 +53,40 @@ public class AgentService {
         }).orElse(null);
     }
 
-    // Delete Agent by ID
+    // Delete Agent by ID (Move to DeletedAgent before delete)
     public boolean deleteAgent(Long id) {
-        if (agentRepository.existsById(id)) {
+        Optional<Agent> agentOpt = agentRepository.findById(id);
+        if (agentOpt.isPresent()) {
+            Agent agent = agentOpt.get();
+
+            DeletedAgent deletedAgent = new DeletedAgent();
+            deletedAgent.setOriginalAgentId(agent.getId());
+            deletedAgent.setName(agent.getName());
+            deletedAgent.setPhone(agent.getPhone());
+            deletedAgent.setEmail(agent.getEmail());
+            deletedAgent.setZila(agent.getZila());
+            deletedAgent.setVillage(agent.getVillage());
+            deletedAgent.setNidCard(agent.getNidCard());
+            deletedAgent.setPhoto(agent.getPhoto());
+            deletedAgent.setNominee(agent.getNominee());
+            deletedAgent.setRole(agent.getRole());
+            deletedAgent.setStatus(agent.getStatus());
+            deletedAgent.setJoinDate(agent.getJoinDate());
+            deletedAgent.setDeletedAt(LocalDateTime.now());
+
+            // Save into deleted_agents table
+            deletedAgentRepository.save(deletedAgent);
+
+            // Delete from active agents table
             agentRepository.deleteById(id);
             return true;
         }
         return false;
+    }
+
+    // Get all deleted agents
+    public List<DeletedAgent> getAllDeletedAgents() {
+        return deletedAgentRepository.findAll();
     }
 
     // Find Agents by Status
@@ -62,7 +94,7 @@ public class AgentService {
         return agentRepository.findByStatus(status);
     }
 
-    // update agent
+    // Update only agent status
     public Agent updateAgentStatus(Long id, String status) {
         return agentRepository.findById(id).map(agent -> {
             agent.setStatus(status);

@@ -3,24 +3,15 @@ package com.fmahadybd.backend.entity;
 import java.time.LocalDate;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.*;
 
 @Entity
 @Table(name = "members")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -30,17 +21,32 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Name is mandatory")
+    @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
+    @Column(nullable = false)
     private String name;
-    private String phone;
-    private String zila;
-    private String village;
-    private String nidCard;
-    private String photo;
-    private String nominee;
-    private LocalDate joinDate;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<Installment> installments;
+    @NotBlank(message = "Phone is mandatory")
+    @Size(min = 10, max = 15, message = "Phone must be between 10 and 15 characters")
+    @Column(nullable = false, unique = true)
+    private String phone;
+
+    @NotBlank(message = "District (zila) is mandatory")
+    private String zila;
+
+    @NotBlank(message = "Village is mandatory")
+    private String village;
+
+    @NotBlank(message = "NID card is mandatory")
+    @Column(nullable = false, unique = true)
+    private String nidCard;
+
+    private String photo;
+
+    @NotBlank(message = "Nominee is mandatory")
+    private String nominee;
+
+    private LocalDate joinDate;
 
     @ManyToMany
     @JoinTable(
@@ -49,4 +55,7 @@ public class Member {
         inverseJoinColumns = @JoinColumn(name = "agent_id")
     )
     private List<Agent> agents;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<Installment> installments;
 }
