@@ -378,3 +378,195 @@ curl -X GET http://localhost:8080/api/members/deleted
 5. **Phone format**: 10-15 digits, unique across system
 
 **Ready to manage your microcredit members!** 🚀
+
+
+
+Perfect! Now you have payment schedules with IDs 49-60. Here are all the API tests using these actual schedule IDs:
+
+## Payment Schedule API Tests
+
+### 1. Add Full Payment to Schedule 49
+```bash
+curl -X POST "http://localhost:8080/api/payment-schedules/49/pay?amount=83.33&agentId=1&notes=First%20monthly%20payment"
+```
+
+### 2. Handle Partial Payment to Schedule 50
+```bash
+curl -X POST "http://localhost:8080/api/payment-schedules/50/partial-pay?amount=40.0&agentId=1&notes=Partial%20payment%20-%20will%20extend"
+```
+
+### 3. Advance Payment to Schedule 51
+```bash
+curl -X POST "http://localhost:8080/api/payment-schedules/51/advance-pay?amount=100.0&agentId=1&notes=Advance%20payment%20for%20future"
+```
+
+### 4. Update Payment Schedule 52 Details
+```bash
+curl -X PUT http://localhost:8080/api/payment-schedules/52 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "monthlyAmount": 85.0,
+    "dueDate": "2026-03-01",
+    "notes": "Updated amount and due date"
+  }'
+```
+
+### 5. Get Payment Transactions for Schedule 49 (after payment)
+```bash
+curl -X GET "http://localhost:8080/api/payment-schedules/49/transactions"
+```
+
+### 6. Edit Payment (after making a payment first)
+```bash
+# First make a payment to schedule 53
+curl -X POST "http://localhost:8080/api/payment-schedules/53/pay?amount=80.0&agentId=1&notes=Wrong%20amount"
+
+# Then get transactions to find the transaction ID
+curl -X GET "http://localhost:8080/api/payment-schedules/53/transactions"
+
+# Then edit the payment (replace TRANSACTION_ID with actual ID from above)
+curl -X PUT "http://localhost:8080/api/payment-schedules/53/edit-payment?transactionId=ACTUAL_TRANSACTION_ID&newAmount=83.33&agentId=1&notes=Corrected%20amount"
+```
+
+### 7. Get Overdue Schedules
+```bash
+curl -X GET "http://localhost:8080/api/payment-schedules/overdue"
+```
+
+## Complete Testing Workflow
+
+### Workflow 1: Sequential Payments
+```bash
+# Pay schedules 49, 50, 51 sequentially
+curl -X POST "http://localhost:8080/api/payment-schedules/49/pay?amount=83.33&agentId=1&notes=Payment%20for%20Nov%202025"
+curl -X POST "http://localhost:8080/api/payment-schedules/50/pay?amount=83.33&agentId=1&notes=Payment%20for%20Dec%202025"
+curl -X POST "http://localhost:8080/api/payment-schedules/51/pay?amount=83.33&agentId=1&notes=Payment%20for%20Jan%202026"
+
+# Check transactions for each
+curl -X GET "http://localhost:8080/api/payment-schedules/49/transactions"
+curl -X GET "http://localhost:8080/api/payment-schedules/50/transactions"
+curl -X GET "http://localhost:8080/api/payment-schedules/51/transactions"
+```
+
+### Workflow 2: Partial Payment Scenario
+```bash
+# Make partial payment to schedule 54
+curl -X POST "http://localhost:8080/api/payment-schedules/54/partial-pay?amount=41.67&agentId=1&notes=50%25%20partial%20payment"
+
+# Check if schedule 55 amount increased
+curl -X GET "http://localhost:8080/api/payment-schedules/installment/11"
+```
+
+### Workflow 3: Advance Payment Scenario
+```bash
+# Make advance payment to schedule 55
+curl -X POST "http://localhost:8080/api/payment-schedules/55/advance-pay?amount=166.66&agentId=1&notes=Advance%20for%20two%20months"
+
+# Check if schedules 56 and 57 got partially paid
+curl -X GET "http://localhost:8080/api/payment-schedules/installment/11"
+```
+
+### Workflow 4: Payment Correction Flow
+```bash
+# 1. Make wrong payment to schedule 56
+curl -X POST "http://localhost:8080/api/payment-schedules/56/pay?amount=75.0&agentId=1&notes=Underpayment"
+
+# 2. Get transactions to find ID
+curl -X GET "http://localhost:8080/api/payment-schedules/56/transactions"
+
+# 3. Correct the payment (replace TRANSACTION_ID with actual)
+curl -X PUT "http://localhost:8080/api/payment-schedules/56/edit-payment?transactionId=ACTUAL_ID&newAmount=83.33&agentId=1&notes=Corrected%20to%20full%20amount"
+```
+
+## Error Testing with Actual IDs
+
+### 1. Payment More Than Monthly Amount
+```bash
+curl -X POST "http://localhost:8080/api/payment-schedules/57/pay?amount=100.0&agentId=1&notes=Overpayment%20test"
+```
+
+### 2. Multiple Partial Payments
+```bash
+# First partial payment
+curl -X POST "http://localhost:8080/api/payment-schedules/58/partial-pay?amount=30.0&agentId=1&notes=First%20partial"
+
+# Second partial payment (should complete the payment)
+curl -X POST "http://localhost:8080/api/payment-schedules/58/partial-pay?amount=53.33&agentId=1&notes=Second%20partial"
+```
+
+### 3. Update Multiple Schedules
+```bash
+# Update schedule 59
+curl -X PUT http://localhost:8080/api/payment-schedules/59 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "monthlyAmount": 90.0,
+    "notes": "Increased monthly amount"
+  }'
+
+# Update schedule 60
+curl -X PUT http://localhost:8080/api/payment-schedules/60 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dueDate": "2026-11-15",
+    "notes": "Extended due date"
+  }'
+```
+
+## Verification Commands
+
+### Check Updated Installment Status
+```bash
+curl -X GET http://localhost:8080/api/installments/11
+```
+
+### Check All Payment Schedules After Payments
+```bash
+curl -X GET "http://localhost:8080/api/payment-schedules/installment/11"
+```
+
+### Check Specific Schedule Status
+```bash
+curl -X GET "http://localhost:8080/api/payment-schedules/49/transactions"
+curl -X GET "http://localhost:8080/api/payment-schedules/50/transactions"
+```
+
+## Quick Test Script
+
+```bash
+#!/bin/bash
+echo "=== Testing Payment Schedule APIs with Actual IDs ==="
+
+echo "1. Making full payment to schedule 49..."
+curl -X POST "http://localhost:8080/api/payment-schedules/49/pay?amount=83.33&agentId=1&notes=Test%20full%20payment"
+
+echo "2. Making partial payment to schedule 50..."
+curl -X POST "http://localhost:8080/api/payment-schedules/50/partial-pay?amount=40.0&agentId=1&notes=Test%20partial%20payment"
+
+echo "3. Making advance payment to schedule 51..."
+curl -X POST "http://localhost:8080/api/payment-schedules/51/advance-pay?amount=100.0&agentId=1&notes=Test%20advance%20payment"
+
+echo "4. Updating schedule 52..."
+curl -X PUT http://localhost:8080/api/payment-schedules/52 \
+  -H "Content-Type: application/json" \
+  -d '{"monthlyAmount":85.0,"notes":"Test update"}'
+
+echo "5. Checking transactions..."
+curl -X GET "http://localhost:8080/api/payment-schedules/49/transactions"
+
+echo "6. Checking overdue schedules..."
+curl -X GET "http://localhost:8080/api/payment-schedules/overdue"
+
+echo "=== Test Complete ==="
+```
+
+## Expected Results:
+
+- **Schedule 49**: Status should change from `PENDING` to `PAID`
+- **Schedule 50**: Status should be `PARTIALLY_PAID` with remaining amount
+- **Schedule 51**: Should show advance payment applied
+- **Schedule 52**: Monthly amount should update to 85.0
+- **Transactions**: Should show payment records with timestamps
+- **Installment 11**: Total remaining amount should decrease
+
+Start with the first payment to schedule 49 and verify the results before proceeding to the next tests!

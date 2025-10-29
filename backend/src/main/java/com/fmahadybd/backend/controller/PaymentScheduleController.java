@@ -18,6 +18,16 @@ public class PaymentScheduleController {
 
     private final PaymentScheduleService paymentScheduleService;
 
+
+        @GetMapping("/installment/{installmentId}")
+    public ResponseEntity<List<PaymentSchedule>> getPaymentSchedules(
+            @PathVariable Long installmentId) {
+        
+        List<PaymentSchedule> schedules = paymentScheduleService.getPaymentSchedulesByInstallment(installmentId);
+        return ResponseEntity.ok(schedules);
+    }
+
+
     @PostMapping("/{scheduleId}/pay")
     public ResponseEntity<PaymentSchedule> addPayment(
             @PathVariable Long scheduleId,
@@ -84,13 +94,6 @@ public class PaymentScheduleController {
         return ResponseEntity.ok(updatedSchedule);
     }
 
-    @GetMapping("/installment/{installmentId}")
-    public ResponseEntity<List<PaymentSchedule>> getPaymentSchedules(
-            @PathVariable Long installmentId) {
-        
-        List<PaymentSchedule> schedules = paymentScheduleService.getPaymentSchedulesByInstallment(installmentId);
-        return ResponseEntity.ok(schedules);
-    }
 
     @GetMapping("/{scheduleId}/transactions")
     public ResponseEntity<List<PaymentTransaction>> getPaymentTransactions(
