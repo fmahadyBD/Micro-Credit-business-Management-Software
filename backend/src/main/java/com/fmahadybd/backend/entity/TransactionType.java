@@ -1,8 +1,6 @@
 package com.fmahadybd.backend.entity;
 
 public enum TransactionType {
-    PAYMENT,
-    ADJUSTMENT,
-    REFUND,
-    PENALTY
+    BUY,    // Buying new shares
+    SELL    // Selling existing shares
 }

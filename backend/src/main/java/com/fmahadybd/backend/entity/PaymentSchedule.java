@@ -18,9 +18,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Entity
 @Builder
 @Table(name = "payment_schedules")
-@ToString(exclude = {"installment", "collectingAgent"})
-@EqualsAndHashCode(exclude = {"installment", "collectingAgent"})
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@ToString(exclude = { "installment", "collectingAgent" })
+@EqualsAndHashCode(exclude = { "installment", "collectingAgent" })
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class PaymentSchedule {
 
     @Id
@@ -61,14 +61,14 @@ public class PaymentSchedule {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "agent_id", nullable = false)
-    @JsonIgnoreProperties({"paymentSchedules", "installments", "members"})
+    @JsonIgnoreProperties({ "paymentSchedules", "installments", "members" })
     private Agent collectingAgent;
 
     private LocalDate paymentDate;
     private String notes;
 
     @OneToMany(mappedBy = "paymentSchedule", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnoreProperties({"paymentSchedule"})
+    @JsonIgnoreProperties({ "paymentSchedule" })
     @Builder.Default
     private List<PaymentTransaction> paymentTransactions = new ArrayList<>();
 
@@ -82,9 +82,12 @@ public class PaymentSchedule {
     protected void onCreate() {
         this.createdTime = LocalDateTime.now();
         this.updatedTime = LocalDateTime.now();
-        if (this.paidAmount == null) this.paidAmount = 0.0;
-        if (this.remainingAmount == null) this.remainingAmount = this.monthlyAmount;
-        if (this.status == null) this.status = PaymentStatus.PENDING;
+        if (this.paidAmount == null)
+            this.paidAmount = 0.0;
+        if (this.remainingAmount == null)
+            this.remainingAmount = this.monthlyAmount;
+        if (this.status == null)
+            this.status = PaymentStatus.PENDING;
     }
 
     @PreUpdate
@@ -101,7 +104,8 @@ public class PaymentSchedule {
     public void updatePaymentStatus() {
         if (this.paidAmount >= this.monthlyAmount) {
             this.status = PaymentStatus.PAID;
-            if (this.paymentDate == null) this.paymentDate = LocalDate.now();
+            if (this.paymentDate == null)
+                this.paymentDate = LocalDate.now();
         } else if (this.paidAmount > 0) {
             this.status = PaymentStatus.PARTIALLY_PAID;
         } else if (this.dueDate.isBefore(LocalDate.now())) {
@@ -119,7 +123,7 @@ public class PaymentSchedule {
                 .collectingAgent(agent)
                 .paymentDate(LocalDate.now())
                 .notes(notes)
-                .transactionType(TransactionType.PAYMENT)
+                .paymentType(PaymentType.PAYMENT) // ✅ CHANGED: transactionType → paymentType
                 .build();
 
         this.paidAmount += amount;

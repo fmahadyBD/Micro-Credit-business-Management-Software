@@ -3,10 +3,15 @@ package com.fmahadybd.backend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "shareholders")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -22,10 +27,39 @@ public class Shareholder {
     private String nominee;
     private String zila;
     private String house;
-    private Double investment; // total invested amount
-    private Integer totalShare; // total number of shares owned
-    private Double earning; // current or total earnings
-    private String role; // e.g. “Shareholder”
-    private String status; // Active / Inactive
-    private LocalDate joinDate; // date of investment
+    
+    @Column(nullable = false)
+    @Builder.Default
+    private Double investment = 0.0;
+    
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer totalShare = 0;
+    
+    @Column(nullable = false)
+    @Builder.Default
+    private Double totalEarning = 0.0;
+    
+    @Column(nullable = false)
+    @Builder.Default
+    private Double currentBalance = 0.0;
+    
+    private String role;
+    
+    @Builder.Default
+    private String status = "Active";
+    
+    private LocalDate joinDate;
+
+    @OneToMany(mappedBy = "shareholder", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    @JsonIgnore // Add this to prevent circular reference
+    private List<ShareholderEarning> earnings = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        if (joinDate == null) {
+            joinDate = LocalDate.now();
+        }
+    }
 }

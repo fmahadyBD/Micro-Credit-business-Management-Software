@@ -52,7 +52,7 @@ public class PaymentTransaction {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TransactionType transactionType;
+    private PaymentType paymentType; // ✅ CHANGED: transactionType → paymentType
 
     @Column(name = "created_time", nullable = false, updatable = false)
     private LocalDateTime createdTime;
@@ -64,7 +64,7 @@ public class PaymentTransaction {
     protected void onCreate() {
         this.createdTime = LocalDateTime.now();
         this.updatedTime = LocalDateTime.now();
-        if (this.transactionType == null) this.transactionType = TransactionType.PAYMENT;
+        if (this.paymentType == null) this.paymentType = PaymentType.PAYMENT; // ✅ CHANGED
     }
 
     @PreUpdate
