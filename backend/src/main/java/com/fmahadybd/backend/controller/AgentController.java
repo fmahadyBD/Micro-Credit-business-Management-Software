@@ -3,6 +3,7 @@ package com.fmahadybd.backend.controller;
 import com.fmahadybd.backend.entity.Agent;
 import com.fmahadybd.backend.entity.DeletedAgent;
 import com.fmahadybd.backend.service.AgentService;
+import com.fmahadybd.backend.service.FileStorageService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.Map;
 public class AgentController {
 
     private final AgentService agentService;
+    private final FileStorageService fileStorageService;
 
     /** Create a new Agent with validation */
     @PostMapping
@@ -39,6 +42,136 @@ public class AgentController {
 
         Agent savedAgent = agentService.createAgent(agent);
         return ResponseEntity.ok(savedAgent);
+    }
+
+    /** Create Agent with Photo Upload */
+    @PostMapping(value = "/with-photo", consumes = "multipart/form-data")
+    @Operation(summary = "Create agent with photo")
+    public ResponseEntity<?> createAgentWithPhoto(
+            @RequestPart("agent") @Valid Agent agent,
+            BindingResult result,
+            @RequestPart(value = "photo", required = false) MultipartFile photo) {
+        
+        if (result.hasErrors()) {
+            String errorMessage = result.getAllErrors().get(0).getDefaultMessage();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", errorMessage);
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        try {
+            // Handle photo upload
+            if (photo != null && !photo.isEmpty()) {
+                // Use agent ID if available, otherwise use 0 for new agents
+                Long agentId = agent.getId() != null ? agent.getId() : 0L;
+                String photoPath = fileStorageService.saveAgentPhoto(photo, agentId);
+                agent.setPhoto(photoPath);
+            }
+
+            Agent savedAgent = agentService.createAgent(agent);
+            return ResponseEntity.ok(savedAgent);
+
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Error creating agent: " + e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+
+    /** Update Agent with Photo */
+    @PutMapping(value = "/{id}/with-photo", consumes = "multipart/form-data")
+    @Operation(summary = "Update agent with photo")
+    public ResponseEntity<?> updateAgentWithPhoto(
+            @PathVariable Long id,
+            @RequestPart("agent") @Valid Agent updatedAgent,
+            BindingResult result,
+            @RequestPart(value = "photo", required = false) MultipartFile photo) {
+        
+        if (result.hasErrors()) {
+            String errorMessage = result.getAllErrors().get(0).getDefaultMessage();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", errorMessage);
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        try {
+            Agent existingAgent = agentService.getAgentById(id)
+                    .orElseThrow(() -> new RuntimeException("Agent not found with ID: " + id));
+
+            // Handle photo upload
+            if (photo != null && !photo.isEmpty()) {
+                String photoPath = fileStorageService.saveAgentPhoto(photo, id);
+                updatedAgent.setPhoto(photoPath);
+            } else {
+                // Keep existing photo if no new photo provided
+                updatedAgent.setPhoto(existingAgent.getPhoto());
+            }
+
+            // Update fields
+            existingAgent.setName(updatedAgent.getName());
+            existingAgent.setPhone(updatedAgent.getPhone());
+            existingAgent.setEmail(updatedAgent.getEmail());
+            existingAgent.setZila(updatedAgent.getZila());
+            existingAgent.setVillage(updatedAgent.getVillage());
+            existingAgent.setNidCard(updatedAgent.getNidCard());
+            existingAgent.setPhoto(updatedAgent.getPhoto());
+            existingAgent.setNominee(updatedAgent.getNominee());
+            existingAgent.setStatus(updatedAgent.getStatus());
+            existingAgent.setRole(updatedAgent.getRole());
+
+            Agent savedAgent = agentService.updateAgent(id, existingAgent);
+            return ResponseEntity.ok(savedAgent);
+
+        } catch (RuntimeException e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(404).body(errorResponse);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Error updating agent: " + e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+
+    /** Upload/Update Agent Photo */
+    @PostMapping(value = "/{id}/photo", consumes = "multipart/form-data")
+    @Operation(summary = "Upload agent photo")
+    public ResponseEntity<?> uploadAgentPhoto(
+            @PathVariable Long id,
+            @RequestPart("photo") MultipartFile photo) {
+        
+        try {
+            Agent existingAgent = agentService.getAgentById(id)
+                    .orElseThrow(() -> new RuntimeException("Agent not found with ID: " + id));
+
+            if (photo != null && !photo.isEmpty()) {
+                String photoPath = fileStorageService.saveAgentPhoto(photo, id);
+                existingAgent.setPhoto(photoPath);
+                Agent savedAgent = agentService.updateAgent(id, existingAgent);
+                return ResponseEntity.ok(savedAgent);
+            } else {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "No photo file provided");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+
+        } catch (RuntimeException e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(404).body(errorResponse);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Error uploading photo: " + e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
     }
 
     /** Get all Agents */
@@ -92,7 +225,7 @@ public class AgentController {
             existingAgent.setStatus(updatedAgent.getStatus());
             existingAgent.setRole(updatedAgent.getRole());
 
-            Agent savedAgent = agentService.createAgent(existingAgent);
+            Agent savedAgent = agentService.updateAgent(id, existingAgent);
             return ResponseEntity.ok(savedAgent);
 
         } catch (RuntimeException e) {
@@ -161,5 +294,4 @@ public class AgentController {
         }
         return ResponseEntity.ok(deletedAgents);
     }
-
 }

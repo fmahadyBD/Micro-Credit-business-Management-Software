@@ -6,6 +6,8 @@ import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
@@ -61,6 +63,7 @@ public class Agent {
     @OneToMany(mappedBy = "given_product_agent", fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"given_product_agent"})  // ✅ Correct - breaks Installment cycle
     @Builder.Default
+    @JsonIgnore
     private List<Installment> installments = new ArrayList<>();
 
     @PrePersist

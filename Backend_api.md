@@ -81,12 +81,107 @@ curl -X DELETE http://localhost:8080/api/installments/6
 curl -X GET http://localhost:8080/api/installments/5/images
 ```
 
+## Agent API Endpoints
+
+### Get All Agents
+```bash
+curl -X GET http://localhost:8080/api/agents
+```
+
+### Get Agent by ID
+```bash
+curl -X GET http://localhost:8080/api/agents/1
+```
+
+### Create Agent (JSON)
+```bash
+curl -X POST http://localhost:8080/api/agents \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Agent",
+    "phone": "09992315678",
+    "email": "johnaaa@example.com",
+    "zila": "Dhaka",
+    "village": "Mirpur",
+    "nidCard": "9834567890123",
+    "nominee": "Jane Doe",
+    "role": "Agent",
+    "status": "Active"
+  }'
+```
+
+### Create Agent with Photo (Multipart)
+```bash
+curl -X POST http://localhost:8080/api/agents/with-photo \
+  -F "agent={\"name\": \"Johnd Agent\", \"phone\": \"01112315678\", \"email\": \"johnxxx@example.com\", \"zila\": \"Dhaka\", \"village\": \"Mirpur\", \"nidCard\": \"1234567890023\", \"nominee\": \"Jane Doe\", \"role\": \"Agent\", \"status\": \"Active\"};type=application/json" \
+  -F "photo=@/home/mahady-hasan-fahim/Pictures/fun.jpeg"
+```
+
+### Update Agent Photo Only
+```bash
+curl -X POST http://localhost:8080/api/agents/1/photo \
+  -F "photo=@/home/mahady-hasan-fahim/Pictures/1.png"
+```
+
+### Update Agent with New Photo (Multipart)
+```bash
+curl -X PUT http://localhost:8080/api/agents/1/with-photo \
+  -F "agent={\"name\": \"John Updated\", \"phone\": \"01712315678\", \"email\": \"johnup@example.com\", \"zila\": \"Dhaka\", \"village\": \"Mirpur\", \"nidCard\": \"123456789000\", \"nominee\": \"Jane Doe\", \"role\": \"Agent\", \"status\": \"Active\"};type=application/json" \
+  -F "photo=@/home/mahady-hasan-fahim/Pictures/1.png"
+```
+
+### Update Agent (JSON)
+```bash
+curl -X PUT http://localhost:8080/api/agents/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Agent Updated",
+    "phone": "01712345679",
+    "email": "john.updated@example.com",
+    "zila": "Dhaka",
+    "village": "Uttara",
+    "nidCard": "1234567890123",
+    "nominee": "Jane Smith",
+    "role": "Senior Agent",
+    "status": "Active"
+  }'
+```
+
+### Get Agents by Status
+```bash
+curl -X GET http://localhost:8080/api/agents/status/Active
+```
+
+```bash
+curl -X GET http://localhost:8080/api/agents/status/Inactive
+```
+
+### Update Agent Status Only
+```bash
+curl -X PUT "http://localhost:8080/api/agents/1/status?status=Inactive"
+```
+
+```bash
+curl -X PUT "http://localhost:8080/api/agents/1/status?status=Suspended"
+```
+
+### Get Deleted Agents (Deletion History)
+```bash
+curl -X GET http://localhost:8080/api/agents/deleted
+```
+
+### Delete Agent
+```bash
+curl -X DELETE http://localhost:8080/api/agents/1
+```
+
 ## Testing Notes
 
 ### Prerequisites
 - Ensure the server is running on `http://localhost:8080`
 - Replace file paths with actual image paths on your system
 - Use existing IDs for products, members, and agents
+- Phone numbers and NID cards must be unique
 
 ### Common Response Codes
 - `200 OK` - Successful GET/PUT requests
@@ -94,11 +189,25 @@ curl -X GET http://localhost:8080/api/installments/5/images
 - `204 No Content` - Successful DELETE requests
 - `404 Not Found` - Resource doesn't exist
 - `400 Bad Request` - Invalid input data
+- `409 Conflict` - Duplicate phone or NID card
 
 ### Tips
 1. Always check existing resources before updating or deleting
 2. Use the GET endpoints to verify data before making changes
 3. For image operations, ensure the file paths are correct and accessible
 4. Test error scenarios with invalid IDs or malformed JSON
+5. Phone numbers and NID cards must be unique across all agents
+6. Use multipart/form-data for image uploads, application/json for regular data
+
+### File Path Examples
+Replace with your actual file paths:
+- `/home/mahady-hasan-fahim/Pictures/1.png`
+- `/home/mahady-hasan-fahim/Pictures/fun.jpeg`
+- `/home/mahady-hasan-fahim/Pictures/agent-photo.jpg`
+
+### Agent Status Values
+- `Active` - Agent is active and working
+- `Inactive` - Agent is temporarily inactive
+- `Suspended` - Agent is suspended
 
 Save this as `api-testing.md` for future reference!

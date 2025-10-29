@@ -23,11 +23,25 @@ public class FileStorageService {
     @Value("${application.file.uploads.photos-output-path}")
     private String fileUploadPath;
 
+    /**
+     * Save installment file (existing method)
+     */
     public String saveFile(MultipartFile sourceFile, Long installmentId) {
         final String fileUploadSubPath = "installments" + separator + installmentId;
         return uploadFile(sourceFile, fileUploadSubPath);
     }
 
+    /**
+     * Save agent photo
+     */
+    public String saveAgentPhoto(MultipartFile sourceFile, Long agentId) {
+        final String fileUploadSubPath = "agents" + separator + agentId;
+        return uploadFile(sourceFile, fileUploadSubPath);
+    }
+
+    /**
+     * Common file upload method
+     */
     private String uploadFile(MultipartFile sourceFile, String fileUploadSubPath) {
         final String finalUploadPath = fileUploadPath + separator + fileUploadSubPath;
         File targetFolder = new File(finalUploadPath);
