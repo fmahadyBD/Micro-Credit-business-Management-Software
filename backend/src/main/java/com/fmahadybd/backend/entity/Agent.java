@@ -1,62 +1,72 @@
 package com.fmahadybd.backend.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "agents")
+@ToString(exclude = {"members", "installments"})
+@EqualsAndHashCode(exclude = {"members", "installments"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Agent {
 
-   @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @NotBlank(message = "Name is mandatory")
-    @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
+
     @Column(nullable = false)
     private String name;
-    
-    @NotBlank(message = "Phone is mandatory")
-    @Size(min = 10, max = 15, message = "Phone must be between 10 and 15 characters")
+
     @Column(nullable = false, unique = true)
     private String phone;
-    
-    @Email(message = "Email should be valid")
+
     @Column(unique = true)
     private String email;
-    
-    @NotBlank(message = "District is mandatory")
+
     @Column(nullable = false)
     private String zila;
-    
-    @NotBlank(message = "Village is mandatory")
+
     @Column(nullable = false)
     private String village;
-    
-    @NotBlank(message = "NID card is mandatory")
+
     @Column(name = "nid_card", nullable = false, unique = true)
     private String nidCard;
-    
+
     private String photo;
 
-    @NotBlank(message = "Moninee is mandatory")
+    @Column(nullable = false)
     private String nominee;
-    
+
     private String role = "Agent";
-    
     private String status = "Active";
-    
+
     @Column(name = "join_date")
-    private LocalDateTime joinDate; 
+    private LocalDateTime joinDate;
+
+    @ManyToMany(mappedBy = "agents", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"agents", "installments"})  // ✅ Correct - breaks Member cycle
+    @Builder.Default
+    private List<Member> members = new ArrayList<>();
+
+    @OneToMany(mappedBy = "given_product_agent", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"given_product_agent"})  // ✅ Correct - breaks Installment cycle
+    @Builder.Default
+    private List<Installment> installments = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        if (joinDate == null) joinDate = LocalDateTime.now();
+        if (role == null) role = "Agent";
+        if (status == null) status = "Active";
+    }
 }

@@ -7,11 +7,17 @@ import com.fmahadybd.backend.repository.DeletedMemberRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class MemberService {
@@ -22,13 +28,39 @@ public class MemberService {
     @Autowired
     private DeletedMemberRepository deletedMemberRepository;
 
-    /** Create a new member */
+    private final String UPLOAD_DIR = "uploads/members/";
+
+    /** Create a new member with images */
+    public Member saveMemberWithImages(Member member, MultipartFile nidCardImage,
+                                     MultipartFile photo, MultipartFile nomineeNidCardImage) {
+        
+        // Save images and set file paths
+        if (nidCardImage != null && !nidCardImage.isEmpty()) {
+            String nidImagePath = saveImage(nidCardImage);
+            member.setNidCardImagePath(nidImagePath);
+        }
+        
+        if (photo != null && !photo.isEmpty()) {
+            String photoPath = saveImage(photo);
+            member.setPhotoPath(photoPath);
+        }
+        
+        if (nomineeNidCardImage != null && !nomineeNidCardImage.isEmpty()) {
+            String nomineeNidImagePath = saveImage(nomineeNidCardImage);
+            member.setNomineeNidCardImagePath(nomineeNidImagePath);
+        }
+        
+        member.setJoinDate(LocalDate.now());
+        return memberRepository.save(member);
+    }
+
+    /** Create member without images */
     public Member saveMember(Member member) {
         member.setJoinDate(LocalDate.now());
         return memberRepository.save(member);
     }
 
-    /** Get all members */
+    /** Get all members (fixed JSON serialization) */
     public List<Member> getAllMembers() {
         return memberRepository.findAll();
     }
@@ -39,19 +71,18 @@ public class MemberService {
     }
 
     /** Update existing member */
-    /** Update existing member */
     public Member updateMember(Long id, Member updatedMember) {
         return memberRepository.findById(id).map(member -> {
             member.setName(updatedMember.getName());
             member.setPhone(updatedMember.getPhone());
             member.setZila(updatedMember.getZila());
             member.setVillage(updatedMember.getVillage());
-            member.setNidCard(updatedMember.getNidCard());
-            member.setPhoto(updatedMember.getPhoto());
-            member.setNominee(updatedMember.getNominee());
-            member.setAgents(updatedMember.getAgents());
-
-            // ✅ Handle status update
+            member.setNidCardNumber(updatedMember.getNidCardNumber());
+            member.setNomineeName(updatedMember.getNomineeName());
+            member.setNomineePhone(updatedMember.getNomineePhone());
+            member.setNomineeNidCardNumber(updatedMember.getNomineeNidCardNumber());
+            
+            // Handle status update
             if (updatedMember.getStatus() != null) {
                 member.setStatus(updatedMember.getStatus());
             }
@@ -71,10 +102,17 @@ public class MemberService {
         deletedMember.setPhone(member.getPhone());
         deletedMember.setZila(member.getZila());
         deletedMember.setVillage(member.getVillage());
-        deletedMember.setNidCard(member.getNidCard());
-        deletedMember.setPhoto(member.getPhoto());
-        deletedMember.setNominee(member.getNominee());
+        
+        // Updated fields
+        deletedMember.setNidCardNumber(member.getNidCardNumber());
+        deletedMember.setNidCardImagePath(member.getNidCardImagePath());
+        deletedMember.setPhotoPath(member.getPhotoPath());
+        deletedMember.setNomineeName(member.getNomineeName());
+        deletedMember.setNomineePhone(member.getNomineePhone());
+        deletedMember.setNomineeNidCardNumber(member.getNomineeNidCardNumber());
+        deletedMember.setNomineeNidCardImagePath(member.getNomineeNidCardImagePath());
         deletedMember.setJoinDate(member.getJoinDate());
+        deletedMember.setStatus(member.getStatus());
         deletedMember.setDeletedAt(LocalDateTime.now());
 
         deletedMemberRepository.save(deletedMember);
@@ -84,5 +122,27 @@ public class MemberService {
     /** Get all deleted members */
     public List<DeletedMember> getAllDeletedMembers() {
         return deletedMemberRepository.findAll();
+    }
+
+    /** Helper method to save images */
+    private String saveImage(MultipartFile image) {
+        try {
+            // Create upload directory if it doesn't exist
+            Path uploadPath = Paths.get(UPLOAD_DIR);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+            
+            // Generate unique filename
+            String fileName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
+            Path filePath = uploadPath.resolve(fileName);
+            
+            // Save file
+            Files.copy(image.getInputStream(), filePath);
+            
+            return filePath.toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save image: " + e.getMessage());
+        }
     }
 }

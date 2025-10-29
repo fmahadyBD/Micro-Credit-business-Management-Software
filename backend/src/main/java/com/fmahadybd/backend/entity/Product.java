@@ -6,33 +6,44 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
-@Table(name = "products")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = "installments")
-@EqualsAndHashCode(exclude = "installments")
+@Table(name = "products")
+@ToString(exclude = {"installments"})
+@EqualsAndHashCode(exclude = {"installments"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Product ID
+    private Long id;
 
-    private String name; // Product name
-    private String category; // Product category/type
-    private String description; // Short details about the product
-    private Double price; // Total price
-    private Double costPrice; // Company cost price
-    private Integer stock; // Quantity in stock
-    private String status; // Available / Sold / On Installment
-    private String addedBy; // Agent or Admin who added the product
-    private LocalDate dateAdded; // Date product added
+    private String name;
+    private String category;
+    private String description;
+    private Double price;
+    private Double costPrice;
+    private Integer stock;
+    private String status;
+    private Boolean isDeliveryRequired = false;
+    private LocalDate dateAdded;
+    private String addedBy;
 
-    // One product can have multiple installment plans
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sold_by_agent_id")
+    @JsonIgnoreProperties({"members", "installments"})
+    private Agent soldByAgent;
+
+    @ElementCollection
+    private List<String> imageFilePaths = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"product"})
     private List<Installment> installments = new ArrayList<>();
 }
