@@ -211,3 +211,170 @@ Replace with your actual file paths:
 - `Suspended` - Agent is suspended
 
 Save this as `api-testing.md` for future reference!
+
+
+
+
+
+
+
+
+# 🏦 Microcredit System - Member API Documentation
+
+## 📋 Member Management Endpoints
+
+### 1. 📸 Create Member with Images (Multipart/form-data)
+```bash
+curl -X POST http://localhost:8080/api/members \
+  -F "member={
+    \"name\": \"John Doe\",
+    \"phone\": \"01712345678\", 
+    \"zila\": \"Dhaka\",
+    \"village\": \"Mirpur\",
+    \"nidCardNumber\": \"1234567890123\",
+    \"nomineeName\": \"Jane Doe\",
+    \"nomineePhone\": \"01787654321\",
+    \"nomineeNidCardNumber\": \"9876543210987\",
+    \"status\": \"ACTIVE\"
+  }" \
+  -F "nidCardImage=@/home/mahady-hasan-fahim/Pictures/1.png" \
+  -F "photo=@/home/mahady-hasan-fahim/Pictures/1.png" \
+  -F "nomineeNidCardImage=@/home/mahady-hasan-fahim/Pictures/1.png"
+```
+
+**Required Fields:**
+- ✅ `name`: Member full name
+- ✅ `phone`: Unique phone number (10-15 digits)
+- ✅ `zila`: District
+- ✅ `village`: Village
+- ✅ `nidCardNumber`: Unique NID number
+- ✅ `nomineeName`: Nominee's full name
+- ✅ `nomineePhone`: Nominee's phone
+- ✅ `nomineeNidCardNumber`: Nominee's NID
+- ✅ `status`: ACTIVE/INACTIVE
+
+**Required Images:**
+- 📷 `nidCardImage`: Member's NID card photo
+- 📷 `photo`: Member's profile photo  
+- 📷 `nomineeNidCardImage`: Nominee's NID card photo
+
+---
+
+### 2. 📜 Get All Members
+```bash
+curl -X GET http://localhost:8080/api/members
+```
+
+**Response:** Returns complete member list with all installments and payment schedules.
+
+---
+
+### 3. 🔍 Get Member by ID
+```bash
+curl -X GET http://localhost:8080/api/members/1
+```
+
+**Response:** Returns detailed member information including:
+- Personal details
+- All linked installments
+- Payment schedules
+- Agent information
+- File paths for images
+
+---
+
+### 4. ✏️ Update Member (JSON)
+```bash
+curl -X PUT http://localhost:8080/api/members/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Updated",
+    "phone": "017123995678",
+    "zila": "Dhaka",
+    "village": "Mirpur",
+    "nidCardNumber": "1234567xxx0123",
+    "nomineeName": "Jane Updated",
+    "nomineePhone": "017876x4321",
+    "nomineeNidCardNumber": "98765x3210987",
+    "status": "ACTIVE"
+  }'
+```
+
+**⚠️ Important:** Phone and NID numbers must be unique across all members.
+
+---
+
+### 5. 🗑️ Delete Member
+```bash
+curl -X DELETE http://localhost:8080/api/members/1
+```
+
+**Features:**
+- ✅ Moves member to `deleted_members` table
+- ✅ Preserves all member data for history
+- ✅ Maintains referential integrity
+
+---
+
+### 6. 📚 Get Deleted Members (History)
+```bash
+curl -X GET http://localhost:8080/api/members/deleted
+```
+
+**Use Case:** Audit trail and recovery reference.
+
+---
+
+## 🎯 Response Format
+
+### Success Response:
+```json
+{
+  "id": 1,
+  "name": "John Doe",
+  "phone": "01712345678",
+  "zila": "Dhaka",
+  "village": "Mirpur",
+  "nidCardNumber": "1234567890123",
+  "nidCardImagePath": "uploads/members/uuid_filename.png",
+  "photoPath": "uploads/members/uuid_photo.png",
+  "nomineeName": "Jane Doe", 
+  "nomineePhone": "01787654321",
+  "nomineeNidCardNumber": "9876543210987",
+  "nomineeNidCardImagePath": "uploads/members/uuid_nominee.png",
+  "joinDate": "2025-10-29",
+  "status": "ACTIVE",
+  "installments": [...]
+}
+```
+
+### Error Response:
+```json
+{
+  "success": false,
+  "message": "Error description"
+}
+```
+
+---
+
+## 🔑 Key Features
+
+- ✅ **Unique Constraints**: Phone & NID numbers are unique
+- ✅ **File Upload**: Automatic image storage with UUID filenames
+- ✅ **Data Integrity**: Soft delete with history preservation
+- ✅ **Relationships**: Full installment and payment schedule linking
+- ✅ **Validation**: Comprehensive input validation
+- ✅ **Audit Trail**: Complete deletion history
+
+---
+
+## 💡 Pro Tips
+
+1. **Always check unique fields** before creating/updating members
+2. **Use the comprehensive GET responses** for member dashboards
+3. **Deleted members are preserved** for audit purposes
+4. **All images are required** for member creation
+5. **Phone format**: 10-15 digits, unique across system
+
+**Ready to manage your microcredit members!** 🚀
