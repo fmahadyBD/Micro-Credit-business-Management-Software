@@ -1,52 +1,55 @@
 package com.fmahadybd.backend.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fmahadybd.backend.entity.Product;
 import com.fmahadybd.backend.repository.ProductRepository;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
-    
-    // Define your image upload directory
-    private final String UPLOAD_DIR = "uploads/products/";
+    private final FileStorageService fileStorageService;
 
     public Product saveProduct(Product product) {
         return productRepository.save(product);
     }
 
     public List<Product> getAllProducts() {
-        return productRepository.findAll();
+        return productRepository.findAllWithAgent();
     }
 
     public Optional<Product> getProductById(Long id) {
-        return productRepository.findById(id);
+        return productRepository.findByIdWithAgent(id);
     }
 
     public void deleteProduct(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+        
+        if (product.getImageFilePaths() != null) {
+            for (String imagePath : product.getImageFilePaths()) {
+                fileStorageService.deleteFile(imagePath);
+            }
+        }
+        
         productRepository.deleteById(id);
     }
     
-    // Update product method
     public Product updateProduct(Long id, Product productDetails) {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
         
-        // Update fields
         if (productDetails.getName() != null) {
             existingProduct.setName(productDetails.getName());
         }
@@ -78,22 +81,29 @@ public class ProductService {
         return productRepository.save(existingProduct);
     }
 
-    // Save product with images
+    // Save product with images - FIXED VERSION
     public Product saveWithImages(Product product, MultipartFile[] images) {
+        // First save the product to get an ID
+        Product savedProduct = productRepository.save(product);
+        
         if (images != null && images.length > 0) {
             List<String> imagePaths = new ArrayList<>();
             for (MultipartFile image : images) {
-                String filePath = saveImage(image);
-                if (filePath != null) {
-                    imagePaths.add(filePath);
+                // Save the file and get absolute path
+                String absolutePath = fileStorageService.saveFile(image, savedProduct.getId(), "products");
+                if (absolutePath != null) {
+                    // Convert to relative web path
+                    String relativePath = convertToRelativePath(absolutePath, savedProduct.getId());
+                    imagePaths.add(relativePath);
                 }
             }
-            product.setImageFilePaths(imagePaths);
+            savedProduct.setImageFilePaths(imagePaths);
+            return productRepository.save(savedProduct);
         }
-        return productRepository.save(product);
+        return savedProduct;
     }
 
-    // Upload images to existing product
+    // Upload images to existing product - FIXED VERSION
     public void uploadProductImages(MultipartFile[] images, Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
@@ -104,9 +114,12 @@ public class ProductService {
         }
         
         for (MultipartFile image : images) {
-            String filePath = saveImage(image);
-            if (filePath != null) {
-                currentImages.add(filePath);
+            // Save the file and get absolute path
+            String absolutePath = fileStorageService.saveFile(image, productId, "products");
+            if (absolutePath != null) {
+                // Convert to relative web path
+                String relativePath = convertToRelativePath(absolutePath, productId);
+                currentImages.add(relativePath);
             }
         }
         
@@ -126,34 +139,31 @@ public class ProductService {
             productRepository.save(product);
         }
         
-        // Delete physical file
-        try {
-            Path path = Paths.get(filePath);
-            Files.deleteIfExists(path);
-        } catch (IOException e) {
-            System.err.println("Failed to delete image file: " + filePath);
-        }
+        fileStorageService.deleteFile(filePath);
     }
 
-    private String saveImage(MultipartFile image) {
-        try {
-            // Create upload directory if it doesn't exist
-            Path uploadPath = Paths.get(UPLOAD_DIR);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-            
-            // Generate unique filename
-            String fileName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
-            Path filePath = uploadPath.resolve(fileName);
-            
-            // Save file
-            Files.copy(image.getInputStream(), filePath);
-            
-            return filePath.toString();
-        } catch (IOException e) {
-            System.err.println("Failed to save image: " + e.getMessage());
-            return null;
+    /**
+     * Convert absolute file path to relative web path
+     * Example: uploads/products/1/12345.jpg -> /uploads/products/1/12345.jpg
+     */
+    private String convertToRelativePath(String absolutePath, Long productId) {
+        if (absolutePath == null || absolutePath.isEmpty()) {
+            return "";
         }
+        
+        // Extract filename from absolute path
+        String fileName = getFileNameFromPath(absolutePath);
+        
+        // Build relative web path
+        return "/uploads/products/" + productId + "/" + fileName;
+    }
+
+    private String getFileNameFromPath(String filePath) {
+        if (filePath == null || filePath.isEmpty()) return "";
+        int lastSeparator = Math.max(
+            filePath.lastIndexOf("/"), 
+            filePath.lastIndexOf("\\")
+        );
+        return lastSeparator >= 0 ? filePath.substring(lastSeparator + 1) : filePath;
     }
 }

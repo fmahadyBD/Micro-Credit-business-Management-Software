@@ -1,0 +1,163 @@
+<!-- src/app/page/product/edit-product/edit-product.component.html -->
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Edit Product</h2>
+    <button class="btn btn-outline-secondary" (click)="cancel()">
+      <i class="fas fa-arrow-left me-2"></i>Back to Products
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading && !product.name" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="product.name" class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Edit Product Information</h5>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="onSubmit()" #productForm="ngForm">
+            
+            <!-- Product Name -->
+            <div class="mb-3">
+              <label for="name" class="form-label">Product Name *</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="name" 
+                     name="name"
+                     [(ngModel)]="product.name"
+                     required
+                     #name="ngModel">
+              <div *ngIf="name.invalid && (name.dirty || name.touched)" class="text-danger">
+                <small *ngIf="name.errors?.['required']">Product name is required</small>
+              </div>
+            </div>
+
+            <!-- Category -->
+            <div class="mb-3">
+              <label for="category" class="form-label">Category *</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="category" 
+                     name="category"
+                     [(ngModel)]="product.category"
+                     required
+                     #category="ngModel">
+              <div *ngIf="category.invalid && (category.dirty || category.touched)" class="text-danger">
+                <small *ngIf="category.errors?.['required']">Category is required</small>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="form-control" 
+                        id="description" 
+                        name="description"
+                        [(ngModel)]="product.description"
+                        rows="3"></textarea>
+            </div>
+
+            <div class="row">
+              <!-- Price -->
+              <div class="col-md-6 mb-3">
+                <label for="price" class="form-label">Price *</label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" 
+                         class="form-control" 
+                         id="price" 
+                         name="price"
+                         [(ngModel)]="product.price"
+                         min="0"
+                         step="0.01"
+                         required
+                         #price="ngModel">
+                </div>
+                <div *ngIf="price.invalid && (price.dirty || price.touched)" class="text-danger">
+                  <small *ngIf="price.errors?.['required']">Price is required</small>
+                </div>
+              </div>
+
+              <!-- Cost Price -->
+              <div class="col-md-6 mb-3">
+                <label for="costPrice" class="form-label">Cost Price</label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" 
+                         class="form-control" 
+                         id="costPrice" 
+                         name="costPrice"
+                         [(ngModel)]="product.costPrice"
+                         min="0"
+                         step="0.01">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <!-- Stock -->
+              <div class="col-md-6 mb-3">
+                <label for="stock" class="form-label">Stock Quantity</label>
+                <input type="number" 
+                       class="form-control" 
+                       id="stock" 
+                       name="stock"
+                       [(ngModel)]="product.stock"
+                       min="0">
+              </div>
+
+              <!-- Status -->
+              <div class="col-md-6 mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" 
+                        id="status" 
+                        name="status"
+                        [(ngModel)]="product.status">
+                  <option value="ACTIVE">Active</option>
+                  <option value="INACTIVE">Inactive</option>
+                  <option value="OUT_OF_STOCK">Out of Stock</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Delivery Required -->
+            <div class="mb-3 form-check">
+              <input type="checkbox" 
+                     class="form-check-input" 
+                     id="isDeliveryRequired"
+                     name="isDeliveryRequired"
+                     [(ngModel)]="product.isDeliveryRequired">
+              <label class="form-check-label" for="isDeliveryRequired">
+                Delivery Required
+              </label>
+            </div>
+
+            <!-- Error Message -->
+            <div *ngIf="error" class="alert alert-danger" role="alert">
+              {{ error }}
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex gap-2 justify-content-end">
+              <button type="button" class="btn btn-outline-secondary" (click)="cancel()">
+                Cancel
+              </button>
+              <button type="submit" 
+                      class="btn btn-primary" 
+                      [disabled]="!isFormValid() || loading">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                {{ loading ? 'Updating...' : 'Update Product' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

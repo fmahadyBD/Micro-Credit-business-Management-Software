@@ -18,6 +18,7 @@ export class SideBarComponent implements OnInit, OnDestroy {
     | 'all-users' | 'add-user' | 'deleted-users'
     | 'all-members' | 'add-member'
     | 'all-agents' | 'add-agent'
+    | 'all-products' | 'add-product'
   >();
 
   sidebarOpen = false;
@@ -26,7 +27,7 @@ export class SideBarComponent implements OnInit, OnDestroy {
   private mobileSubscription?: Subscription;
   private collapseSubscription?: Subscription;
 
-  constructor(private sidebarService: SidebarTopbarService) {}
+  constructor(private sidebarService: SidebarTopbarService) { }
 
   ngOnInit() {
     this.mobileSubscription = this.sidebarService.isMobileOpen$.subscribe(state => {
@@ -65,6 +66,7 @@ export class SideBarComponent implements OnInit, OnDestroy {
       | 'all-users' | 'add-user' | 'deleted-users'
       | 'all-members' | 'add-member'
       | 'all-agents' | 'add-agent'
+       | 'all-products' | 'add-product' 
   ) {
     event.preventDefault();
     event.stopPropagation();

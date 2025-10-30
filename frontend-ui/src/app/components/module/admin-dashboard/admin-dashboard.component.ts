@@ -23,6 +23,10 @@ import { AddNewAgentComponent } from '../../page/agent/add-new-agent/add-new-age
 import { AllAgentsComponent } from '../../page/agent/all-agents/all-agents.component';
 import { UpdateAgentComponent } from '../../page/agent/update-agent/update-agent.component';
 import { DetailsAgentComponent } from '../../page/agent/details-agent/details-agent.component';
+import { AllProductsComponent } from '../../page/product/all-products/all-products.component';
+import { AddProductComponent } from '../../page/product/add-product/add-product.component';
+import { ProductDetailsComponent } from '../../page/product/product-details/product-details.component';
+import { EditProductComponent } from '../../page/product/edit-product/edit-product.component';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -48,7 +52,11 @@ import { DetailsAgentComponent } from '../../page/agent/details-agent/details-ag
     AllAgentsComponent,
     AddNewAgentComponent,
     UpdateAgentComponent,
-     DetailsAgentComponent 
+    DetailsAgentComponent,
+    AllProductsComponent,
+    AddProductComponent,
+    ProductDetailsComponent,
+    EditProductComponent
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
@@ -63,18 +71,25 @@ export class AdminDashboardComponent implements OnInit {
     | 'all-agents' | 'add-agent'
     | 'user-details' | 'edit-user'
     | 'member-details' | 'edit-member'
-    | 'agent-details' | 'edit-agent' = 'dashboard';
+    | 'all-products' | 'add-product' | 'product-details' | 'edit-product'
+    | 'agent-details' | 'edit-agent' = 'dashboard'
+
+    ;
 
   selectedUserId: number | null = null;
   selectedMemberId: number | null = null;
-  selectedAgentId: number | null = null; 
-  
+  selectedAgentId: number | null = null;
 
-  constructor(private sidebarService: SidebarTopbarService) {}
+
+  constructor(private sidebarService: SidebarTopbarService) { }
 
   setView(view: any) {
     this.currentView = view;
   }
+
+  // Add product ID tracking
+  selectedProductId: number | null = null;
+
 
   ngOnInit() {
     // Sidebar collapse handling
@@ -133,5 +148,39 @@ export class AdminDashboardComponent implements OnInit {
       this.selectedAgentId = null;
       this.currentView = 'all-agents';
     });
+
+
+
+    // 🎁 Product events
+    window.addEventListener('viewProductDetails', (e: any) => {
+      this.selectedProductId = e.detail;
+      this.currentView = 'product-details';
+    });
+
+    window.addEventListener('editProduct', (e: any) => {
+      this.selectedProductId = e.detail;
+      this.currentView = 'edit-product';
+    });
+
+    window.addEventListener('addProduct', () => {
+      this.currentView = 'add-product';
+    });
+
+    window.addEventListener('backToAllProducts', () => {
+      this.selectedProductId = null;
+      this.currentView = 'all-products';
+    });
+
+
+
+
+
+
+
+
+
+
+
+
   }
 }

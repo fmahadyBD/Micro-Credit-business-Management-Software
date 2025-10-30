@@ -55,14 +55,28 @@
     *ngIf="currentView === 'agent-details'"
   ></app-agent-details> -->
 
- <!-- Agent Details & Edit -->
-<app-agent-details
-  *ngIf="currentView === 'agent-details' && selectedAgentId !== null"
-  [agentId]="selectedAgentId!"
-></app-agent-details>
+  <!-- Agent Details & Edit -->
+  <app-agent-details
+    *ngIf="currentView === 'agent-details' && selectedAgentId !== null"
+    [agentId]="selectedAgentId!"
+  ></app-agent-details>
 
-<app-update-agent
-  *ngIf="currentView === 'edit-agent' && selectedAgentId !== null"
-  [agentId]="selectedAgentId!"
-></app-update-agent>
+  <app-update-agent
+    *ngIf="currentView === 'edit-agent' && selectedAgentId !== null"
+    [agentId]="selectedAgentId!"
+  ></app-update-agent>
+
+  <!-- 🎁 Products -->
+  <app-all-products *ngIf="currentView === 'all-products'"></app-all-products>
+  <app-add-product *ngIf="currentView === 'add-product'"></app-add-product>
+
+  <app-product-details
+    *ngIf="currentView === 'product-details' && selectedProductId !== null"
+    [productId]="selectedProductId!"
+  ></app-product-details>
+
+  <app-edit-product
+    *ngIf="currentView === 'edit-product' && selectedProductId !== null"
+    [productId]="selectedProductId!"
+  ></app-edit-product>
 </main>
