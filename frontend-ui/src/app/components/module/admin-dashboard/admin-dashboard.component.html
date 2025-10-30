@@ -16,9 +16,7 @@
   <!-- 👥 Users -->
   <app-all-users *ngIf="currentView === 'all-users'"></app-all-users>
   <app-add-new-user *ngIf="currentView === 'add-user'"></app-add-new-user>
-  <app-deleted-users
-    *ngIf="currentView === 'deleted-users'"
-  ></app-deleted-users>
+  <app-deleted-users *ngIf="currentView === 'deleted-users'"></app-deleted-users>
 
   <!-- 👨‍👩‍👧 Members -->
   <app-all-members *ngIf="currentView === 'all-members'"></app-all-members>
@@ -28,6 +26,7 @@
   <app-all-agents *ngIf="currentView === 'all-agents'"></app-all-agents>
   <app-add-new-agent *ngIf="currentView === 'add-agent'"></app-add-new-agent>
 
+  <!-- User Details & Edit -->
   <app-user-details
     *ngIf="currentView === 'user-details' && selectedUserId !== null"
     [userId]="selectedUserId!"
@@ -37,4 +36,15 @@
     *ngIf="currentView === 'edit-user' && selectedUserId !== null"
     [userId]="selectedUserId!"
   ></app-edit-user>
+
+  <!-- Member Details & Edit -->
+  <app-member-details
+    *ngIf="currentView === 'member-details' && selectedMemberId !== null"
+    [memberId]="selectedMemberId!"
+  ></app-member-details>
+
+  <app-edit-member
+    *ngIf="currentView === 'edit-member' && selectedMemberId !== null"
+    [memberId]="selectedMemberId!"
+  ></app-edit-member>
 </main>

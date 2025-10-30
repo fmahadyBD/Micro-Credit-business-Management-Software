@@ -7,12 +7,16 @@ import { HttpClient } from '@angular/common/http';
 import { ApiConfiguration, ApiConfigurationParams } from './api-configuration';
 
 import { UsersService } from './services/users.service';
-import { MembersService } from './services/members.service';
-import { AgentsService } from './services/agents.service';
 import { ShareholderControllerService } from './services/shareholder-controller.service';
-import { RequestProductControllerService } from './services/request-product-controller.service';
 import { ProductControllerService } from './services/product-controller.service';
+import { PaymentScheduleControllerService } from './services/payment-schedule-controller.service';
+import { MembersService } from './services/members.service';
 import { InstallmentControllerService } from './services/installment-controller.service';
+import { AgentsService } from './services/agents.service';
+import { WithdrawalControllerService } from './services/withdrawal-controller.service';
+import { ShareTransactionControllerService } from './services/share-transaction-controller.service';
+import { RequestProductControllerService } from './services/request-product-controller.service';
+import { ShareholderEarningControllerService } from './services/shareholder-earning-controller.service';
 
 /**
  * Module that provides all services and configuration.
@@ -23,12 +27,16 @@ import { InstallmentControllerService } from './services/installment-controller.
   declarations: [],
   providers: [
     UsersService,
-    MembersService,
-    AgentsService,
     ShareholderControllerService,
-    RequestProductControllerService,
     ProductControllerService,
+    PaymentScheduleControllerService,
+    MembersService,
     InstallmentControllerService,
+    AgentsService,
+    WithdrawalControllerService,
+    ShareTransactionControllerService,
+    RequestProductControllerService,
+    ShareholderEarningControllerService,
     ApiConfiguration
   ],
 })

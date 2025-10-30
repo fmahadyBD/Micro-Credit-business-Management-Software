@@ -1,102 +1,94 @@
 <main class="main-content" [class.collapsed]="isSidebarCollapsed">
-  <div class="container-fluid">
-    <div class="card mt-4 border-0 shadow-sm">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5>All Members</h5>
-        <button class="btn btn-primary btn-sm" (click)="addMember()">
-          <i class="fas fa-plus-circle"></i> Add Member
-        </button>
+  <div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-success text-white">
+        <h4 class="mb-0"><i class="fas fa-users me-2"></i>All Members</h4>
       </div>
 
-      <!-- Message Alert -->
-      <div *ngIf="message" class="m-2">
-        <div
-          [ngClass]="{
-            'alert alert-success': message.type === 'success',
-            'alert alert-danger': message.type === 'error'
-          }"
-          role="alert"
-        >
-          {{ message.text }}
+      <div class="card-body">
+        <!-- Loading State -->
+        <div *ngIf="loading" class="text-center py-5">
+          <div class="spinner-border text-success" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-3">Loading members...</p>
         </div>
-      </div>
 
-      <!-- Members Table -->
-      <div class="card-body p-0">
-        <table class="table table-striped table-hover mb-0">
-          <thead class="table-dark">
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Status</th>
-              <th class="text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let member of members; let i = index">
-              <td>{{ i + 1 }}</td>
-              <td>{{ member.name }}</td>
-              <td>{{ member.phone }}</td>
-              <td>
-                <button
-                  class="btn btn-sm"
-                  [ngClass]="{
-                    'btn-success': member.status === 'ACTIVE',
-                    'btn-secondary': member.status === 'INACTIVE'
-                  }"
-                  (click)="confirmStatusChange(member)"
-                >
-                  {{ member.status || 'Unknown' }}
-                </button>
-              </td>
-              <td class="text-center">
-                <div class="d-flex flex-wrap justify-content-center gap-1">
-                  <button class="btn btn-info btn-sm btn-mobile" (click)="viewDetails(member)" title="View Details">
+        <!-- Error State -->
+        <div *ngIf="error && !loading" class="alert alert-danger">
+          <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+        </div>
+
+        <!-- Success Message -->
+        <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show">
+          <i class="fas fa-check-circle me-2"></i>{{ successMessage }}
+          <button type="button" class="btn-close" (click)="successMessage = null"></button>
+        </div>
+
+        <!-- Members Table -->
+        <div *ngIf="!loading && members.length > 0" class="table-responsive">
+          <table class="table table-hover table-striped">
+            <thead class="table-success">
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Village</th>
+                <th>Zila</th>
+                <th>NID Card</th>
+                <th>Status</th>
+                <th>Join Date</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let member of members">
+                <td>{{ member.id }}</td>
+                <td>{{ member.name }}</td>
+                <td>{{ member.phone }}</td>
+                <td>{{ member.village }}</td>
+                <td>{{ member.zila }}</td>
+                <td>{{ member.nidCardNumber }}</td>
+                <td>
+                  <span [class]="getStatusClass(member.status)">
+                    {{ member.status }}
+                  </span>
+                </td>
+                <td>{{ formatDate(member.joinDate) }}</td>
+                <td class="text-center">
+                  <button 
+                    class="btn btn-sm btn-info text-white me-1"
+                    (click)="viewDetails(member.id!)"
+                    title="View Details"
+                  >
                     <i class="fas fa-eye"></i>
                   </button>
-                  <button class="btn btn-warning btn-sm btn-mobile" (click)="editMember(member)" title="Edit">
+                  <button 
+                    class="btn btn-sm btn-warning text-white me-1"
+                    (click)="editMember(member.id!)"
+                    title="Edit Member"
+                  >
                     <i class="fas fa-edit"></i>
                   </button>
-                  <button class="btn btn-danger btn-sm btn-mobile" (click)="deleteMember(member)" title="Delete">
+                  <button 
+                    class="btn btn-sm btn-danger"
+                    (click)="deleteMember(member.id!)"
+                    title="Delete Member"
+                  >
                     <i class="fas fa-trash"></i>
                   </button>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="members.length === 0 && !loading">
-              <td colspan="7" class="text-center text-muted">No members found</td>
-            </tr>
-            <tr *ngIf="loading">
-              <td colspan="7" class="text-center text-muted">
-                <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-                Loading members...
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!loading && members.length === 0" class="text-center py-5">
+          <i class="fas fa-users fa-3x text-muted mb-3"></i>
+          <p class="text-muted">No members found</p>
+        </div>
       </div>
     </div>
   </div>
 </main>
-
-<!-- Status Modal -->
-<div class="modal fade" id="statusModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Confirm Status Change</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        Are you sure you want to change status of
-        <strong>{{ selectedMember?.name }}</strong> to 
-        <strong>{{ newStatus }}</strong>?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" (click)="updateStatus()">Yes, Change</button>
-      </div>
-    </div>
-  </div>
-</div>

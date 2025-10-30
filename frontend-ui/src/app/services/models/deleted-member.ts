@@ -7,11 +7,16 @@ export interface DeletedMember {
   id?: number;
   joinDate?: string;
   name?: string;
-  nidCard?: string;
-  nominee?: string;
+  nidCardImagePath?: string;
+  nidCardNumber?: string;
+  nomineeName?: string;
+  nomineeNidCardImagePath?: string;
+  nomineeNidCardNumber?: string;
+  nomineePhone?: string;
   originalMemberId?: number;
   phone?: string;
-  photo?: string;
+  photoPath?: string;
+  status?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
   village?: string;
   zila?: string;
 }

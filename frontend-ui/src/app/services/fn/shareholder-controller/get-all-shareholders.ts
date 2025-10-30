@@ -8,12 +8,12 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { Shareholder } from '../../models/shareholder';
 
 export interface GetAllShareholders$Params {
 }
 
-export function getAllShareholders(http: HttpClient, rootUrl: string, params?: GetAllShareholders$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<Shareholder>>> {
+export function getAllShareholders(http: HttpClient, rootUrl: string, params?: GetAllShareholders$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
   const rb = new RequestBuilder(rootUrl, getAllShareholders.PATH, 'get');
   if (params) {
   }
@@ -23,7 +23,8 @@ export function getAllShareholders(http: HttpClient, rootUrl: string, params?: G
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<Array<Shareholder>>;
+      return r as StrictHttpResponse<{
+      }>;
     })
   );
 }

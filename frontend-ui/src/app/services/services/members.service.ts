@@ -11,8 +11,8 @@ import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
 
-import { createMember } from '../fn/members/create-member';
-import { CreateMember$Params } from '../fn/members/create-member';
+import { createMemberWithImages } from '../fn/members/create-member-with-images';
+import { CreateMemberWithImages$Params } from '../fn/members/create-member-with-images';
 import { DeletedMember } from '../models/deleted-member';
 import { deleteMember } from '../fn/members/delete-member';
 import { DeleteMember$Params } from '../fn/members/delete-member';
@@ -184,39 +184,47 @@ export class MembersService extends BaseService {
     );
   }
 
-  /** Path part for operation `createMember()` */
-  static readonly CreateMemberPath = '/api/members';
+  /** Path part for operation `createMemberWithImages()` */
+  static readonly CreateMemberWithImagesPath = '/api/members';
 
   /**
-   * Create new member.
+   * Create new member with images (all images mandatory).
    *
    *
    *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `createMember()` instead.
+   * To access only the response body, use `createMemberWithImages()` instead.
    *
-   * This method sends `application/json` and handles request body of type `application/json`.
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
    */
-  createMember$Response(params: CreateMember$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+  createMemberWithImages$Response(params: CreateMemberWithImages$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+[key: string]: {
+};
 }>> {
-    return createMember(this.http, this.rootUrl, params, context);
+    return createMemberWithImages(this.http, this.rootUrl, params, context);
   }
 
   /**
-   * Create new member.
+   * Create new member with images (all images mandatory).
    *
    *
    *
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `createMember$Response()` instead.
+   * To access the full response (for headers, for example), `createMemberWithImages$Response()` instead.
    *
-   * This method sends `application/json` and handles request body of type `application/json`.
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
    */
-  createMember(params: CreateMember$Params, context?: HttpContext): Observable<{
+  createMemberWithImages(params: CreateMemberWithImages$Params, context?: HttpContext): Observable<{
+[key: string]: {
+};
 }> {
-    return this.createMember$Response(params, context).pipe(
+    return this.createMemberWithImages$Response(params, context).pipe(
       map((r: StrictHttpResponse<{
+[key: string]: {
+};
 }>): {
+[key: string]: {
+};
 } => r.body)
     );
   }

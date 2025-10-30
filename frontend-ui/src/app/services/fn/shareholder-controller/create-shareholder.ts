@@ -14,7 +14,8 @@ export interface CreateShareholder$Params {
       body: Shareholder
 }
 
-export function createShareholder(http: HttpClient, rootUrl: string, params: CreateShareholder$Params, context?: HttpContext): Observable<StrictHttpResponse<Shareholder>> {
+export function createShareholder(http: HttpClient, rootUrl: string, params: CreateShareholder$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
   const rb = new RequestBuilder(rootUrl, createShareholder.PATH, 'post');
   if (params) {
     rb.body(params.body, 'application/json');
@@ -25,7 +26,8 @@ export function createShareholder(http: HttpClient, rootUrl: string, params: Cre
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<Shareholder>;
+      return r as StrictHttpResponse<{
+      }>;
     })
   );
 }

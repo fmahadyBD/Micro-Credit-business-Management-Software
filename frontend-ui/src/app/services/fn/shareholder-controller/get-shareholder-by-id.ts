@@ -8,13 +8,13 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { Shareholder } from '../../models/shareholder';
 
 export interface GetShareholderById$Params {
   id: number;
 }
 
-export function getShareholderById(http: HttpClient, rootUrl: string, params: GetShareholderById$Params, context?: HttpContext): Observable<StrictHttpResponse<Shareholder>> {
+export function getShareholderById(http: HttpClient, rootUrl: string, params: GetShareholderById$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
   const rb = new RequestBuilder(rootUrl, getShareholderById.PATH, 'get');
   if (params) {
     rb.path('id', params.id, {});
@@ -25,7 +25,8 @@ export function getShareholderById(http: HttpClient, rootUrl: string, params: Ge
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<Shareholder>;
+      return r as StrictHttpResponse<{
+      }>;
     })
   );
 }

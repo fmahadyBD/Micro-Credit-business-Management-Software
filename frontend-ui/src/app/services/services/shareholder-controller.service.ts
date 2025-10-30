@@ -15,66 +15,25 @@ import { createShareholder } from '../fn/shareholder-controller/create-sharehold
 import { CreateShareholder$Params } from '../fn/shareholder-controller/create-shareholder';
 import { deleteShareholder } from '../fn/shareholder-controller/delete-shareholder';
 import { DeleteShareholder$Params } from '../fn/shareholder-controller/delete-shareholder';
+import { getActiveShareholders } from '../fn/shareholder-controller/get-active-shareholders';
+import { GetActiveShareholders$Params } from '../fn/shareholder-controller/get-active-shareholders';
 import { getAllShareholders } from '../fn/shareholder-controller/get-all-shareholders';
 import { GetAllShareholders$Params } from '../fn/shareholder-controller/get-all-shareholders';
 import { getShareholderById } from '../fn/shareholder-controller/get-shareholder-by-id';
 import { GetShareholderById$Params } from '../fn/shareholder-controller/get-shareholder-by-id';
-import { Shareholder } from '../models/shareholder';
+import { getShareholderDashboard } from '../fn/shareholder-controller/get-shareholder-dashboard';
+import { GetShareholderDashboard$Params } from '../fn/shareholder-controller/get-shareholder-dashboard';
+import { getShareholderDetails } from '../fn/shareholder-controller/get-shareholder-details';
+import { GetShareholderDetails$Params } from '../fn/shareholder-controller/get-shareholder-details';
+import { getShareholderStatistics } from '../fn/shareholder-controller/get-shareholder-statistics';
+import { GetShareholderStatistics$Params } from '../fn/shareholder-controller/get-shareholder-statistics';
+import { updateShareholder } from '../fn/shareholder-controller/update-shareholder';
+import { UpdateShareholder$Params } from '../fn/shareholder-controller/update-shareholder';
 
 @Injectable({ providedIn: 'root' })
 export class ShareholderControllerService extends BaseService {
   constructor(config: ApiConfiguration, http: HttpClient) {
     super(config, http);
-  }
-
-  /** Path part for operation `getAllShareholders()` */
-  static readonly GetAllShareholdersPath = '/api/shareholders';
-
-  /**
-   * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `getAllShareholders()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  getAllShareholders$Response(params?: GetAllShareholders$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<Shareholder>>> {
-    return getAllShareholders(this.http, this.rootUrl, params, context);
-  }
-
-  /**
-   * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `getAllShareholders$Response()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  getAllShareholders(params?: GetAllShareholders$Params, context?: HttpContext): Observable<Array<Shareholder>> {
-    return this.getAllShareholders$Response(params, context).pipe(
-      map((r: StrictHttpResponse<Array<Shareholder>>): Array<Shareholder> => r.body)
-    );
-  }
-
-  /** Path part for operation `createShareholder()` */
-  static readonly CreateShareholderPath = '/api/shareholders';
-
-  /**
-   * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `createShareholder()` instead.
-   *
-   * This method sends `application/json` and handles request body of type `application/json`.
-   */
-  createShareholder$Response(params: CreateShareholder$Params, context?: HttpContext): Observable<StrictHttpResponse<Shareholder>> {
-    return createShareholder(this.http, this.rootUrl, params, context);
-  }
-
-  /**
-   * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `createShareholder$Response()` instead.
-   *
-   * This method sends `application/json` and handles request body of type `application/json`.
-   */
-  createShareholder(params: CreateShareholder$Params, context?: HttpContext): Observable<Shareholder> {
-    return this.createShareholder$Response(params, context).pipe(
-      map((r: StrictHttpResponse<Shareholder>): Shareholder => r.body)
-    );
   }
 
   /** Path part for operation `getShareholderById()` */
@@ -86,7 +45,8 @@ export class ShareholderControllerService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  getShareholderById$Response(params: GetShareholderById$Params, context?: HttpContext): Observable<StrictHttpResponse<Shareholder>> {
+  getShareholderById$Response(params: GetShareholderById$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
     return getShareholderById(this.http, this.rootUrl, params, context);
   }
 
@@ -96,9 +56,41 @@ export class ShareholderControllerService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  getShareholderById(params: GetShareholderById$Params, context?: HttpContext): Observable<Shareholder> {
+  getShareholderById(params: GetShareholderById$Params, context?: HttpContext): Observable<{
+}> {
     return this.getShareholderById$Response(params, context).pipe(
-      map((r: StrictHttpResponse<Shareholder>): Shareholder => r.body)
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
+    );
+  }
+
+  /** Path part for operation `updateShareholder()` */
+  static readonly UpdateShareholderPath = '/api/shareholders/{id}';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `updateShareholder()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  updateShareholder$Response(params: UpdateShareholder$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return updateShareholder(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `updateShareholder$Response()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  updateShareholder(params: UpdateShareholder$Params, context?: HttpContext): Observable<{
+}> {
+    return this.updateShareholder$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
     );
   }
 
@@ -111,7 +103,8 @@ export class ShareholderControllerService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  deleteShareholder$Response(params: DeleteShareholder$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+  deleteShareholder$Response(params: DeleteShareholder$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
     return deleteShareholder(this.http, this.rootUrl, params, context);
   }
 
@@ -121,9 +114,186 @@ export class ShareholderControllerService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  deleteShareholder(params: DeleteShareholder$Params, context?: HttpContext): Observable<void> {
+  deleteShareholder(params: DeleteShareholder$Params, context?: HttpContext): Observable<{
+}> {
     return this.deleteShareholder$Response(params, context).pipe(
-      map((r: StrictHttpResponse<void>): void => r.body)
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
+    );
+  }
+
+  /** Path part for operation `getAllShareholders()` */
+  static readonly GetAllShareholdersPath = '/api/shareholders';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getAllShareholders()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getAllShareholders$Response(params?: GetAllShareholders$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return getAllShareholders(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getAllShareholders$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getAllShareholders(params?: GetAllShareholders$Params, context?: HttpContext): Observable<{
+}> {
+    return this.getAllShareholders$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
+    );
+  }
+
+  /** Path part for operation `createShareholder()` */
+  static readonly CreateShareholderPath = '/api/shareholders';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `createShareholder()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  createShareholder$Response(params: CreateShareholder$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return createShareholder(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `createShareholder$Response()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  createShareholder(params: CreateShareholder$Params, context?: HttpContext): Observable<{
+}> {
+    return this.createShareholder$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
+    );
+  }
+
+  /** Path part for operation `getShareholderDetails()` */
+  static readonly GetShareholderDetailsPath = '/api/shareholders/{id}/details';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getShareholderDetails()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getShareholderDetails$Response(params: GetShareholderDetails$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return getShareholderDetails(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getShareholderDetails$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getShareholderDetails(params: GetShareholderDetails$Params, context?: HttpContext): Observable<{
+}> {
+    return this.getShareholderDetails$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
+    );
+  }
+
+  /** Path part for operation `getShareholderDashboard()` */
+  static readonly GetShareholderDashboardPath = '/api/shareholders/{id}/dashboard';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getShareholderDashboard()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getShareholderDashboard$Response(params: GetShareholderDashboard$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return getShareholderDashboard(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getShareholderDashboard$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getShareholderDashboard(params: GetShareholderDashboard$Params, context?: HttpContext): Observable<{
+}> {
+    return this.getShareholderDashboard$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
+    );
+  }
+
+  /** Path part for operation `getShareholderStatistics()` */
+  static readonly GetShareholderStatisticsPath = '/api/shareholders/statistics';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getShareholderStatistics()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getShareholderStatistics$Response(params?: GetShareholderStatistics$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return getShareholderStatistics(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getShareholderStatistics$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getShareholderStatistics(params?: GetShareholderStatistics$Params, context?: HttpContext): Observable<{
+}> {
+    return this.getShareholderStatistics$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
+    );
+  }
+
+  /** Path part for operation `getActiveShareholders()` */
+  static readonly GetActiveShareholdersPath = '/api/shareholders/active';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getActiveShareholders()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getActiveShareholders$Response(params?: GetActiveShareholders$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return getActiveShareholders(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getActiveShareholders$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getActiveShareholders(params?: GetActiveShareholders$Params, context?: HttpContext): Observable<{
+}> {
+    return this.getActiveShareholders$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
     );
   }
 

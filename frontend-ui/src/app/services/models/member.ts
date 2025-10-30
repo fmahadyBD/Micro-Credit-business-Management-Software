@@ -10,11 +10,15 @@ export interface Member {
   installments?: Array<Installment>;
   joinDate?: string;
   name: string;
-  nidCard: string;
-  nominee: string;
+  nidCardImagePath?: string;
+  nidCardNumber: string;
+  nomineeName: string;
+  nomineeNidCardImagePath?: string;
+  nomineeNidCardNumber: string;
+  nomineePhone: string;
   phone: string;
-  photo?: string;
-  status?: 'ACTIVE' | 'INACTIVE';
+  photoPath?: string;
+  status?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
   village: string;
   zila: string;
 }

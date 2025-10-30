@@ -1,35 +1,25 @@
-import { HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Member } from '../../../../services/models';
 import { MembersService } from '../../../../services/services/members.service';
+import { Member } from '../../../../services/models/member';
 import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
-
-interface Message {
-  type: 'success' | 'error';
-  text: string;
-}
-declare var bootstrap: any;
 
 @Component({
   selector: 'app-all-members',
   standalone: true,
-  imports: [HttpClientModule, CommonModule],
+  imports: [CommonModule],
   templateUrl: './all-members.component.html',
   styleUrls: ['./all-members.component.css']
 })
 export class AllMembersComponent implements OnInit {
-
   members: Member[] = [];
-  loading = false;
-  message: Message | null = null;
+  loading: boolean = true;
+  error: string | null = null;
+  successMessage: string | null = null;
   isSidebarCollapsed = false;
 
-  selectedMember: Member | null = null;
-  newStatus: Member['status'] = 'ACTIVE';
-
   constructor(
-    private memberService: MembersService,
+    private membersService: MembersService,
     private sidebarService: SidebarTopbarService
   ) {}
 
@@ -42,99 +32,58 @@ export class AllMembersComponent implements OnInit {
 
   loadMembers(): void {
     this.loading = true;
-    this.memberService.getAllMembers().subscribe({
-      next: (members) => {
-        this.members = members;
+    this.error = null;
+
+    this.membersService.getAllMembers().subscribe({
+      next: (data) => {
+        this.members = data;
         this.loading = false;
       },
       error: (err) => {
+        this.error = 'Failed to load members';
+        this.loading = false;
         console.error('Error loading members:', err);
-        this.message = { type: 'error', text: 'Failed to load members.' };
-        this.loading = false;
       }
     });
   }
 
-  addMember(): void {
-    this.message = { type: 'success', text: 'Add member clicked (not implemented).' };
+  viewDetails(memberId: number): void {
+    window.dispatchEvent(new CustomEvent('viewMemberDetails', { detail: memberId }));
   }
 
-  viewDetails(member: Member): void {
-    this.message = { type: 'success', text: `View details for ${member.name}.` };
+  editMember(memberId: number): void {
+    window.dispatchEvent(new CustomEvent('editMember', { detail: memberId }));
   }
 
-  editMember(member: Member): void {
-    this.message = { type: 'success', text: `Edit member ${member.name} clicked.` };
-  }
-
-  deleteMember(member: Member): void {
-    if (!member.id) {
-      this.message = { type: 'error', text: 'Invalid member ID.' };
-      return;
-    }
-
-    if (!confirm(`Are you sure you want to delete ${member.name}?`)) {
-      return;
-    }
-
-    const memberId = member.id;
-    const name = member.name;
-
-    this.memberService.deleteMember({ id: memberId }).subscribe({
-      next: () => {
-        this.members = this.members.filter(m => m.id !== memberId);
-        this.message = { type: 'success', text: `Member "${name}" deleted successfully.` };
-        setTimeout(() => this.message = null, 3000);
-      },
-      error: (err) => {
-        console.error('Delete member error:', err);
-        this.message = { type: 'error', text: `Failed to delete "${name}". ${err.error?.message || ''}` };
-      }
-    });
-  }
-
-  confirmStatusChange(member: Member) {
-    this.selectedMember = member;
-    this.newStatus = member.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-
-    const modalElement = document.getElementById('statusModal');
-    if (modalElement) {
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show();
+  deleteMember(memberId: number): void {
+    if (confirm('Are you sure you want to delete this member?')) {
+      this.membersService.deleteMember({ id: memberId }).subscribe({
+        next: () => {
+          this.successMessage = 'Member deleted successfully!';
+          this.loadMembers();
+          setTimeout(() => {
+            this.successMessage = null;
+          }, 3000);
+        },
+        error: (err) => {
+          this.error = 'Failed to delete member';
+          console.error('Error deleting member:', err);
+        }
+      });
     }
   }
 
-  updateStatus() {
-    if (!this.selectedMember || this.selectedMember.id === undefined) {
-      this.message = { type: 'error', text: 'Invalid member selected.' };
-      return;
-    }
-
-    const updatedMember: Member = { ...this.selectedMember, status: this.newStatus };
-    const memberId = this.selectedMember.id;
-    const name = this.selectedMember.name;
-
-    this.memberService.updateMember({ id: memberId, body: updatedMember }).subscribe({
-      next: () => {
-        const index = this.members.findIndex(m => m.id === memberId);
-        if (index !== -1) this.members[index].status = this.newStatus;
-        this.message = { type: 'success', text: `Status of "${name}" updated to ${this.newStatus}.` };
-        this.closeModal();
-        setTimeout(() => this.message = null, 3000);
-      },
-      error: (err) => {
-        console.error('Update status error:', err);
-        this.message = { type: 'error', text: `Failed to update status for "${name}".` };
-        this.closeModal();
-      }
-    });
+  formatDate(date: string | undefined): string {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleDateString();
   }
 
-  closeModal() {
-    this.selectedMember = null;
-    this.newStatus = 'ACTIVE';
-    const modalElement = document.getElementById('statusModal');
-    const modal = bootstrap.Modal.getInstance(modalElement!);
-    modal?.hide();
+  getStatusClass(status: string | undefined): string {
+    switch(status) {
+      case 'ACTIVE': return 'badge bg-success';
+      case 'INACTIVE': return 'badge bg-secondary';
+      case 'SUSPENDED': return 'badge bg-warning';
+      default: return 'badge bg-secondary';
+    }
   }
 }

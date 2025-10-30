@@ -1,55 +1,428 @@
 <main class="main-content" [class.collapsed]="isSidebarCollapsed">
-  <div class="container-fluid">
-    <div class="card mt-4 shadow-sm border-0">
-      <div class="card-header">
-        <h5 class="mb-0">Add New Member</h5>
+  <div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-success text-white">
+        <h4 class="mb-0">
+          <i class="fas fa-user-plus me-2"></i>Add New Member
+        </h4>
       </div>
+
       <div class="card-body">
-        <div *ngIf="message" class="mb-3">
-          <div [ngClass]="{
-              'alert alert-success': message.type === 'success',
-              'alert alert-danger': message.type === 'error'
-            }">
-            {{ message.text }}
-          </div>
+        <!-- Error Alert -->
+        <div
+          *ngIf="error"
+          class="alert alert-danger alert-dismissible fade show"
+        >
+          <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+          <button
+            type="button"
+            class="btn-close"
+            (click)="error = null"
+          ></button>
         </div>
 
-        <form (ngSubmit)="submitMember()" class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label">Name</label>
-            <input type="text" class="form-control" [(ngModel)]="member.name" name="name" required />
-          </div>
+        <!-- Success Alert -->
+        <div
+          *ngIf="successMessage"
+          class="alert alert-success alert-dismissible fade show"
+        >
+          <i class="fas fa-check-circle me-2"></i>{{ successMessage }}
+          <button
+            type="button"
+            class="btn-close"
+            (click)="successMessage = null"
+          ></button>
+        </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Phone</label>
-            <input type="text" class="form-control" [(ngModel)]="member.phone" name="phone" required />
-          </div>
+        <!-- Add Member Form -->
+        <form (ngSubmit)="onSubmit()" #memberForm="ngForm">
+          <div class="row">
+            <!-- Basic Information -->
+            <div class="col-12 mb-4">
+              <h5 class="border-bottom pb-2">
+                <i class="fas fa-user me-2"></i>Basic Information
+              </h5>
+            </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Zila</label>
-            <input type="text" class="form-control" [(ngModel)]="member.zila" name="zila" />
-          </div>
+            <div class="col-md-6 mb-3">
+              <label for="name" class="form-label"
+                >Name <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                [(ngModel)]="member.name"
+                required
+                minlength="2"
+                maxlength="100"
+                #name="ngModel"
+                placeholder="Enter member name"
+              />
+              <div
+                *ngIf="name.invalid && (name.dirty || name.touched)"
+                class="text-danger small mt-1"
+              >
+                <div *ngIf="name.errors?.['required']">Name is required</div>
+                <div *ngIf="name.errors?.['minlength']">
+                  Name must be at least 2 characters
+                </div>
+              </div>
+            </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Village</label>
-            <input type="text" class="form-control" [(ngModel)]="member.village" name="village" />
-          </div>
+            <div class="col-md-6 mb-3">
+              <label for="phone" class="form-label"
+                >Phone <span class="text-danger">*</span></label
+              >
+              <!-- In the phone input fields, add: -->
+              <input
+                type="tel"
+                class="form-control"
+                id="phone"
+                name="phone"
+                [(ngModel)]="member.phone"
+                (input)="onPhoneInput('phone')"
+                required
+                minlength="10"
+                maxlength="15"
+                #phone="ngModel"
+                placeholder="Enter phone number"
+              />
+              <div
+                *ngIf="phone.invalid && (phone.dirty || phone.touched)"
+                class="text-danger small mt-1"
+              >
+                <div *ngIf="phone.errors?.['required']">Phone is required</div>
+                <div *ngIf="phone.errors?.['minlength']">
+                  Phone must be at least 10 characters
+                </div>
+              </div>
+            </div>
 
-          <div class="col-md-6">
-            <label class="form-label">NID Card</label>
-            <input type="text" class="form-control" [(ngModel)]="member.nidCard" name="nidCard" />
-          </div>
+            <div class="col-md-6 mb-3">
+              <label for="nidCardNumber" class="form-label"
+                >NID Card Number <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="nidCardNumber"
+                name="nidCardNumber"
+                [(ngModel)]="member.nidCardNumber"
+                required
+                #nidCardNumber="ngModel"
+                placeholder="Enter NID card number"
+              />
+              <div
+                *ngIf="
+                  nidCardNumber.invalid &&
+                  (nidCardNumber.dirty || nidCardNumber.touched)
+                "
+                class="text-danger small mt-1"
+              >
+                <div *ngIf="nidCardNumber.errors?.['required']">
+                  NID Card number is required
+                </div>
+              </div>
+            </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Nominee</label>
-            <input type="text" class="form-control" [(ngModel)]="member.nominee" name="nominee" />
-          </div>
+            <div class="col-md-6 mb-3">
+              <label for="status" class="form-label">Status</label>
+              <select
+                class="form-select"
+                id="status"
+                name="status"
+                [(ngModel)]="member.status"
+              >
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+                <option value="SUSPENDED">Suspended</option>
+              </select>
+            </div>
 
-          <div class="col-12">
-            <button class="btn btn-primary" type="submit" [disabled]="submitting">
-              <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
-              {{ submitting ? "Saving..." : "Create Member" }}
-            </button>
+            <!-- Address Information -->
+            <div class="col-12 mb-4 mt-3">
+              <h5 class="border-bottom pb-2">
+                <i class="fas fa-map-marker-alt me-2"></i>Address Information
+              </h5>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="village" class="form-label"
+                >Village <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="village"
+                name="village"
+                [(ngModel)]="member.village"
+                required
+                #village="ngModel"
+                placeholder="Enter village name"
+              />
+              <div
+                *ngIf="village.invalid && (village.dirty || village.touched)"
+                class="text-danger small mt-1"
+              >
+                <div *ngIf="village.errors?.['required']">
+                  Village is required
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="zila" class="form-label"
+                >Zila (District) <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="zila"
+                name="zila"
+                [(ngModel)]="member.zila"
+                required
+                #zila="ngModel"
+                placeholder="Enter district name"
+              />
+              <div
+                *ngIf="zila.invalid && (zila.dirty || zila.touched)"
+                class="text-danger small mt-1"
+              >
+                <div *ngIf="zila.errors?.['required']">Zila is required</div>
+              </div>
+            </div>
+
+            <!-- Nominee Information -->
+            <div class="col-12 mb-4 mt-3">
+              <h5 class="border-bottom pb-2">
+                <i class="fas fa-user-tie me-2"></i>Nominee Information
+              </h5>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="nomineeName" class="form-label"
+                >Nominee Name <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="nomineeName"
+                name="nomineeName"
+                [(ngModel)]="member.nomineeName"
+                required
+                #nomineeName="ngModel"
+                placeholder="Enter nominee name"
+              />
+              <div
+                *ngIf="
+                  nomineeName.invalid &&
+                  (nomineeName.dirty || nomineeName.touched)
+                "
+                class="text-danger small mt-1"
+              >
+                <div *ngIf="nomineeName.errors?.['required']">
+                  Nominee name is required
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="nomineePhone" class="form-label"
+                >Nominee Phone <span class="text-danger">*</span></label
+              >
+              <input
+                type="tel"
+                class="form-control"
+                id="nomineePhone"
+                name="nomineePhone"
+                [(ngModel)]="member.nomineePhone"
+                required
+                minlength="10"
+                maxlength="15"
+                #nomineePhone="ngModel"
+                placeholder="Enter nominee phone number"
+              />
+              <div
+                *ngIf="
+                  nomineePhone.invalid &&
+                  (nomineePhone.dirty || nomineePhone.touched)
+                "
+                class="text-danger small mt-1"
+              >
+                <div *ngIf="nomineePhone.errors?.['required']">
+                  Nominee phone is required
+                </div>
+                <div *ngIf="nomineePhone.errors?.['minlength']">
+                  Phone must be at least 10 characters
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="nomineeNidCardNumber" class="form-label"
+                >Nominee NID Card Number
+                <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="nomineeNidCardNumber"
+                name="nomineeNidCardNumber"
+                [(ngModel)]="member.nomineeNidCardNumber"
+                required
+                #nomineeNidCardNumber="ngModel"
+                placeholder="Enter nominee NID card number"
+              />
+              <div
+                *ngIf="
+                  nomineeNidCardNumber.invalid &&
+                  (nomineeNidCardNumber.dirty || nomineeNidCardNumber.touched)
+                "
+                class="text-danger small mt-1"
+              >
+                <div *ngIf="nomineeNidCardNumber.errors?.['required']">
+                  Nominee NID Card number is required
+                </div>
+              </div>
+            </div>
+
+            <!-- Image Uploads -->
+            <div class="col-12 mb-4 mt-3">
+              <h5 class="border-bottom pb-2">
+                <i class="fas fa-images me-2"></i>Image Uploads (All Required)
+              </h5>
+            </div>
+
+            <!-- NID Card Image -->
+            <div class="col-md-4 mb-3">
+              <label for="nidCardImage" class="form-label">
+                NID Card Image <span class="text-danger">*</span>
+              </label>
+              <input
+                type="file"
+                class="form-control"
+                id="nidCardImage"
+                accept="image/*"
+                (change)="onFileSelect($event, 'nidCard')"
+              />
+              <small class="text-muted">Max size: 5MB</small>
+
+              <!-- Preview -->
+              <div *ngIf="nidCardImagePreview" class="mt-2 position-relative">
+                <img
+                  [src]="nidCardImagePreview"
+                  alt="NID Card Preview"
+                  class="img-thumbnail"
+                  style="max-width: 200px"
+                />
+                <button
+                  type="button"
+                  class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
+                  (click)="removeFile('nidCard')"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Member Photo -->
+            <div class="col-md-4 mb-3">
+              <label for="photo" class="form-label">
+                Member Photo <span class="text-danger">*</span>
+              </label>
+              <input
+                type="file"
+                class="form-control"
+                id="photo"
+                accept="image/*"
+                (change)="onFileSelect($event, 'photo')"
+              />
+              <small class="text-muted">Max size: 5MB</small>
+
+              <!-- Preview -->
+              <div *ngIf="photoPreview" class="mt-2 position-relative">
+                <img
+                  [src]="photoPreview"
+                  alt="Photo Preview"
+                  class="img-thumbnail"
+                  style="max-width: 200px"
+                />
+                <button
+                  type="button"
+                  class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
+                  (click)="removeFile('photo')"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Nominee NID Card Image -->
+            <div class="col-md-4 mb-3">
+              <label for="nomineeNidCardImage" class="form-label">
+                Nominee NID Card Image <span class="text-danger">*</span>
+              </label>
+              <input
+                type="file"
+                class="form-control"
+                id="nomineeNidCardImage"
+                accept="image/*"
+                (change)="onFileSelect($event, 'nomineeNidCard')"
+              />
+              <small class="text-muted">Max size: 5MB</small>
+
+              <!-- Preview -->
+              <div
+                *ngIf="nomineeNidCardImagePreview"
+                class="mt-2 position-relative"
+              >
+                <img
+                  [src]="nomineeNidCardImagePreview"
+                  alt="Nominee NID Card Preview"
+                  class="img-thumbnail"
+                  style="max-width: 200px"
+                />
+                <button
+                  type="button"
+                  class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
+                  (click)="removeFile('nomineeNidCard')"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="col-12 mt-4">
+              <button
+                type="submit"
+                class="btn btn-success me-2"
+                [disabled]="
+                  saving ||
+                  !nidCardImageFile ||
+                  !photoFile ||
+                  !nomineeNidCardImageFile
+                "
+              >
+                <span *ngIf="!saving">
+                  <i class="fas fa-save me-2"></i>Add Member
+                </span>
+                <span *ngIf="saving">
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Saving...
+                </span>
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="resetForm()"
+                [disabled]="saving"
+              >
+                <i class="fas fa-redo me-2"></i>Reset Form
+              </button>
+            </div>
           </div>
         </form>
       </div>

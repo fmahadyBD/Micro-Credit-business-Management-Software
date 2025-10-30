@@ -13,18 +13,105 @@ import { StrictHttpResponse } from '../strict-http-response';
 
 import { createInstallment } from '../fn/installment-controller/create-installment';
 import { CreateInstallment$Params } from '../fn/installment-controller/create-installment';
+import { createInstallmentWithImages } from '../fn/installment-controller/create-installment-with-images';
+import { CreateInstallmentWithImages$Params } from '../fn/installment-controller/create-installment-with-images';
 import { deleteInstallment } from '../fn/installment-controller/delete-installment';
 import { DeleteInstallment$Params } from '../fn/installment-controller/delete-installment';
 import { getAllInstallments } from '../fn/installment-controller/get-all-installments';
 import { GetAllInstallments$Params } from '../fn/installment-controller/get-all-installments';
 import { getInstallmentById } from '../fn/installment-controller/get-installment-by-id';
 import { GetInstallmentById$Params } from '../fn/installment-controller/get-installment-by-id';
+import { getInstallmentImages } from '../fn/installment-controller/get-installment-images';
+import { GetInstallmentImages$Params } from '../fn/installment-controller/get-installment-images';
 import { Installment } from '../models/installment';
+import { updateInstallment } from '../fn/installment-controller/update-installment';
+import { UpdateInstallment$Params } from '../fn/installment-controller/update-installment';
+import { uploadInstallmentImages } from '../fn/installment-controller/upload-installment-images';
+import { UploadInstallmentImages$Params } from '../fn/installment-controller/upload-installment-images';
 
 @Injectable({ providedIn: 'root' })
 export class InstallmentControllerService extends BaseService {
   constructor(config: ApiConfiguration, http: HttpClient) {
     super(config, http);
+  }
+
+  /** Path part for operation `getInstallmentById()` */
+  static readonly GetInstallmentByIdPath = '/api/installments/{id}';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getInstallmentById()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getInstallmentById$Response(params: GetInstallmentById$Params, context?: HttpContext): Observable<StrictHttpResponse<Installment>> {
+    return getInstallmentById(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getInstallmentById$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getInstallmentById(params: GetInstallmentById$Params, context?: HttpContext): Observable<Installment> {
+    return this.getInstallmentById$Response(params, context).pipe(
+      map((r: StrictHttpResponse<Installment>): Installment => r.body)
+    );
+  }
+
+  /** Path part for operation `updateInstallment()` */
+  static readonly UpdateInstallmentPath = '/api/installments/{id}';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `updateInstallment()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  updateInstallment$Response(params: UpdateInstallment$Params, context?: HttpContext): Observable<StrictHttpResponse<Installment>> {
+    return updateInstallment(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `updateInstallment$Response()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  updateInstallment(params: UpdateInstallment$Params, context?: HttpContext): Observable<Installment> {
+    return this.updateInstallment$Response(params, context).pipe(
+      map((r: StrictHttpResponse<Installment>): Installment => r.body)
+    );
+  }
+
+  /** Path part for operation `deleteInstallment()` */
+  static readonly DeleteInstallmentPath = '/api/installments/{id}';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `deleteInstallment()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  deleteInstallment$Response(params: DeleteInstallment$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return deleteInstallment(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `deleteInstallment$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  deleteInstallment(params: DeleteInstallment$Params, context?: HttpContext): Observable<{
+}> {
+    return this.deleteInstallment$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
+    );
   }
 
   /** Path part for operation `getAllInstallments()` */
@@ -77,53 +164,82 @@ export class InstallmentControllerService extends BaseService {
     );
   }
 
-  /** Path part for operation `getInstallmentById()` */
-  static readonly GetInstallmentByIdPath = '/api/installments/{id}';
+  /** Path part for operation `getInstallmentImages()` */
+  static readonly GetInstallmentImagesPath = '/api/installments/{id}/images';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `getInstallmentById()` instead.
+   * To access only the response body, use `getInstallmentImages()` instead.
    *
    * This method doesn't expect any request body.
    */
-  getInstallmentById$Response(params: GetInstallmentById$Params, context?: HttpContext): Observable<StrictHttpResponse<Installment>> {
-    return getInstallmentById(this.http, this.rootUrl, params, context);
+  getInstallmentImages$Response(params: GetInstallmentImages$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return getInstallmentImages(this.http, this.rootUrl, params, context);
   }
 
   /**
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `getInstallmentById$Response()` instead.
+   * To access the full response (for headers, for example), `getInstallmentImages$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  getInstallmentById(params: GetInstallmentById$Params, context?: HttpContext): Observable<Installment> {
-    return this.getInstallmentById$Response(params, context).pipe(
-      map((r: StrictHttpResponse<Installment>): Installment => r.body)
+  getInstallmentImages(params: GetInstallmentImages$Params, context?: HttpContext): Observable<{
+}> {
+    return this.getInstallmentImages$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
     );
   }
 
-  /** Path part for operation `deleteInstallment()` */
-  static readonly DeleteInstallmentPath = '/api/installments/{id}';
+  /** Path part for operation `uploadInstallmentImages()` */
+  static readonly UploadInstallmentImagesPath = '/api/installments/{id}/images';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `deleteInstallment()` instead.
+   * To access only the response body, use `uploadInstallmentImages()` instead.
    *
-   * This method doesn't expect any request body.
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
    */
-  deleteInstallment$Response(params: DeleteInstallment$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
-    return deleteInstallment(this.http, this.rootUrl, params, context);
+  uploadInstallmentImages$Response(params: UploadInstallmentImages$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+    return uploadInstallmentImages(this.http, this.rootUrl, params, context);
   }
 
   /**
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `deleteInstallment$Response()` instead.
+   * To access the full response (for headers, for example), `uploadInstallmentImages$Response()` instead.
    *
-   * This method doesn't expect any request body.
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
    */
-  deleteInstallment(params: DeleteInstallment$Params, context?: HttpContext): Observable<void> {
-    return this.deleteInstallment$Response(params, context).pipe(
+  uploadInstallmentImages(params: UploadInstallmentImages$Params, context?: HttpContext): Observable<void> {
+    return this.uploadInstallmentImages$Response(params, context).pipe(
       map((r: StrictHttpResponse<void>): void => r.body)
+    );
+  }
+
+  /** Path part for operation `createInstallmentWithImages()` */
+  static readonly CreateInstallmentWithImagesPath = '/api/installments/with-images';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `createInstallmentWithImages()` instead.
+   *
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
+   */
+  createInstallmentWithImages$Response(params?: CreateInstallmentWithImages$Params, context?: HttpContext): Observable<StrictHttpResponse<Installment>> {
+    return createInstallmentWithImages(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `createInstallmentWithImages$Response()` instead.
+   *
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
+   */
+  createInstallmentWithImages(params?: CreateInstallmentWithImages$Params, context?: HttpContext): Observable<Installment> {
+    return this.createInstallmentWithImages$Response(params, context).pipe(
+      map((r: StrictHttpResponse<Installment>): Installment => r.body)
     );
   }
 

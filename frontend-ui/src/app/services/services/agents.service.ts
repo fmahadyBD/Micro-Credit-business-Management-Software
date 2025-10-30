@@ -14,6 +14,8 @@ import { StrictHttpResponse } from '../strict-http-response';
 import { Agent } from '../models/agent';
 import { createAgent } from '../fn/agents/create-agent';
 import { CreateAgent$Params } from '../fn/agents/create-agent';
+import { createAgentWithPhoto } from '../fn/agents/create-agent-with-photo';
+import { CreateAgentWithPhoto$Params } from '../fn/agents/create-agent-with-photo';
 import { deleteAgent } from '../fn/agents/delete-agent';
 import { DeleteAgent$Params } from '../fn/agents/delete-agent';
 import { DeletedAgent } from '../models/deleted-agent';
@@ -29,6 +31,10 @@ import { updateAgent } from '../fn/agents/update-agent';
 import { UpdateAgent$Params } from '../fn/agents/update-agent';
 import { updateAgentStatus } from '../fn/agents/update-agent-status';
 import { UpdateAgentStatus$Params } from '../fn/agents/update-agent-status';
+import { updateAgentWithPhoto } from '../fn/agents/update-agent-with-photo';
+import { UpdateAgentWithPhoto$Params } from '../fn/agents/update-agent-with-photo';
+import { uploadAgentPhoto } from '../fn/agents/upload-agent-photo';
+import { UploadAgentPhoto$Params } from '../fn/agents/upload-agent-photo';
 
 @Injectable({ providedIn: 'root' })
 export class AgentsService extends BaseService {
@@ -155,6 +161,43 @@ export class AgentsService extends BaseService {
     );
   }
 
+  /** Path part for operation `updateAgentWithPhoto()` */
+  static readonly UpdateAgentWithPhotoPath = '/api/agents/{id}/with-photo';
+
+  /**
+   * Update agent with photo.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `updateAgentWithPhoto()` instead.
+   *
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
+   */
+  updateAgentWithPhoto$Response(params: UpdateAgentWithPhoto$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return updateAgentWithPhoto(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * Update agent with photo.
+   *
+   *
+   *
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `updateAgentWithPhoto$Response()` instead.
+   *
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
+   */
+  updateAgentWithPhoto(params: UpdateAgentWithPhoto$Params, context?: HttpContext): Observable<{
+}> {
+    return this.updateAgentWithPhoto$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
+    );
+  }
+
   /** Path part for operation `updateAgentStatus()` */
   static readonly UpdateAgentStatusPath = '/api/agents/{id}/status';
 
@@ -256,6 +299,80 @@ export class AgentsService extends BaseService {
   createAgent(params: CreateAgent$Params, context?: HttpContext): Observable<{
 }> {
     return this.createAgent$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
+    );
+  }
+
+  /** Path part for operation `uploadAgentPhoto()` */
+  static readonly UploadAgentPhotoPath = '/api/agents/{id}/photo';
+
+  /**
+   * Upload agent photo.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `uploadAgentPhoto()` instead.
+   *
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
+   */
+  uploadAgentPhoto$Response(params: UploadAgentPhoto$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return uploadAgentPhoto(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * Upload agent photo.
+   *
+   *
+   *
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `uploadAgentPhoto$Response()` instead.
+   *
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
+   */
+  uploadAgentPhoto(params: UploadAgentPhoto$Params, context?: HttpContext): Observable<{
+}> {
+    return this.uploadAgentPhoto$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
+    );
+  }
+
+  /** Path part for operation `createAgentWithPhoto()` */
+  static readonly CreateAgentWithPhotoPath = '/api/agents/with-photo';
+
+  /**
+   * Create agent with photo.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `createAgentWithPhoto()` instead.
+   *
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
+   */
+  createAgentWithPhoto$Response(params?: CreateAgentWithPhoto$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return createAgentWithPhoto(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * Create agent with photo.
+   *
+   *
+   *
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `createAgentWithPhoto$Response()` instead.
+   *
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
+   */
+  createAgentWithPhoto(params?: CreateAgentWithPhoto$Params, context?: HttpContext): Observable<{
+}> {
+    return this.createAgentWithPhoto$Response(params, context).pipe(
       map((r: StrictHttpResponse<{
 }>): {
 } => r.body)

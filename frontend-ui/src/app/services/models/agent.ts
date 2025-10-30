@@ -6,13 +6,13 @@ export interface Agent {
   email?: string;
   id?: number;
   joinDate?: string;
-  name: string;
-  nidCard: string;
-  nominee: string;
-  phone: string;
+  name?: string;
+  nidCard?: string;
+  nominee?: string;
+  phone?: string;
   photo?: string;
   role?: string;
   status?: string;
-  village: string;
-  zila: string;
+  village?: string;
+  zila?: string;
 }

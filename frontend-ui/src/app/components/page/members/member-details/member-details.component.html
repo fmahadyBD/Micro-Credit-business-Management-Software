@@ -1,0 +1,236 @@
+<main class="main-content" [class.collapsed]="isSidebarCollapsed">
+  <div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="fas fa-user-circle me-2"></i>Member Details</h4>
+        <button class="btn btn-light btn-sm" (click)="goBack()">
+          <i class="fas fa-arrow-left me-1"></i>Back to All Members
+        </button>
+      </div>
+
+      <div class="card-body">
+        <!-- Loading State -->
+        <div *ngIf="loading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-3">Loading member details...</p>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="error && !loading" class="alert alert-danger">
+          <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+        </div>
+
+        <!-- Member Details -->
+        <div *ngIf="member && !loading" class="row">
+          <!-- Basic Information -->
+          <div class="col-md-6 mb-4">
+            <div class="card h-100">
+              <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Basic Information</h5>
+              </div>
+              <div class="card-body">
+                <table class="table table-borderless">
+                  <tbody>
+                    <tr>
+                      <th width="40%">ID:</th>
+                      <td>{{ member.id }}</td>
+                    </tr>
+                    <tr>
+                      <th>Name:</th>
+                      <td>{{ member.name }}</td>
+                    </tr>
+                    <tr>
+                      <th>Phone:</th>
+                      <td>{{ member.phone }}</td>
+                    </tr>
+                    <tr>
+                      <th>NID Card Number:</th>
+                      <td>{{ member.nidCardNumber }}</td>
+                    </tr>
+                    <tr>
+                      <th>Status:</th>
+                      <td>
+                        <span [class]="getStatusClass(member.status)">
+                          {{ member.status }}
+                        </span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>Join Date:</th>
+                      <td>{{ formatDate(member.joinDate) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Address Information -->
+          <div class="col-md-6 mb-4">
+            <div class="card h-100">
+              <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Address Information</h5>
+              </div>
+              <div class="card-body">
+                <table class="table table-borderless">
+                  <tbody>
+                    <tr>
+                      <th width="40%">Village:</th>
+                      <td>{{ member.village }}</td>
+                    </tr>
+                    <tr>
+                      <th>Zila (District):</th>
+                      <td>{{ member.zila }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nominee Information -->
+          <div class="col-md-6 mb-4">
+            <div class="card h-100">
+              <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Nominee Information</h5>
+              </div>
+              <div class="card-body">
+                <table class="table table-borderless">
+                  <tbody>
+                    <tr>
+                      <th width="40%">Nominee Name:</th>
+                      <td>{{ member.nomineeName }}</td>
+                    </tr>
+                    <tr>
+                      <th>Nominee Phone:</th>
+                      <td>{{ member.nomineePhone }}</td>
+                    </tr>
+                    <tr>
+                      <th>Nominee NID Card:</th>
+                      <td>{{ member.nomineeNidCardNumber }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Member Photo -->
+          <div class="col-md-6 mb-4">
+            <div class="card h-100">
+              <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-image me-2"></i>Member Photo</h5>
+              </div>
+              <div class="card-body text-center">
+                <img 
+                  *ngIf="member.photoPath" 
+                  [src]="member.photoPath" 
+                  alt="Member Photo" 
+                  class="img-thumbnail"
+                  style="max-width: 200px; max-height: 200px;"
+                />
+                <p *ngIf="!member.photoPath" class="text-muted">No photo available</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- NID Card Image -->
+          <div class="col-md-6 mb-4">
+            <div class="card h-100">
+              <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>NID Card Image</h5>
+              </div>
+              <div class="card-body text-center">
+                <img 
+                  *ngIf="member.nidCardImagePath" 
+                  [src]="member.nidCardImagePath" 
+                  alt="NID Card Image" 
+                  class="img-thumbnail"
+                  style="max-width: 200px; max-height: 200px;"
+                />
+                <p *ngIf="!member.nidCardImagePath" class="text-muted">No NID card image available</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nominee NID Card Image -->
+          <div class="col-md-6 mb-4">
+            <div class="card h-100">
+              <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Nominee NID Card Image</h5>
+              </div>
+              <div class="card-body text-center">
+                <img 
+                  *ngIf="member.nomineeNidCardImagePath" 
+                  [src]="member.nomineeNidCardImagePath" 
+                  alt="Nominee NID Card Image" 
+                  class="img-thumbnail"
+                  style="max-width: 200px; max-height: 200px;"
+                />
+                <p *ngIf="!member.nomineeNidCardImagePath" class="text-muted">No nominee NID card image available</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Agents Information -->
+          <div class="col-12 mb-4" *ngIf="member.agents && member.agents.length > 0">
+            <div class="card">
+              <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-users me-2"></i>Associated Agents</h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Agent ID</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let agent of member.agents">
+                        <td>{{ agent.id }}</td>
+                        <td>{{ agent.name }}</td>
+                        <td>{{ agent.phone }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Installments Information -->
+          <div class="col-12 mb-4" *ngIf="member.installments && member.installments.length > 0">
+            <div class="card">
+              <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>Installment History</h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Details</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let installment of member.installments">
+                        <td>{{ installment.id }}</td>
+                        <td>Installment #{{ installment.id }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
