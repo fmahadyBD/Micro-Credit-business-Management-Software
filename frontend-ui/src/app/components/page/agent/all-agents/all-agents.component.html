@@ -1,139 +1,93 @@
 <main class="main-content" [class.collapsed]="isSidebarCollapsed">
-  <div class="container-fluid">
-    <div class="card mt-4 border-0 shadow-sm">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">All Agents</h5>
-        <button class="btn btn-primary btn-sm" (click)="addAgent()">
-          <i class="fas fa-plus-circle me-1"></i> Add Agent
+  <div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="fas fa-user-tie me-2"></i>All Agents</h4>
+        <button class="btn btn-light text-info" (click)="addAgent()">
+          <i class="fas fa-plus me-1"></i> Add Agent
         </button>
       </div>
 
-      <!-- Message Alert -->
-      <div *ngIf="message" class="m-2">
-        <div
-          [ngClass]="{
-            'alert alert-success': message.type === 'success',
-            'alert alert-danger': message.type === 'error'
-          }"
-          role="alert"
-        >
-          {{ message.text }}
+      <div class="card-body">
+        <!-- Loading State -->
+        <div *ngIf="loading" class="text-center py-5">
+          <div class="spinner-border text-info" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-3">Loading agents...</p>
         </div>
-      </div>
 
-      <!-- Agents Table -->
-      <div class="card-body p-0">
-        <table class="table table-striped table-hover mb-0">
-          <thead class="table-dark">
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Status</th>
-              <th class="text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let agent of agents; let i = index">
-              <td>{{ i + 1 }}</td>
-              <td>{{ agent.name }}</td>
-              <td>{{ agent.phone }}</td>
-              <td>
-                <button
-                  class="btn btn-sm"
-                  [ngClass]="{
-                    'btn-success': agent.status === 'ACTIVE',
-                    'btn-secondary': agent.status === 'INACTIVE'
-                  }"
-                  (click)="confirmStatusChange(agent)"
-                >
-                  {{ agent.status || 'Unknown' }}
-                </button>
-              </td>
-              <td class="text-center">
-                <div class="d-flex flex-wrap justify-content-center gap-1">
-                  <button
-                    class="btn btn-info btn-sm btn-mobile"
-                    (click)="viewDetails(agent)"
+        <!-- Error State -->
+        <div *ngIf="error && !loading" class="alert alert-danger">
+          <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+        </div>
+
+        <!-- Success Message -->
+        <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show">
+          <i class="fas fa-check-circle me-2"></i>{{ successMessage }}
+          <button type="button" class="btn-close" (click)="successMessage = null"></button>
+        </div>
+
+        <!-- Agents Table -->
+        <div *ngIf="!loading && agents.length > 0" class="table-responsive">
+          <table class="table table-hover table-striped">
+            <thead class="table-info">
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Join Date</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let agent of agents">
+                <td>{{ agent.id }}</td>
+                <td>{{ agent.name }}</td>
+                <td>{{ agent.phone }}</td>
+                <td>{{ agent.email }}</td>
+                <td>
+                  <span [class]="getStatusClass(agent.status)">
+                    {{ agent.status }}
+                  </span>
+                </td>
+                <td>{{ formatDate(agent.joinDate) }}</td>
+                <td class="text-center">
+                  <button 
+                    class="btn btn-sm btn-info text-white me-1"
+                    (click)="viewDetails(agent.id!)"
                     title="View Details"
                   >
                     <i class="fas fa-eye"></i>
                   </button>
-                  <button
-                    class="btn btn-warning btn-sm btn-mobile"
-                    (click)="editAgent(agent)"
-                    title="Edit"
+                  <button 
+                    class="btn btn-sm btn-warning text-white me-1"
+                    (click)="editAgent(agent.id!)"
+                    title="Edit Agent"
                   >
                     <i class="fas fa-edit"></i>
                   </button>
-                  <button
-                    class="btn btn-danger btn-sm btn-mobile"
-                    (click)="deleteAgent(agent)"
-                    title="Delete"
+                  <button 
+                    class="btn btn-sm btn-danger"
+                    (click)="deleteAgent(agent.id!)"
+                    title="Delete Agent"
                   >
                     <i class="fas fa-trash"></i>
                   </button>
-                </div>
-              </td>
-            </tr>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-            <!-- Empty State -->
-            <tr *ngIf="agents.length === 0 && !loading">
-              <td colspan="8" class="text-center text-muted">
-                No agents found
-              </td>
-            </tr>
-
-            <!-- Loading State -->
-            <tr *ngIf="loading">
-              <td colspan="8" class="text-center text-muted">
-                <div
-                  class="spinner-border spinner-border-sm me-2"
-                  role="status"
-                ></div>
-                Loading agents...
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- Empty State -->
+        <div *ngIf="!loading && agents.length === 0" class="text-center py-5">
+          <i class="fas fa-user-tie fa-3x text-muted mb-3"></i>
+          <p class="text-muted">No agents found</p>
+        </div>
       </div>
     </div>
   </div>
 </main>
-
-<!-- Status Modal -->
-<div class="modal fade" id="statusModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Confirm Status Change</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
-      </div>
-      <div class="modal-body">
-        Are you sure you want to change status of
-        <strong>{{ selectedAgent?.name }}</strong> to
-        <strong>{{ newStatus }}</strong>?
-      </div>
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-secondary"
-          data-bs-dismiss="modal"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          class="btn btn-primary"
-          (click)="updateStatus()"
-        >
-          Yes, Change
-        </button>
-      </div>
-    </div>
-  </div>
-</div>

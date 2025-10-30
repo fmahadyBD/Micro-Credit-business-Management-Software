@@ -1,0 +1,40 @@
+.card {
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.badge {
+  font-size: 0.75em;
+  padding: 0.35em 0.65em;
+}
+
+.img-thumbnail {
+  border: 2px solid #dee2e6;
+  transition: transform 0.2s;
+}
+
+.img-thumbnail:hover {
+  transform: scale(1.05);
+}
+
+.main-content {
+  transition: margin-left 0.3s ease;
+}
+
+.main-content.collapsed {
+  margin-left: 0;
+}
+
+@media (max-width: 768px) {
+  .card-body .row .col-sm-4 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .card-body .row .col-sm-8 {
+    margin-bottom: 1rem;
+  }
+}

@@ -1,24 +1,28 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { SideBarComponent } from '../../layout/side-bar/side-bar.component';
 import { TopBarComponent } from '../../layout/top-bar/top-bar.component';
 import { AdminMainComponent } from '../admin-main/admin-main.component';
 
-import { UserDetailsComponent } from '../../page/user/user-details/user-details.component';
-import { EditUserComponent } from '../../page/user/edit-user/edit-user.component';
-import { MemberDetailsComponent } from '../../page/members/member-details/member-details.component';
-import { EditMemberComponent } from '../../page/members/edit-member/edit-member.component';
-
 import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
-import { AllMembersComponent } from '../../page/members/all-members/all-members.component';
-import { AllAgentsComponent } from '../../page/agent/all-agents/all-agents.component';
-import { AddNewMemberComponent } from '../../page/members/add-new-member/add-new-member.component';
-import { AddNewAgentComponent } from '../../page/agent/add-new-agent/add-new-agent.component';
-import { DeletedUsersComponent } from '../../page/user/deleted-users/deleted-users.component';
+
 import { AddNewUserComponent } from '../../page/user/add-new-user/add-new-user.component';
 import { AllUsersComponent } from '../../page/user/all-users/all-users.component';
+import { DeletedUsersComponent } from '../../page/user/deleted-users/deleted-users.component';
+import { EditUserComponent } from '../../page/user/edit-user/edit-user.component';
+import { UserDetailsComponent } from '../../page/user/user-details/user-details.component';
+
+import { AddNewMemberComponent } from '../../page/members/add-new-member/add-new-member.component';
+import { AllMembersComponent } from '../../page/members/all-members/all-members.component';
+import { EditMemberComponent } from '../../page/members/edit-member/edit-member.component';
+import { MemberDetailsComponent } from '../../page/members/member-details/member-details.component';
+
+import { AddNewAgentComponent } from '../../page/agent/add-new-agent/add-new-agent.component';
+import { AllAgentsComponent } from '../../page/agent/all-agents/all-agents.component';
+import { UpdateAgentComponent } from '../../page/agent/update-agent/update-agent.component';
+import { DetailsAgentComponent } from '../../page/agent/details-agent/details-agent.component';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -29,17 +33,22 @@ import { AllUsersComponent } from '../../page/user/all-users/all-users.component
     SideBarComponent,
     TopBarComponent,
     AdminMainComponent,
+    // 👥 Users
     AllUsersComponent,
     AddNewUserComponent,
     DeletedUsersComponent,
-    AllMembersComponent,
-    AddNewMemberComponent,
-    AllAgentsComponent,
-    AddNewAgentComponent,
     UserDetailsComponent,
     EditUserComponent,
+    // 👨‍👩‍👧 Members
+    AllMembersComponent,
+    AddNewMemberComponent,
     MemberDetailsComponent,
-    EditMemberComponent
+    EditMemberComponent,
+    // 🧑‍💼 Agents
+    AllAgentsComponent,
+    AddNewAgentComponent,
+    UpdateAgentComponent,
+     DetailsAgentComponent 
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
@@ -53,23 +62,27 @@ export class AdminDashboardComponent implements OnInit {
     | 'all-members' | 'add-member'
     | 'all-agents' | 'add-agent'
     | 'user-details' | 'edit-user'
-    | 'member-details' | 'edit-member' = 'dashboard';
+    | 'member-details' | 'edit-member'
+    | 'agent-details' | 'edit-agent' = 'dashboard';
 
   selectedUserId: number | null = null;
   selectedMemberId: number | null = null;
+  selectedAgentId: number | null = null; 
+  
+
+  constructor(private sidebarService: SidebarTopbarService) {}
 
   setView(view: any) {
     this.currentView = view;
   }
 
-  constructor(private sidebarService: SidebarTopbarService) { }
-
   ngOnInit() {
+    // Sidebar collapse handling
     this.sidebarService.isCollapsed$.subscribe((state: boolean) => {
       this.isSidebarCollapsed = state;
     });
 
-    // User events
+    // 🧍 User events
     window.addEventListener('viewUserDetails', (e: any) => {
       this.selectedUserId = e.detail;
       this.currentView = 'user-details';
@@ -85,7 +98,7 @@ export class AdminDashboardComponent implements OnInit {
       this.currentView = 'all-users';
     });
 
-    // Member events
+    // 👨‍👩‍👧 Member events
     window.addEventListener('viewMemberDetails', (e: any) => {
       this.selectedMemberId = e.detail;
       this.currentView = 'member-details';
@@ -99,6 +112,26 @@ export class AdminDashboardComponent implements OnInit {
     window.addEventListener('backToAllMembers', () => {
       this.selectedMemberId = null;
       this.currentView = 'all-members';
+    });
+
+    // 🧑‍💼 Agent events
+    window.addEventListener('viewAgentDetails', (e: any) => {
+      this.selectedAgentId = e.detail;
+      this.currentView = 'agent-details';
+    });
+
+    window.addEventListener('editAgent', (e: any) => {
+      this.selectedAgentId = e.detail;
+      this.currentView = 'edit-agent';
+    });
+
+    window.addEventListener('addAgent', () => {
+      this.currentView = 'add-agent';
+    });
+
+    window.addEventListener('backToAllAgents', () => {
+      this.selectedAgentId = null;
+      this.currentView = 'all-agents';
     });
   }
 }
