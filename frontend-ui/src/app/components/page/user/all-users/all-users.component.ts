@@ -56,13 +56,24 @@ export class AllUsersComponent implements OnInit {
     this.message = { type: 'success', text: 'Add user clicked (not implemented).' };
   }
 
+  // viewDetails(user: User): void {
+  //   this.message = { type: 'success', text: `View details for ${user.username}.` };
+  // }
+
+  // editUser(user: User): void {
+  //   this.message = { type: 'success', text: `Edit user ${user.username} clicked.` };
+  // }
+
   viewDetails(user: User): void {
-    this.message = { type: 'success', text: `View details for ${user.username}.` };
+    const event = new CustomEvent('viewUserDetails', { detail: user.id });
+    window.dispatchEvent(event);
   }
 
   editUser(user: User): void {
-    this.message = { type: 'success', text: `Edit user ${user.username} clicked.` };
+    const event = new CustomEvent('editUser', { detail: user.id });
+    window.dispatchEvent(event);
   }
+
 
   deleteUser(user: User): void {
     if (!user.id) {
@@ -80,13 +91,13 @@ export class AllUsersComponent implements OnInit {
     this.userService.deleteUser({ id: userId }).subscribe({
       next: (response) => {
         console.log('Delete response:', response);
-        
+
         // Remove user from the list immediately (optimistic update)
         this.users = this.users.filter(u => u.id !== userId);
-        
-        this.message = { 
-          type: 'success', 
-          text: `User "${username}" deleted successfully.` 
+
+        this.message = {
+          type: 'success',
+          text: `User "${username}" deleted successfully.`
         };
 
         // Auto-hide success message after 3 seconds
@@ -97,18 +108,18 @@ export class AllUsersComponent implements OnInit {
       error: (err) => {
         console.error('Delete user error:', err);
         console.error('Error details:', err.error);
-        
+
         // Still remove from list if backend says 404 (already deleted)
         if (err.status === 404) {
           this.users = this.users.filter(u => u.id !== userId);
-          this.message = { 
-            type: 'success', 
-            text: `User "${username}" deleted successfully.` 
+          this.message = {
+            type: 'success',
+            text: `User "${username}" deleted successfully.`
           };
         } else {
-          this.message = { 
-            type: 'error', 
-            text: `Failed to delete "${username}". ${err.error?.message || err.message || ''}` 
+          this.message = {
+            type: 'error',
+            text: `Failed to delete "${username}". ${err.error?.message || err.message || ''}`
           };
         }
       }
@@ -143,18 +154,18 @@ export class AllUsersComponent implements OnInit {
     this.userService.updateUser({ id: userId, body: updatedUser }).subscribe({
       next: (response) => {
         console.log('Update response:', response);
-        
+
         // Update user in the list
         const index = this.users.findIndex(u => u.id === userId);
         if (index !== -1) {
           this.users[index].status = this.newStatus;
         }
 
-        this.message = { 
-          type: 'success', 
-          text: `Status of "${username}" updated to ${this.displayStatus(this.newStatus)}.` 
+        this.message = {
+          type: 'success',
+          text: `Status of "${username}" updated to ${this.displayStatus(this.newStatus)}.`
         };
-        
+
         this.closeModal();
 
         // Auto-hide success message after 3 seconds
@@ -165,12 +176,12 @@ export class AllUsersComponent implements OnInit {
       error: (err) => {
         console.error('Update status error:', err);
         console.error('Error details:', err.error);
-        
-        this.message = { 
-          type: 'error', 
-          text: `Failed to update status for "${username}". ${err.error?.message || ''}` 
+
+        this.message = {
+          type: 'error',
+          text: `Failed to update status for "${username}". ${err.error?.message || ''}`
         };
-        
+
         this.closeModal();
       }
     });

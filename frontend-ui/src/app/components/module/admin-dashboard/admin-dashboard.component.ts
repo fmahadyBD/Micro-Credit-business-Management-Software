@@ -6,6 +6,9 @@ import { SideBarComponent } from '../../layout/side-bar/side-bar.component';
 import { TopBarComponent } from '../../layout/top-bar/top-bar.component';
 import { AdminMainComponent } from '../admin-main/admin-main.component';
 
+import { UserDetailsComponent } from '../../page/user/user-details/user-details.component';
+import { EditUserComponent } from '../../page/user/edit-user/edit-user.component';
+
 
 
 import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
@@ -32,7 +35,8 @@ import { AllUsersComponent } from '../../page/user/all-users/all-users.component
     AllMembersComponent,
     AddNewMemberComponent,
     AllAgentsComponent,
-    AddNewAgentComponent
+    AddNewAgentComponent,
+    UserDetailsComponent, EditUserComponent
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
@@ -45,21 +49,34 @@ export class AdminDashboardComponent implements OnInit {
     | 'all-users' | 'add-user' | 'deleted-users'
     | 'all-members' | 'add-member'
     | 'all-agents' | 'add-agent'
-    = 'dashboard';
+    | 'user-details' | 'edit-user' = 'dashboard';
 
-  constructor(private sidebarService: SidebarTopbarService) {}
+  selectedUserId: number | null = null;
+  setView(view: any) {
+    this.currentView = view;
+  }
+  constructor(private sidebarService: SidebarTopbarService) { }
+
 
   ngOnInit() {
-    this.sidebarService.isCollapsed$.subscribe(state => {
+    this.sidebarService.isCollapsed$.subscribe((state: boolean) => {
       this.isSidebarCollapsed = state;
     });
-  }
 
-  setView(view:
-    | 'dashboard'
-    | 'all-users' | 'add-user' | 'deleted-users'
-    | 'all-members' | 'add-member'
-    | 'all-agents' | 'add-agent') {
-    this.currentView = view;
+
+    window.addEventListener('viewUserDetails', (e: any) => {
+      this.selectedUserId = e.detail;
+      this.currentView = 'user-details';
+    });
+
+    window.addEventListener('editUser', (e: any) => {
+      this.selectedUserId = e.detail;
+      this.currentView = 'edit-user';
+    });
+
+    window.addEventListener('backToAllUsers', () => {
+      this.selectedUserId = null;
+      this.currentView = 'all-users';
+    });
   }
 }
