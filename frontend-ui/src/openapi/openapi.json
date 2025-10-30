@@ -1,33 +1,14 @@
 {
     "openapi": "3.0.1",
     "info": {
-        "title": "User Management API",
-        "description": "OpenAPI documentation for User Management System",
-        "termsOfService": "Terms of service",
-        "contact": {
-            "name": "Your Name",
-            "url": "https://yourapp.com",
-            "email": "contact@yourapp.com"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "https://www.apache.org/licenses/LICENSE-2.0"
-        },
+        "title": "Installment Management API",
+        "description": "API for managing installments with file uploads",
         "version": "1.0"
     },
     "servers": [
         {
             "url": "http://localhost:8080",
-            "description": "Local ENV"
-        },
-        {
-            "url": "https://yourapp.com",
-            "description": "PROD ENV"
-        }
-    ],
-    "security": [
-        {
-            "bearerAuth": []
+            "description": "Generated server url"
         }
     ],
     "paths": {
@@ -129,6 +110,304 @@
                                     "additionalProperties": {
                                         "type": "object"
                                     }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/shareholders/{id}": {
+            "get": {
+                "tags": [
+                    "shareholder-controller"
+                ],
+                "operationId": "getShareholderById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "shareholder-controller"
+                ],
+                "operationId": "updateShareholder",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Shareholder"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "shareholder-controller"
+                ],
+                "operationId": "deleteShareholder",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/products/{id}": {
+            "get": {
+                "tags": [
+                    "product-controller"
+                ],
+                "operationId": "getProductById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Product"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "product-controller"
+                ],
+                "operationId": "updateProduct",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Product"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Product"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "product-controller"
+                ],
+                "operationId": "deleteProduct",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/payment-schedules/{scheduleId}": {
+            "put": {
+                "tags": [
+                    "payment-schedule-controller"
+                ],
+                "operationId": "updatePaymentSchedule",
+                "parameters": [
+                    {
+                        "name": "scheduleId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaymentSchedule"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentSchedule"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment-schedules/{scheduleId}/edit-payment": {
+            "put": {
+                "tags": [
+                    "payment-schedule-controller"
+                ],
+                "operationId": "editPayment",
+                "parameters": [
+                    {
+                        "name": "scheduleId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "transactionId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "newAmount",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "agentId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "notes",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentSchedule"
                                 }
                             }
                         }
@@ -241,6 +520,105 @@
                 }
             }
         },
+        "/api/installments/{id}": {
+            "get": {
+                "tags": [
+                    "installment-controller"
+                ],
+                "operationId": "getInstallmentById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Installment"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "installment-controller"
+                ],
+                "operationId": "updateInstallment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InstallmentUpdateDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Installment"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "installment-controller"
+                ],
+                "operationId": "deleteInstallment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/agents/{id}": {
             "get": {
                 "tags": [
@@ -346,6 +724,59 @@
                 }
             }
         },
+        "/api/agents/{id}/with-photo": {
+            "put": {
+                "tags": [
+                    "agents"
+                ],
+                "summary": "Update agent with photo",
+                "operationId": "updateAgentWithPhoto",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "agent"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "agent": {
+                                        "$ref": "#/components/schemas/Agent"
+                                    },
+                                    "photo": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/agents/{id}/status": {
             "put": {
                 "tags": [
@@ -367,6 +798,218 @@
                         "name": "status",
                         "in": "query",
                         "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/withdrawals/{requestId}/reject": {
+            "post": {
+                "tags": [
+                    "withdrawal-controller"
+                ],
+                "operationId": "rejectWithdrawal",
+                "parameters": [
+                    {
+                        "name": "requestId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "processedBy",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "reason",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/withdrawals/{requestId}/process": {
+            "post": {
+                "tags": [
+                    "withdrawal-controller"
+                ],
+                "operationId": "markAsProcessed",
+                "parameters": [
+                    {
+                        "name": "requestId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "processedBy",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/withdrawals/{requestId}/cancel": {
+            "post": {
+                "tags": [
+                    "withdrawal-controller"
+                ],
+                "operationId": "cancelWithdrawal",
+                "parameters": [
+                    {
+                        "name": "requestId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "reason",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/withdrawals/{requestId}/approve": {
+            "post": {
+                "tags": [
+                    "withdrawal-controller"
+                ],
+                "operationId": "approveWithdrawal",
+                "parameters": [
+                    {
+                        "name": "requestId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "processedBy",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/withdrawals/request": {
+            "post": {
+                "tags": [
+                    "withdrawal-controller"
+                ],
+                "operationId": "requestWithdrawal",
+                "parameters": [
+                    {
+                        "name": "shareholderId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "amount",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "reason",
+                        "in": "query",
+                        "required": false,
                         "schema": {
                             "type": "string"
                         }
@@ -439,6 +1082,198 @@
                 }
             }
         },
+        "/api/transactions/{transactionId}/complete": {
+            "post": {
+                "tags": [
+                    "share-transaction-controller"
+                ],
+                "operationId": "completeTransaction",
+                "parameters": [
+                    {
+                        "name": "transactionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "processedBy",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/transactions/{transactionId}/cancel": {
+            "post": {
+                "tags": [
+                    "share-transaction-controller"
+                ],
+                "operationId": "cancelTransaction",
+                "parameters": [
+                    {
+                        "name": "transactionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "reason",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/transactions/sell": {
+            "post": {
+                "tags": [
+                    "share-transaction-controller"
+                ],
+                "operationId": "requestSellShares",
+                "parameters": [
+                    {
+                        "name": "shareholderId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "quantity",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "pricePerShare",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "notes",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/transactions/buy": {
+            "post": {
+                "tags": [
+                    "share-transaction-controller"
+                ],
+                "operationId": "requestBuyShares",
+                "parameters": [
+                    {
+                        "name": "shareholderId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "quantity",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "pricePerShare",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "notes",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/shareholders": {
             "get": {
                 "tags": [
@@ -451,10 +1286,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Shareholder"
-                                    }
+                                    "type": "object"
                                 }
                             }
                         }
@@ -482,7 +1314,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Shareholder"
+                                    "type": "object"
                                 }
                             }
                         }
@@ -592,6 +1424,303 @@
                 }
             }
         },
+        "/api/products/{id}/images": {
+            "post": {
+                "tags": [
+                    "product-controller"
+                ],
+                "operationId": "uploadProductImages",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "images"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "images": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "product-controller"
+                ],
+                "operationId": "deleteProductImage",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "filePath",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/products/with-images": {
+            "post": {
+                "tags": [
+                    "product-controller"
+                ],
+                "operationId": "createProductWithImages",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "product"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "product": {
+                                        "$ref": "#/components/schemas/Product"
+                                    },
+                                    "images": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Product"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment-schedules/{scheduleId}/pay": {
+            "post": {
+                "tags": [
+                    "payment-schedule-controller"
+                ],
+                "operationId": "addPayment",
+                "parameters": [
+                    {
+                        "name": "scheduleId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "amount",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "agentId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "notes",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentSchedule"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment-schedules/{scheduleId}/partial-pay": {
+            "post": {
+                "tags": [
+                    "payment-schedule-controller"
+                ],
+                "operationId": "handlePartialPayment",
+                "parameters": [
+                    {
+                        "name": "scheduleId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "amount",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "agentId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "notes",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentSchedule"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment-schedules/{scheduleId}/advance-pay": {
+            "post": {
+                "tags": [
+                    "payment-schedule-controller"
+                ],
+                "operationId": "advancePayment",
+                "parameters": [
+                    {
+                        "name": "scheduleId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "amount",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "agentId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "notes",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentSchedule"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/members": {
             "get": {
                 "tags": [
@@ -619,17 +1748,45 @@
                 "tags": [
                     "members"
                 ],
-                "summary": "Create new member",
-                "operationId": "createMember",
+                "summary": "Create new member with images (all images mandatory)",
+                "operationId": "createMemberWithImages",
+                "parameters": [
+                    {
+                        "name": "member",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/Member"
+                                "required": [
+                                    "nidCardImage",
+                                    "nomineeNidCardImage",
+                                    "photo"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "nidCardImage": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "photo": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "nomineeNidCardImage": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
                             }
                         }
-                    },
-                    "required": true
+                    }
                 },
                 "responses": {
                     "200": {
@@ -696,6 +1853,290 @@
                 }
             }
         },
+        "/api/installments/{id}/images": {
+            "get": {
+                "tags": [
+                    "installment-controller"
+                ],
+                "operationId": "getInstallmentImages",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "installment-controller"
+                ],
+                "operationId": "uploadInstallmentImages",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "images"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "images": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/installments/with-images": {
+            "post": {
+                "tags": [
+                    "installment-controller"
+                ],
+                "operationId": "createInstallmentWithImages",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "installment"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "installment": {
+                                        "$ref": "#/components/schemas/Installment"
+                                    },
+                                    "images": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Installment"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/earnings/{shareholderId}/add-historical": {
+            "post": {
+                "tags": [
+                    "shareholder-earning-controller"
+                ],
+                "operationId": "addHistoricalEarning",
+                "parameters": [
+                    {
+                        "name": "shareholderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "monthlyEarning",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "description",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/earnings/recalculate": {
+            "post": {
+                "tags": [
+                    "shareholder-earning-controller"
+                ],
+                "operationId": "recalculateMonthEarnings",
+                "parameters": [
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "totalBusinessProfit",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/earnings/calculate/{shareholderId}": {
+            "post": {
+                "tags": [
+                    "shareholder-earning-controller"
+                ],
+                "operationId": "calculateMonthlyEarnings",
+                "parameters": [
+                    {
+                        "name": "shareholderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "totalBusinessProfit",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/earnings/calculate-all": {
+            "post": {
+                "tags": [
+                    "shareholder-earning-controller"
+                ],
+                "operationId": "calculateAllShareholdersEarnings",
+                "parameters": [
+                    {
+                        "name": "totalBusinessProfit",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/agents": {
             "get": {
                 "tags": [
@@ -749,6 +2190,282 @@
                 }
             }
         },
+        "/api/agents/{id}/photo": {
+            "post": {
+                "tags": [
+                    "agents"
+                ],
+                "summary": "Upload agent photo",
+                "operationId": "uploadAgentPhoto",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "photo"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "photo": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/agents/with-photo": {
+            "post": {
+                "tags": [
+                    "agents"
+                ],
+                "summary": "Create agent with photo",
+                "operationId": "createAgentWithPhoto",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "agent"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "agent": {
+                                        "$ref": "#/components/schemas/Agent"
+                                    },
+                                    "photo": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/withdrawals/{requestId}": {
+            "get": {
+                "tags": [
+                    "withdrawal-controller"
+                ],
+                "operationId": "getWithdrawalById",
+                "parameters": [
+                    {
+                        "name": "requestId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/withdrawals/statistics": {
+            "get": {
+                "tags": [
+                    "withdrawal-controller"
+                ],
+                "operationId": "getAllWithdrawalStatistics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/withdrawals/shareholder/{shareholderId}": {
+            "get": {
+                "tags": [
+                    "withdrawal-controller"
+                ],
+                "operationId": "getWithdrawalRequests",
+                "parameters": [
+                    {
+                        "name": "shareholderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/withdrawals/shareholder/{shareholderId}/statistics": {
+            "get": {
+                "tags": [
+                    "withdrawal-controller"
+                ],
+                "operationId": "getWithdrawalStatistics",
+                "parameters": [
+                    {
+                        "name": "shareholderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/withdrawals/shareholder/{shareholderId}/recent": {
+            "get": {
+                "tags": [
+                    "withdrawal-controller"
+                ],
+                "operationId": "getRecentWithdrawals",
+                "parameters": [
+                    {
+                        "name": "shareholderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/withdrawals/pending": {
+            "get": {
+                "tags": [
+                    "withdrawal-controller"
+                ],
+                "operationId": "getPendingWithdrawals",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/withdrawals/approved": {
+            "get": {
+                "tags": [
+                    "withdrawal-controller"
+                ],
+                "operationId": "getApprovedWithdrawals",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/users/deleted": {
             "get": {
                 "tags": [
@@ -773,12 +2490,176 @@
                 }
             }
         },
-        "/api/shareholders/{id}": {
+        "/api/transactions/{transactionId}": {
+            "get": {
+                "tags": [
+                    "share-transaction-controller"
+                ],
+                "operationId": "getTransactionById",
+                "parameters": [
+                    {
+                        "name": "transactionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/transactions/statistics": {
+            "get": {
+                "tags": [
+                    "share-transaction-controller"
+                ],
+                "operationId": "getAllTransactionStatistics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/transactions/shareholder/{shareholderId}": {
+            "get": {
+                "tags": [
+                    "share-transaction-controller"
+                ],
+                "operationId": "getShareTransactions",
+                "parameters": [
+                    {
+                        "name": "shareholderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/transactions/shareholder/{shareholderId}/statistics": {
+            "get": {
+                "tags": [
+                    "share-transaction-controller"
+                ],
+                "operationId": "getTransactionStatistics",
+                "parameters": [
+                    {
+                        "name": "shareholderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/transactions/shareholder/{shareholderId}/recent": {
+            "get": {
+                "tags": [
+                    "share-transaction-controller"
+                ],
+                "operationId": "getRecentTransactions",
+                "parameters": [
+                    {
+                        "name": "shareholderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/transactions/pending": {
+            "get": {
+                "tags": [
+                    "share-transaction-controller"
+                ],
+                "operationId": "getPendingTransactions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/shareholders/{id}/details": {
             "get": {
                 "tags": [
                     "shareholder-controller"
                 ],
-                "operationId": "getShareholderById",
+                "operationId": "getShareholderDetails",
                 "parameters": [
                     {
                         "name": "id",
@@ -796,18 +2677,20 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Shareholder"
+                                    "type": "object"
                                 }
                             }
                         }
                     }
                 }
-            },
-            "delete": {
+            }
+        },
+        "/api/shareholders/{id}/dashboard": {
+            "get": {
                 "tags": [
                     "shareholder-controller"
                 ],
-                "operationId": "deleteShareholder",
+                "operationId": "getShareholderDashboard",
                 "parameters": [
                     {
                         "name": "id",
@@ -821,7 +2704,54 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/shareholders/statistics": {
+            "get": {
+                "tags": [
+                    "shareholder-controller"
+                ],
+                "operationId": "getShareholderStatistics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/shareholders/active": {
+            "get": {
+                "tags": [
+                    "shareholder-controller"
+                ],
+                "operationId": "getActiveShareholders",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -879,15 +2809,15 @@
                 }
             }
         },
-        "/api/products/{id}": {
+        "/api/payment-schedules/{scheduleId}/transactions": {
             "get": {
                 "tags": [
-                    "product-controller"
+                    "payment-schedule-controller"
                 ],
-                "operationId": "getProductById",
+                "operationId": "getPaymentTransactions",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "scheduleId",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -902,21 +2832,49 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Product"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PaymentTransaction"
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            },
-            "delete": {
+            }
+        },
+        "/api/payment-schedules/overdue": {
+            "get": {
                 "tags": [
-                    "product-controller"
+                    "payment-schedule-controller"
                 ],
-                "operationId": "deleteProduct",
+                "operationId": "getOverdueSchedules",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PaymentSchedule"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment-schedules/installment/{installmentId}": {
+            "get": {
+                "tags": [
+                    "payment-schedule-controller"
+                ],
+                "operationId": "getPaymentSchedules",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "installmentId",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -927,7 +2885,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PaymentSchedule"
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -956,15 +2924,15 @@
                 }
             }
         },
-        "/api/installments/{id}": {
+        "/api/earnings/{shareholderId}": {
             "get": {
                 "tags": [
-                    "installment-controller"
+                    "shareholder-earning-controller"
                 ],
-                "operationId": "getInstallmentById",
+                "operationId": "getShareholderEarnings",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "shareholderId",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -979,21 +2947,23 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Installment"
+                                    "type": "object"
                                 }
                             }
                         }
                     }
                 }
-            },
-            "delete": {
+            }
+        },
+        "/api/earnings/{shareholderId}/summary": {
+            "get": {
                 "tags": [
-                    "installment-controller"
+                    "shareholder-earning-controller"
                 ],
-                "operationId": "deleteInstallment",
+                "operationId": "getEarningSummary",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "shareholderId",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -1004,7 +2974,85 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/earnings/{shareholderId}/last-12-months": {
+            "get": {
+                "tags": [
+                    "shareholder-earning-controller"
+                ],
+                "operationId": "getLast12MonthsEarnings",
+                "parameters": [
+                    {
+                        "name": "shareholderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/earnings/last-month": {
+            "get": {
+                "tags": [
+                    "shareholder-earning-controller"
+                ],
+                "operationId": "getLastMonthEarnings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/earnings/dashboard": {
+            "get": {
+                "tags": [
+                    "shareholder-earning-controller"
+                ],
+                "operationId": "getDashboardSummary",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1116,15 +3164,7 @@
                     }
                 }
             },
-            "Agent": {
-                "required": [
-                    "name",
-                    "nidCard",
-                    "nominee",
-                    "phone",
-                    "village",
-                    "zila"
-                ],
+            "Shareholder": {
                 "type": "object",
                 "properties": {
                     "id": {
@@ -1132,13 +3172,62 @@
                         "format": "int64"
                     },
                     "name": {
-                        "maxLength": 100,
-                        "minLength": 2,
                         "type": "string"
                     },
                     "phone": {
-                        "maxLength": 15,
-                        "minLength": 10,
+                        "type": "string"
+                    },
+                    "nidCard": {
+                        "type": "string"
+                    },
+                    "nominee": {
+                        "type": "string"
+                    },
+                    "zila": {
+                        "type": "string"
+                    },
+                    "house": {
+                        "type": "string"
+                    },
+                    "investment": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "totalShare": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalEarning": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "currentBalance": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "joinDate": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                }
+            },
+            "Agent": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "phone": {
                         "type": "string"
                     },
                     "email": {
@@ -1172,6 +3261,17 @@
                 }
             },
             "Installment": {
+                "required": [
+                    "advanced_paid",
+                    "given_product_agent",
+                    "installmentMonths",
+                    "interestRate",
+                    "member",
+                    "otherCost",
+                    "product",
+                    "status",
+                    "totalAmountOfProduct"
+                ],
                 "type": "object",
                 "properties": {
                     "id": {
@@ -1184,36 +3284,87 @@
                     "member": {
                         "$ref": "#/components/schemas/Member"
                     },
-                    "totalAmount": {
+                    "totalAmountOfProduct": {
+                        "minimum": 0.01,
+                        "exclusiveMinimum": false,
                         "type": "number",
                         "format": "double"
                     },
-                    "paidAmount": {
+                    "otherCost": {
                         "type": "number",
                         "format": "double"
                     },
-                    "dueAmount": {
+                    "advanced_paid": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "needPaidAmount": {
                         "type": "number",
                         "format": "double"
                     },
                     "installmentMonths": {
+                        "maximum": 60,
+                        "minimum": 1,
                         "type": "integer",
                         "format": "int32"
                     },
-                    "nextPaymentDate": {
-                        "type": "string",
-                        "format": "date"
+                    "interestRate": {
+                        "maximum": 100.0,
+                        "exclusiveMaximum": false,
+                        "type": "number",
+                        "format": "double"
                     },
                     "status": {
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "ACTIVE",
+                            "COMPLETED",
+                            "OVERDUE",
+                            "CANCELLED",
+                            "DEFAULTED"
+                        ]
+                    },
+                    "imageFilePaths": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "given_product_agent": {
+                        "$ref": "#/components/schemas/Agent"
+                    },
+                    "createdTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "paymentSchedules": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PaymentSchedule"
+                        }
+                    },
+                    "totalRemainingAmount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "monthlyInstallmentAmount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "totalAmountWithInterest": {
+                        "type": "number",
+                        "format": "double"
                     }
                 }
             },
             "Member": {
                 "required": [
                     "name",
-                    "nidCard",
-                    "nominee",
+                    "nidCardNumber",
+                    "nomineeName",
+                    "nomineeNidCardNumber",
+                    "nomineePhone",
                     "phone",
                     "village",
                     "zila"
@@ -1240,13 +3391,25 @@
                     "village": {
                         "type": "string"
                     },
-                    "nidCard": {
+                    "nidCardNumber": {
                         "type": "string"
                     },
-                    "photo": {
+                    "nidCardImagePath": {
                         "type": "string"
                     },
-                    "nominee": {
+                    "photoPath": {
+                        "type": "string"
+                    },
+                    "nomineeName": {
+                        "type": "string"
+                    },
+                    "nomineePhone": {
+                        "type": "string"
+                    },
+                    "nomineeNidCardNumber": {
+                        "type": "string"
+                    },
+                    "nomineeNidCardImagePath": {
                         "type": "string"
                     },
                     "joinDate": {
@@ -1257,7 +3420,8 @@
                         "type": "string",
                         "enum": [
                             "ACTIVE",
-                            "INACTIVE"
+                            "INACTIVE",
+                            "SUSPENDED"
                         ]
                     },
                     "agents": {
@@ -1271,6 +3435,135 @@
                         "items": {
                             "$ref": "#/components/schemas/Installment"
                         }
+                    }
+                }
+            },
+            "PaymentSchedule": {
+                "required": [
+                    "collectingAgent",
+                    "dueDate",
+                    "installment",
+                    "monthlyAmount",
+                    "paidAmount",
+                    "remainingAmount",
+                    "status"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "installment": {
+                        "$ref": "#/components/schemas/Installment"
+                    },
+                    "dueDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "monthlyAmount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "paidAmount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "remainingAmount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "PARTIALLY_PAID",
+                            "PAID",
+                            "OVERDUE",
+                            "CANCELLED",
+                            "ADJUSTED"
+                        ]
+                    },
+                    "collectingAgent": {
+                        "$ref": "#/components/schemas/Agent"
+                    },
+                    "paymentDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "paymentTransactions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PaymentTransaction"
+                        }
+                    },
+                    "createdTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "PaymentTransaction": {
+                "required": [
+                    "amount",
+                    "collectingAgent",
+                    "paidAmount",
+                    "paymentDate",
+                    "paymentSchedule"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "paymentSchedule": {
+                        "$ref": "#/components/schemas/PaymentSchedule"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "paidAmount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "collectingAgent": {
+                        "$ref": "#/components/schemas/Agent"
+                    },
+                    "paymentDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "paymentType": {
+                        "type": "string",
+                        "enum": [
+                            "PAYMENT",
+                            "PARTIAL_PAYMENT",
+                            "ADVANCE_PAYMENT",
+                            "REFUND",
+                            "ADJUSTMENT",
+                            "PENALTY",
+                            "DISCOUNT"
+                        ]
+                    },
+                    "createdTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedTime": {
+                        "type": "string",
+                        "format": "date-time"
                     }
                 }
             },
@@ -1305,12 +3598,24 @@
                     "status": {
                         "type": "string"
                     },
-                    "addedBy": {
-                        "type": "string"
+                    "isDeliveryRequired": {
+                        "type": "boolean"
                     },
                     "dateAdded": {
                         "type": "string",
                         "format": "date"
+                    },
+                    "addedBy": {
+                        "type": "string"
+                    },
+                    "soldByAgent": {
+                        "$ref": "#/components/schemas/Agent"
+                    },
+                    "imageFilePaths": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
                     },
                     "installments": {
                         "type": "array",
@@ -1320,52 +3625,45 @@
                     }
                 }
             },
-            "Shareholder": {
+            "InstallmentUpdateDTO": {
                 "type": "object",
                 "properties": {
-                    "id": {
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "phone": {
-                        "type": "string"
-                    },
-                    "nidCard": {
-                        "type": "string"
-                    },
-                    "nominee": {
-                        "type": "string"
-                    },
-                    "zila": {
-                        "type": "string"
-                    },
-                    "house": {
-                        "type": "string"
-                    },
-                    "investment": {
+                    "totalAmountOfProduct": {
+                        "minimum": 0.01,
+                        "exclusiveMinimum": false,
                         "type": "number",
                         "format": "double"
                     },
-                    "totalShare": {
+                    "otherCost": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "advanced_paid": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "installmentMonths": {
+                        "maximum": 60,
+                        "minimum": 1,
                         "type": "integer",
                         "format": "int32"
                     },
-                    "earning": {
+                    "interestRate": {
+                        "maximum": 100.0,
+                        "exclusiveMaximum": false,
                         "type": "number",
                         "format": "double"
                     },
-                    "role": {
-                        "type": "string"
-                    },
                     "status": {
-                        "type": "string"
-                    },
-                    "joinDate": {
                         "type": "string",
-                        "format": "date"
+                        "enum": [
+                            "PENDING",
+                            "ACTIVE",
+                            "COMPLETED",
+                            "OVERDUE",
+                            "CANCELLED",
+                            "DEFAULTED"
+                        ]
                     }
                 }
             },
@@ -1457,18 +3755,38 @@
                     "village": {
                         "type": "string"
                     },
-                    "nidCard": {
+                    "nidCardNumber": {
                         "type": "string"
                     },
-                    "photo": {
+                    "nidCardImagePath": {
                         "type": "string"
                     },
-                    "nominee": {
+                    "photoPath": {
+                        "type": "string"
+                    },
+                    "nomineeName": {
+                        "type": "string"
+                    },
+                    "nomineePhone": {
+                        "type": "string"
+                    },
+                    "nomineeNidCardNumber": {
+                        "type": "string"
+                    },
+                    "nomineeNidCardImagePath": {
                         "type": "string"
                     },
                     "joinDate": {
                         "type": "string",
                         "format": "date"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "ACTIVE",
+                            "INACTIVE",
+                            "SUSPENDED"
+                        ]
                     },
                     "deletedAt": {
                         "type": "string",
@@ -1526,23 +3844,6 @@
                         "format": "date-time"
                     }
                 }
-            }
-        },
-        "responses": {
-            "DefaultResponse": {
-                "description": "Default response",
-                "content": {
-                    "application/json": {}
-                }
-            }
-        },
-        "securitySchemes": {
-            "bearerAuth": {
-                "type": "http",
-                "description": "JWT authentication",
-                "in": "header",
-                "scheme": "bearer",
-                "bearerFormat": "JWT"
             }
         }
     }

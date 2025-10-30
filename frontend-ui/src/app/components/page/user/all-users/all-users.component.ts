@@ -1,9 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { UsersService } from '../../../services/services';
-import { User } from '../../../services/models/user';
-import { CommonModule } from '@angular/common';
-import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
+import { User } from '../../../../services/models/user';
+import { UsersService } from '../../../../services/services/users.service';
+import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
 
 interface Message {
   type: 'success' | 'error';

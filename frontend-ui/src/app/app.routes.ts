@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
 import { AdminDashboardComponent } from './components/module/admin-dashboard/admin-dashboard.component';
 import { SideBarComponent } from './components/layout/side-bar/side-bar.component';
-import { AllUsersComponent } from './components/page/all-users/all-users.component';
+import { AllUsersComponent } from './components/page/user/all-users/all-users.component';
+
 
 
 // Add 'export' here

@@ -1,9 +1,9 @@
 // deleted-users.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, NgFor, NgIf, NgClass, DatePipe } from '@angular/common';
-import { UsersService } from '../../../services/services/users.service';
-import { DeletedUser } from '../../../services/models';
-import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
+import { DeletedUser } from '../../../../services/models/deleted-user';
+import { UsersService } from '../../../../services/services/users.service';
+import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
 
 @Component({
   selector: 'app-deleted-users',

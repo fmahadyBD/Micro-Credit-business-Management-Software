@@ -5,9 +5,7 @@ import { RouterModule } from '@angular/router';
 import { SideBarComponent } from '../../layout/side-bar/side-bar.component';
 import { TopBarComponent } from '../../layout/top-bar/top-bar.component';
 import { AdminMainComponent } from '../admin-main/admin-main.component';
-import { AllUsersComponent } from '../../page/all-users/all-users.component';
-import { AddNewUserComponent } from '../../page/add-new-user/add-new-user.component';
-import { DeletedUsersComponent } from '../../page/deleted-users/deleted-users.component';
+
 
 
 import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
@@ -15,6 +13,9 @@ import { AllMembersComponent } from '../../page/members/all-members/all-members.
 import { AllAgentsComponent } from '../../page/agent/all-agents/all-agents.component';
 import { AddNewMemberComponent } from '../../page/members/add-new-member/add-new-member.component';
 import { AddNewAgentComponent } from '../../page/agent/add-new-agent/add-new-agent.component';
+import { DeletedUsersComponent } from '../../page/user/deleted-users/deleted-users.component';
+import { AddNewUserComponent } from '../../page/user/add-new-user/add-new-user.component';
+import { AllUsersComponent } from '../../page/user/all-users/all-users.component';
 
 @Component({
   selector: 'app-admin-dashboard',

@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, NgFor, NgIf, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UsersService } from '../../../services/services/users.service';
-import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
-import { User } from '../../../services/models';
+import { User } from '../../../../services/models/user';
+import { UsersService } from '../../../../services/services/users.service';
+import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
 
 @Component({
   selector: 'app-add-new-user',
