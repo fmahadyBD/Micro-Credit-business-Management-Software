@@ -3,10 +3,8 @@ package com.fmahadybd.backend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @Entity
 @Getter
@@ -15,9 +13,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @AllArgsConstructor
 @Builder
 @Table(name = "products")
-@ToString(exclude = {"installments"})
-@EqualsAndHashCode(exclude = {"installments"})
+@ToString(exclude = {"installment"})
+@EqualsAndHashCode(exclude = {"installment"})
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonInclude(JsonInclude.Include.ALWAYS) // This ensures all fields are included in JSON
 public class Product {
 
     @Id
@@ -29,21 +28,40 @@ public class Product {
     private String description;
     private Double price;
     private Double costPrice;
-    private Integer stock;
-    private String status;
+
+    @Transient
+    private Double totalPrice; // This will be calculated but not stored in DB
+
     private Boolean isDeliveryRequired = false;
     private LocalDate dateAdded;
-    private String addedBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sold_by_agent_id")
     @JsonIgnoreProperties({"members", "installments"})
     private Agent soldByAgent;
 
-    @ElementCollection
-    private List<String> imageFilePaths = new ArrayList<>();
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "who_request_member_id")
+    private Member whoRequest;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"product"})
-    private List<Installment> installments = new ArrayList<>();
+    private Installment installment;
+
+    @ElementCollection
+    private java.util.List<String> imageFilePaths = new java.util.ArrayList<>();
+
+    @PrePersist
+    @PreUpdate
+    private void calculateTotalPrice() {
+        this.totalPrice = (price != null ? price : 0.0) + (costPrice != null ? costPrice : 0.0);
+    }
+
+    // Add a getter that ensures totalPrice is always calculated when accessed
+    public Double getTotalPrice() {
+        if (this.totalPrice == null) {
+            calculateTotalPrice();
+        }
+        return this.totalPrice;
+    }
 }

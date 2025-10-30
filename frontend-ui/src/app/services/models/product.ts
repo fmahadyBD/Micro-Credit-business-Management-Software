@@ -4,19 +4,19 @@
 
 import { Agent } from '../models/agent';
 import { Installment } from '../models/installment';
+import { Member } from '../models/member';
 export interface Product {
-  addedBy?: string;
   category?: string;
   costPrice?: number;
   dateAdded?: string;
   description?: string;
   id?: number;
   imageFilePaths?: Array<string>;
-  installments?: Array<Installment>;
+  installment?: Installment;
   isDeliveryRequired?: boolean;
   name?: string;
   price?: number;
   soldByAgent?: Agent;
-  status?: string;
-  stock?: number;
+  totalPrice?: number;
+  whoRequest?: Member;
 }

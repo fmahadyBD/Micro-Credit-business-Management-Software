@@ -1,128 +1,103 @@
-// src/app/page/product/all-products/all-products.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { ProductControllerService } from '../../../../services/services/product-controller.service';
 import { Product } from '../../../../services/models/product';
 import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
+import { ProductsService } from '../../../../services/services';
 
 @Component({
   selector: 'app-all-products',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule],
   templateUrl: './all-products.component.html',
   styleUrls: ['./all-products.component.css']
 })
 export class AllProductsComponent implements OnInit {
   products: Product[] = [];
-  loading = false;
-  error = '';
+  loading: boolean = true;
+  error: string | null = null;
+  successMessage: string | null = null;
   isSidebarCollapsed = false;
 
-  // Add base URL for images
-  private baseUrl = 'http://localhost:8080';
-
   constructor(
-    private productService: ProductControllerService,
+    private productService: ProductsService,
     private sidebarService: SidebarTopbarService
   ) {}
 
-  ngOnInit() {
-    this.sidebarService.isCollapsed$.subscribe(c => (this.isSidebarCollapsed = c));
+  ngOnInit(): void {
+    this.sidebarService.isCollapsed$.subscribe(collapsed => {
+      this.isSidebarCollapsed = collapsed;
+    });
     this.loadProducts();
   }
 
-  loadProducts() {
+  loadProducts(): void {
     this.loading = true;
+    this.error = null;
     this.productService.getAllProducts().subscribe({
-      next: (products) => {
-        this.products = products;
+      next: (data) => {
+        this.products = data;
         this.loading = false;
-        console.log('Products loaded:', products); // Debug
       },
-      error: (error) => {
+      error: (err) => {
         this.error = 'Failed to load products';
         this.loading = false;
-        console.error('Error loading products:', error);
+        console.error('Error loading products:', err);
       }
     });
   }
 
-  /**
-   * Get full image URL from relative or absolute path
-   */
-  getImageUrl(relativePath: string | undefined): string {
-    if (!relativePath) {
-      return '';
-    }
-    
-    console.log('Original path:', relativePath); // Debug
-    
-    // If the path is already a full URL, return it as is
-    if (relativePath.startsWith('http')) {
-      return relativePath;
-    }
-    
-    // If it starts with /uploads, it's already a relative web path
-    if (relativePath.startsWith('/uploads')) {
-      const fullUrl = `${this.baseUrl}${relativePath}`;
-      console.log('Full URL:', fullUrl); // Debug
-      return fullUrl;
-    }
-    
-    // If it's an absolute file path (e.g., uploads/products/1/image.jpg)
-    // Convert it to web path
-    if (relativePath.includes('uploads')) {
-      const webPath = '/' + relativePath.replace(/\\/g, '/');
-      const fullUrl = `${this.baseUrl}${webPath}`;
-      console.log('Converted URL:', fullUrl); // Debug
-      return fullUrl;
-    }
-    
-    // Fallback: prepend base URL
-    const cleanPath = relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
-    return `${this.baseUrl}/${cleanPath}`;
+  viewDetails(productId: number): void {
+    window.dispatchEvent(new CustomEvent('viewProductDetails', { detail: productId }));
   }
 
-  /**
-   * Handle image loading errors
-   */
-  handleImageError(event: any): void {
-    console.error('Error loading image:', event.target.src);
-    event.target.style.display = 'none';
-    // Optionally set a placeholder
-    // event.target.src = 'assets/images/placeholder.png';
+  editProduct(productId: number): void {
+    window.dispatchEvent(new CustomEvent('editProduct', { detail: productId }));
   }
 
-  deleteProduct(productId: number | undefined) {
-    if (!productId) return;
-    
+  addProduct(): void {
+    window.dispatchEvent(new CustomEvent('addProduct'));
+  }
+
+  deleteProduct(productId: number): void {
     if (confirm('Are you sure you want to delete this product?')) {
       this.productService.deleteProduct({ id: productId }).subscribe({
         next: () => {
-          this.products = this.products.filter(p => p.id !== productId);
+          this.successMessage = 'Product deleted successfully!';
+          this.loadProducts();
+          setTimeout(() => {
+            this.successMessage = null;
+          }, 3000);
         },
-        error: (error) => {
-          console.error('Error deleting product:', error);
-          alert('Failed to delete product');
+        error: (err) => {
+          this.error = 'Failed to delete product';
+          console.error('Error deleting product:', err);
         }
       });
     }
   }
 
-  viewProductDetails(productId: number | undefined) {
-    if (productId) {
-      window.dispatchEvent(new CustomEvent('viewProductDetails', { detail: productId }));
-    }
+  formatDate(date: string | undefined): string {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleDateString();
   }
 
-  editProduct(productId: number | undefined) {
-    if (productId) {
-      window.dispatchEvent(new CustomEvent('editProduct', { detail: productId }));
-    }
+  getMemberName(product: Product): string {
+    return (product.whoRequest as any)?.name || 'N/A';
   }
 
-  dispatchAddProductEvent() {
-    window.dispatchEvent(new CustomEvent('addProduct'));
+  getMemberPhone(product: Product): string {
+    return (product.whoRequest as any)?.phone || '';
+  }
+
+  getAgentName(product: Product): string {
+    return (product.soldByAgent as any)?.name || 'N/A';
+  }
+
+  getAgentPhone(product: Product): string {
+    return (product.soldByAgent as any)?.phone || '';
+  }
+
+  getTotalPrice(product: Product): number {
+    return (product.price || 0) + (product.costPrice || 0);
   }
 }

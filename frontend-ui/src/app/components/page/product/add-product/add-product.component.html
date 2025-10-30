@@ -1,158 +1,254 @@
-<!-- src/app/page/product/add-product/add-product.component.html -->
 <main class="main-content" [class.collapsed]="isSidebarCollapsed">
-  <div class="container-fluid">
-    <div class="card mt-4 shadow-sm border-0">
-      <div class="card-header">
-        <h5 class="mb-0">Add New Product</h5>
+  <div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-success text-white">
+        <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Add New Product</h4>
       </div>
+
       <div class="card-body">
-        <!-- Alert Message -->
-        <div *ngIf="message" class="mb-3">
-          <div [ngClass]="{
-              'alert alert-success': message.type === 'success',
-              'alert alert-danger': message.type === 'error'
-            }">
-            {{ message.text }}
-          </div>
+        <!-- Success Message -->
+        <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show">
+          <i class="fas fa-check-circle me-2"></i>{{ successMessage }}
+          <button type="button" class="btn-close" (click)="successMessage = null"></button>
         </div>
 
-        <!-- Form -->
-        <form (ngSubmit)="onSubmit()" #productForm="ngForm" enctype="multipart/form-data" class="row g-3">
-          
-          <!-- Product Images -->
-          <div class="col-12">
-            <label class="form-label">Product Images</label>
-            <input type="file" 
-                   class="form-control" 
-                   (change)="onImageSelect($event)"
-                   multiple
-                   accept="image/*">
-            <div class="form-text">You can select multiple images</div>
-            
-            <!-- Selected Images Preview -->
-            <div *ngIf="selectedImages.length > 0" class="mt-3">
-              <h6>Selected Images:</h6>
-              <div class="d-flex flex-wrap gap-2">
-                <div *ngFor="let image of selectedImages; let i = index" class="image-preview-container">
-                  <img [src]="getImageUrl(image)" class="image-preview">
-                  <button type="button" class="btn-close btn-close-white remove-image-btn" 
-                          (click)="removeImage(i)" title="Remove image"></button>
+        <!-- Error Message -->
+        <div *ngIf="error" class="alert alert-danger alert-dismissible fade show">
+          <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+          <button type="button" class="btn-close" (click)="error = null"></button>
+        </div>
+
+        <form (ngSubmit)="onSubmit()" #productForm="ngForm">
+          <div class="row">
+            <!-- Left Column -->
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="name" class="form-label">Product Name *</label>
+                <input type="text" class="form-control" id="name" name="name" 
+                       [(ngModel)]="product.name" required #name="ngModel">
+                <div *ngIf="name.invalid && (name.dirty || name.touched)" class="text-danger">
+                  <small *ngIf="name.errors?.['required']">Product name is required</small>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" 
+                          rows="3" [(ngModel)]="product.description"></textarea>
+              </div>
+
+              <div class="mb-3">
+                <label for="category" class="form-label">Category</label>
+                <input type="text" class="form-control" id="category" name="category" 
+                       [(ngModel)]="product.category">
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="price" class="form-label">Price *</label>
+                    <input type="number" class="form-control" id="price" name="price" 
+                           [(ngModel)]="product.price" required min="0" step="0.01" #price="ngModel">
+                    <div *ngIf="price.invalid && (price.dirty || price.touched)" class="text-danger">
+                      <small *ngIf="price.errors?.['required']">Price is required</small>
+                      <small *ngIf="price.errors?.['min']">Price must be positive</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="costPrice" class="form-label">Cost Price</label>
+                    <input type="number" class="form-control" id="costPrice" name="costPrice" 
+                           [(ngModel)]="product.costPrice" min="0" step="0.01">
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="isDeliveryRequired" 
+                         name="isDeliveryRequired" [(ngModel)]="product.isDeliveryRequired">
+                  <label class="form-check-label" for="isDeliveryRequired">
+                    Delivery Required
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-6">
+              <!-- Member Search -->
+              <div class="mb-3">
+                <label class="form-label">
+                  <i class="fas fa-user me-2"></i>Member (Who Requested)
+                </label>
+                <div class="position-relative">
+                  <div class="input-group">
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      placeholder="Search by name, phone, or NID..." 
+                      [(ngModel)]="memberSearchTerm"
+                      (input)="onMemberSearch()"
+                      (focus)="onMemberSearch()"
+                      name="memberSearch"
+                      [disabled]="loadingMembers"
+                    >
+                    <button 
+                      *ngIf="selectedMember" 
+                      class="btn btn-outline-danger" 
+                      type="button"
+                      (click)="clearMember()"
+                      title="Clear selection"
+                    >
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                  
+                  <!-- Member Dropdown -->
+                  <div 
+                    *ngIf="showMemberDropdown" 
+                    class="dropdown-menu show w-100 shadow-lg" 
+                    style="max-height: 300px; overflow-y: auto; position: absolute; z-index: 1000;"
+                  >
+                    <button 
+                      *ngFor="let member of filteredMembers" 
+                      type="button"
+                      class="dropdown-item d-flex justify-content-between align-items-start"
+                      (click)="selectMember(member)"
+                    >
+                      <div class="flex-grow-1">
+                        <div class="fw-bold">{{ member.name }}</div>
+                        <small class="text-muted">
+                          <i class="fas fa-phone me-1"></i>{{ member.phone }}
+                        </small>
+                        <small class="text-muted ms-2">
+                          <i class="fas fa-id-card me-1"></i>{{ member.nidCardNumber }}
+                        </small>
+                      </div>
+                    </button>
+                    <div *ngIf="filteredMembers.length === 0" class="dropdown-item text-muted">
+                      No members found
+                    </div>
+                  </div>
+
+                  <!-- Selected Member Display -->
+                  <div *ngIf="selectedMember" class="alert alert-info mt-2 py-2 px-3">
+                    <small>
+                      <strong>Selected:</strong> {{ selectedMember.name }}<br>
+                      <i class="fas fa-phone me-1"></i>{{ selectedMember.phone }} | 
+                      <i class="fas fa-map-marker-alt me-1"></i>{{ selectedMember.village }}, {{ selectedMember.zila }}
+                    </small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Agent Search -->
+              <div class="mb-3">
+                <label class="form-label">
+                  <i class="fas fa-user-tie me-2"></i>Agent (Sold By)
+                </label>
+                <div class="position-relative">
+                  <div class="input-group">
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      placeholder="Search by name, phone, or NID..." 
+                      [(ngModel)]="agentSearchTerm"
+                      (input)="onAgentSearch()"
+                      (focus)="onAgentSearch()"
+                      name="agentSearch"
+                      [disabled]="loadingAgents"
+                    >
+                    <button 
+                      *ngIf="selectedAgent" 
+                      class="btn btn-outline-danger" 
+                      type="button"
+                      (click)="clearAgent()"
+                      title="Clear selection"
+                    >
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                  
+                  <!-- Agent Dropdown -->
+                  <div 
+                    *ngIf="showAgentDropdown" 
+                    class="dropdown-menu show w-100 shadow-lg" 
+                    style="max-height: 300px; overflow-y: auto; position: absolute; z-index: 1000;"
+                  >
+                    <button 
+                      *ngFor="let agent of filteredAgents" 
+                      type="button"
+                      class="dropdown-item d-flex justify-content-between align-items-start"
+                      (click)="selectAgent(agent)"
+                    >
+                      <div class="flex-grow-1">
+                        <div class="fw-bold">{{ agent.name }}</div>
+                        <small class="text-muted">
+                          <i class="fas fa-phone me-1"></i>{{ agent.phone }}
+                        </small>
+                        <small class="text-muted ms-2">
+                          <i class="fas fa-id-card me-1"></i>{{ agent.nidCard }}
+                        </small>
+                      </div>
+                      <span 
+                        class="badge" 
+                        [class.bg-success]="agent.status === 'Active'"
+                        [class.bg-secondary]="agent.status !== 'Active'"
+                      >
+                        {{ agent.status }}
+                      </span>
+                    </button>
+                    <div *ngIf="filteredAgents.length === 0" class="dropdown-item text-muted">
+                      No agents found
+                    </div>
+                  </div>
+
+                  <!-- Selected Agent Display -->
+                  <div *ngIf="selectedAgent" class="alert alert-info mt-2 py-2 px-3">
+                    <small>
+                      <strong>Selected:</strong> {{ selectedAgent.name }}<br>
+                      <i class="fas fa-phone me-1"></i>{{ selectedAgent.phone }} | 
+                      <i class="fas fa-map-marker-alt me-1"></i>{{ selectedAgent.village }}, {{ selectedAgent.zila }}
+                    </small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Product Images -->
+              <div class="mb-3">
+                <label class="form-label">Product Images</label>
+                <div class="border rounded p-3 text-center">
+                  <input type="file" class="form-control" id="images" 
+                         (change)="onFileSelected($event)" multiple accept="image/*">
+                  <small class="text-muted">Select multiple images (JPEG, PNG, etc.)</small>
+                  
+                  <div *ngIf="selectedFiles.length > 0" class="mt-3">
+                    <h6>Selected Files:</h6>
+                    <ul class="list-group">
+                      <li *ngFor="let file of selectedFiles" class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ file.name }}
+                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                (click)="removeFile(file)">
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Product Name -->
-          <div class="col-md-6">
-            <label class="form-label">Product Name *</label>
-            <input type="text" 
-                   class="form-control" 
-                   [(ngModel)]="product.name" 
-                   name="name" 
-                   required>
-          </div>
-
-          <!-- Category -->
-          <div class="col-md-6">
-            <label class="form-label">Category *</label>
-            <input type="text" 
-                   class="form-control" 
-                   [(ngModel)]="product.category" 
-                   name="category" 
-                   required>
-          </div>
-
-          <!-- Description -->
-          <div class="col-12">
-            <label class="form-label">Description</label>
-            <textarea class="form-control" 
-                      [(ngModel)]="product.description" 
-                      name="description"
-                      rows="3"></textarea>
-          </div>
-
-          <!-- Price -->
-          <div class="col-md-6">
-            <label class="form-label">Price *</label>
-            <div class="input-group">
-              <span class="input-group-text">$</span>
-              <input type="number" 
-                     class="form-control" 
-                     [(ngModel)]="product.price" 
-                     name="price"
-                     min="0"
-                     step="0.01"
-                     required>
-            </div>
-          </div>
-
-          <!-- Cost Price -->
-          <div class="col-md-6">
-            <label class="form-label">Cost Price</label>
-            <div class="input-group">
-              <span class="input-group-text">$</span>
-              <input type="number" 
-                     class="form-control" 
-                     [(ngModel)]="product.costPrice" 
-                     name="costPrice"
-                     min="0"
-                     step="0.01">
-            </div>
-          </div>
-
-          <!-- Stock -->
-          <div class="col-md-6">
-            <label class="form-label">Stock Quantity</label>
-            <input type="number" 
-                   class="form-control" 
-                   [(ngModel)]="product.stock" 
-                   name="stock"
-                   min="0">
-          </div>
-
-          <!-- Status -->
-          <div class="col-md-6">
-            <label class="form-label">Status</label>
-            <select class="form-select" 
-                    [(ngModel)]="product.status" 
-                    name="status">
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-              <option value="OUT_OF_STOCK">Out of Stock</option>
-            </select>
-          </div>
-
-          <!-- Delivery Required -->
-          <div class="col-12">
-            <div class="form-check">
-              <input type="checkbox" 
-                     class="form-check-input" 
-                     [(ngModel)]="product.isDeliveryRequired" 
-                     name="isDeliveryRequired">
-              <label class="form-check-label">Delivery Required</label>
-            </div>
-          </div>
-
-          <!-- Error Message -->
-          <div *ngIf="error" class="col-12">
-            <div class="alert alert-danger" role="alert">
-              {{ error }}
-            </div>
-          </div>
-
-          <!-- Form Actions -->
-          <div class="col-12">
-            <div class="d-flex gap-2">
-              <button type="button" class="btn btn-outline-secondary" (click)="cancel()">
-                <i class="fas fa-arrow-left me-2"></i>Back to Products
-              </button>
-              <button type="submit" 
-                      class="btn btn-primary" 
-                      [disabled]="!isFormValid() || loading">
-                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-                {{ loading ? 'Creating...' : 'Create Product' }}
-              </button>
-            </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success" [disabled]="!productForm.form.valid || loading">
+              <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+              <i class="fas fa-save me-2"></i>Add Product
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="cancel()">
+              <i class="fas fa-times me-2"></i>Cancel
+            </button>
           </div>
         </form>
       </div>

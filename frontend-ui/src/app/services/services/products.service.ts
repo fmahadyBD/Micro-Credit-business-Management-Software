@@ -11,26 +11,26 @@ import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
 
-import { createProduct } from '../fn/product-controller/create-product';
-import { CreateProduct$Params } from '../fn/product-controller/create-product';
-import { createProductWithImages } from '../fn/product-controller/create-product-with-images';
-import { CreateProductWithImages$Params } from '../fn/product-controller/create-product-with-images';
-import { deleteProduct } from '../fn/product-controller/delete-product';
-import { DeleteProduct$Params } from '../fn/product-controller/delete-product';
-import { deleteProductImage } from '../fn/product-controller/delete-product-image';
-import { DeleteProductImage$Params } from '../fn/product-controller/delete-product-image';
-import { getAllProducts } from '../fn/product-controller/get-all-products';
-import { GetAllProducts$Params } from '../fn/product-controller/get-all-products';
-import { getProductById } from '../fn/product-controller/get-product-by-id';
-import { GetProductById$Params } from '../fn/product-controller/get-product-by-id';
+import { createProduct } from '../fn/products/create-product';
+import { CreateProduct$Params } from '../fn/products/create-product';
+import { createProductWithImages } from '../fn/products/create-product-with-images';
+import { CreateProductWithImages$Params } from '../fn/products/create-product-with-images';
+import { deleteProduct } from '../fn/products/delete-product';
+import { DeleteProduct$Params } from '../fn/products/delete-product';
+import { deleteProductImage } from '../fn/products/delete-product-image';
+import { DeleteProductImage$Params } from '../fn/products/delete-product-image';
+import { getAllProducts } from '../fn/products/get-all-products';
+import { GetAllProducts$Params } from '../fn/products/get-all-products';
+import { getProductById } from '../fn/products/get-product-by-id';
+import { GetProductById$Params } from '../fn/products/get-product-by-id';
 import { Product } from '../models/product';
-import { updateProduct } from '../fn/product-controller/update-product';
-import { UpdateProduct$Params } from '../fn/product-controller/update-product';
-import { uploadProductImages } from '../fn/product-controller/upload-product-images';
-import { UploadProductImages$Params } from '../fn/product-controller/upload-product-images';
+import { updateProduct } from '../fn/products/update-product';
+import { UpdateProduct$Params } from '../fn/products/update-product';
+import { uploadProductImages } from '../fn/products/upload-product-images';
+import { UploadProductImages$Params } from '../fn/products/upload-product-images';
 
 @Injectable({ providedIn: 'root' })
-export class ProductControllerService extends BaseService {
+export class ProductsService extends BaseService {
   constructor(config: ApiConfiguration, http: HttpClient) {
     super(config, http);
   }
@@ -39,24 +39,36 @@ export class ProductControllerService extends BaseService {
   static readonly GetProductByIdPath = '/api/products/{id}';
 
   /**
+   * Get product by ID.
+   *
+   *
+   *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
    * To access only the response body, use `getProductById()` instead.
    *
    * This method doesn't expect any request body.
    */
-  getProductById$Response(params: GetProductById$Params, context?: HttpContext): Observable<StrictHttpResponse<Product>> {
+  getProductById$Response(params: GetProductById$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
     return getProductById(this.http, this.rootUrl, params, context);
   }
 
   /**
+   * Get product by ID.
+   *
+   *
+   *
    * This method provides access only to the response body.
    * To access the full response (for headers, for example), `getProductById$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  getProductById(params: GetProductById$Params, context?: HttpContext): Observable<Product> {
+  getProductById(params: GetProductById$Params, context?: HttpContext): Observable<{
+}> {
     return this.getProductById$Response(params, context).pipe(
-      map((r: StrictHttpResponse<Product>): Product => r.body)
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
     );
   }
 
@@ -64,24 +76,44 @@ export class ProductControllerService extends BaseService {
   static readonly UpdateProductPath = '/api/products/{id}';
 
   /**
+   * Update product.
+   *
+   *
+   *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
    * To access only the response body, use `updateProduct()` instead.
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  updateProduct$Response(params: UpdateProduct$Params, context?: HttpContext): Observable<StrictHttpResponse<Product>> {
+  updateProduct$Response(params: UpdateProduct$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+[key: string]: {
+};
+}>> {
     return updateProduct(this.http, this.rootUrl, params, context);
   }
 
   /**
+   * Update product.
+   *
+   *
+   *
    * This method provides access only to the response body.
    * To access the full response (for headers, for example), `updateProduct$Response()` instead.
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  updateProduct(params: UpdateProduct$Params, context?: HttpContext): Observable<Product> {
+  updateProduct(params: UpdateProduct$Params, context?: HttpContext): Observable<{
+[key: string]: {
+};
+}> {
     return this.updateProduct$Response(params, context).pipe(
-      map((r: StrictHttpResponse<Product>): Product => r.body)
+      map((r: StrictHttpResponse<{
+[key: string]: {
+};
+}>): {
+[key: string]: {
+};
+} => r.body)
     );
   }
 
@@ -89,24 +121,44 @@ export class ProductControllerService extends BaseService {
   static readonly DeleteProductPath = '/api/products/{id}';
 
   /**
+   * Delete product.
+   *
+   *
+   *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
    * To access only the response body, use `deleteProduct()` instead.
    *
    * This method doesn't expect any request body.
    */
-  deleteProduct$Response(params: DeleteProduct$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+  deleteProduct$Response(params: DeleteProduct$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+[key: string]: {
+};
+}>> {
     return deleteProduct(this.http, this.rootUrl, params, context);
   }
 
   /**
+   * Delete product.
+   *
+   *
+   *
    * This method provides access only to the response body.
    * To access the full response (for headers, for example), `deleteProduct$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  deleteProduct(params: DeleteProduct$Params, context?: HttpContext): Observable<void> {
+  deleteProduct(params: DeleteProduct$Params, context?: HttpContext): Observable<{
+[key: string]: {
+};
+}> {
     return this.deleteProduct$Response(params, context).pipe(
-      map((r: StrictHttpResponse<void>): void => r.body)
+      map((r: StrictHttpResponse<{
+[key: string]: {
+};
+}>): {
+[key: string]: {
+};
+} => r.body)
     );
   }
 
@@ -114,6 +166,10 @@ export class ProductControllerService extends BaseService {
   static readonly GetAllProductsPath = '/api/products';
 
   /**
+   * Get all products.
+   *
+   *
+   *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
    * To access only the response body, use `getAllProducts()` instead.
    *
@@ -124,6 +180,10 @@ export class ProductControllerService extends BaseService {
   }
 
   /**
+   * Get all products.
+   *
+   *
+   *
    * This method provides access only to the response body.
    * To access the full response (for headers, for example), `getAllProducts$Response()` instead.
    *
@@ -139,24 +199,44 @@ export class ProductControllerService extends BaseService {
   static readonly CreateProductPath = '/api/products';
 
   /**
+   * Create product without images.
+   *
+   *
+   *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
    * To access only the response body, use `createProduct()` instead.
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  createProduct$Response(params: CreateProduct$Params, context?: HttpContext): Observable<StrictHttpResponse<Product>> {
+  createProduct$Response(params: CreateProduct$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+[key: string]: {
+};
+}>> {
     return createProduct(this.http, this.rootUrl, params, context);
   }
 
   /**
+   * Create product without images.
+   *
+   *
+   *
    * This method provides access only to the response body.
    * To access the full response (for headers, for example), `createProduct$Response()` instead.
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  createProduct(params: CreateProduct$Params, context?: HttpContext): Observable<Product> {
+  createProduct(params: CreateProduct$Params, context?: HttpContext): Observable<{
+[key: string]: {
+};
+}> {
     return this.createProduct$Response(params, context).pipe(
-      map((r: StrictHttpResponse<Product>): Product => r.body)
+      map((r: StrictHttpResponse<{
+[key: string]: {
+};
+}>): {
+[key: string]: {
+};
+} => r.body)
     );
   }
 
@@ -164,27 +244,43 @@ export class ProductControllerService extends BaseService {
   static readonly UploadProductImagesPath = '/api/products/{id}/images';
 
   /**
+   * Upload product images.
+   *
+   *
+   *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
    * To access only the response body, use `uploadProductImages()` instead.
    *
    * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
    */
   uploadProductImages$Response(params: UploadProductImages$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+[key: string]: {
+};
 }>> {
     return uploadProductImages(this.http, this.rootUrl, params, context);
   }
 
   /**
+   * Upload product images.
+   *
+   *
+   *
    * This method provides access only to the response body.
    * To access the full response (for headers, for example), `uploadProductImages$Response()` instead.
    *
    * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
    */
   uploadProductImages(params: UploadProductImages$Params, context?: HttpContext): Observable<{
+[key: string]: {
+};
 }> {
     return this.uploadProductImages$Response(params, context).pipe(
       map((r: StrictHttpResponse<{
+[key: string]: {
+};
 }>): {
+[key: string]: {
+};
 } => r.body)
     );
   }
@@ -193,24 +289,44 @@ export class ProductControllerService extends BaseService {
   static readonly DeleteProductImagePath = '/api/products/{id}/images';
 
   /**
+   * Delete product image.
+   *
+   *
+   *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
    * To access only the response body, use `deleteProductImage()` instead.
    *
    * This method doesn't expect any request body.
    */
-  deleteProductImage$Response(params: DeleteProductImage$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+  deleteProductImage$Response(params: DeleteProductImage$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+[key: string]: {
+};
+}>> {
     return deleteProductImage(this.http, this.rootUrl, params, context);
   }
 
   /**
+   * Delete product image.
+   *
+   *
+   *
    * This method provides access only to the response body.
    * To access the full response (for headers, for example), `deleteProductImage$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  deleteProductImage(params: DeleteProductImage$Params, context?: HttpContext): Observable<void> {
+  deleteProductImage(params: DeleteProductImage$Params, context?: HttpContext): Observable<{
+[key: string]: {
+};
+}> {
     return this.deleteProductImage$Response(params, context).pipe(
-      map((r: StrictHttpResponse<void>): void => r.body)
+      map((r: StrictHttpResponse<{
+[key: string]: {
+};
+}>): {
+[key: string]: {
+};
+} => r.body)
     );
   }
 
@@ -218,24 +334,44 @@ export class ProductControllerService extends BaseService {
   static readonly CreateProductWithImagesPath = '/api/products/with-images';
 
   /**
+   * Create product with images.
+   *
+   *
+   *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
    * To access only the response body, use `createProductWithImages()` instead.
    *
    * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
    */
-  createProductWithImages$Response(params?: CreateProductWithImages$Params, context?: HttpContext): Observable<StrictHttpResponse<Product>> {
+  createProductWithImages$Response(params: CreateProductWithImages$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+[key: string]: {
+};
+}>> {
     return createProductWithImages(this.http, this.rootUrl, params, context);
   }
 
   /**
+   * Create product with images.
+   *
+   *
+   *
    * This method provides access only to the response body.
    * To access the full response (for headers, for example), `createProductWithImages$Response()` instead.
    *
    * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
    */
-  createProductWithImages(params?: CreateProductWithImages$Params, context?: HttpContext): Observable<Product> {
+  createProductWithImages(params: CreateProductWithImages$Params, context?: HttpContext): Observable<{
+[key: string]: {
+};
+}> {
     return this.createProductWithImages$Response(params, context).pipe(
-      map((r: StrictHttpResponse<Product>): Product => r.body)
+      map((r: StrictHttpResponse<{
+[key: string]: {
+};
+}>): {
+[key: string]: {
+};
+} => r.body)
     );
   }
 

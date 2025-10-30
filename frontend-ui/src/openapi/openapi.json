@@ -219,8 +219,9 @@
         "/api/products/{id}": {
             "get": {
                 "tags": [
-                    "product-controller"
+                    "products"
                 ],
+                "summary": "Get product by ID",
                 "operationId": "getProductById",
                 "parameters": [
                     {
@@ -239,7 +240,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Product"
+                                    "type": "object"
                                 }
                             }
                         }
@@ -248,8 +249,9 @@
             },
             "put": {
                 "tags": [
-                    "product-controller"
+                    "products"
                 ],
+                "summary": "Update product",
                 "operationId": "updateProduct",
                 "parameters": [
                     {
@@ -278,7 +280,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Product"
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "object"
+                                    }
                                 }
                             }
                         }
@@ -287,8 +292,9 @@
             },
             "delete": {
                 "tags": [
-                    "product-controller"
+                    "products"
                 ],
+                "summary": "Delete product",
                 "operationId": "deleteProduct",
                 "parameters": [
                     {
@@ -303,7 +309,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1337,8 +1353,9 @@
         "/api/products": {
             "get": {
                 "tags": [
-                    "product-controller"
+                    "products"
                 ],
+                "summary": "Get all products",
                 "operationId": "getAllProducts",
                 "responses": {
                     "200": {
@@ -1358,8 +1375,9 @@
             },
             "post": {
                 "tags": [
-                    "product-controller"
+                    "products"
                 ],
+                "summary": "Create product without images",
                 "operationId": "createProduct",
                 "requestBody": {
                     "content": {
@@ -1377,7 +1395,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Product"
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "object"
+                                    }
                                 }
                             }
                         }
@@ -1388,8 +1409,9 @@
         "/api/products/{id}/images": {
             "post": {
                 "tags": [
-                    "product-controller"
+                    "products"
                 ],
+                "summary": "Upload product images",
                 "operationId": "uploadProductImages",
                 "parameters": [
                     {
@@ -1429,7 +1451,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object"
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "object"
+                                    }
                                 }
                             }
                         }
@@ -1438,8 +1463,9 @@
             },
             "delete": {
                 "tags": [
-                    "product-controller"
+                    "products"
                 ],
+                "summary": "Delete product image",
                 "operationId": "deleteProductImage",
                 "parameters": [
                     {
@@ -1462,7 +1488,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1470,21 +1506,26 @@
         "/api/products/with-images": {
             "post": {
                 "tags": [
-                    "product-controller"
+                    "products"
                 ],
+                "summary": "Create product with images",
                 "operationId": "createProductWithImages",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
                             "schema": {
-                                "required": [
-                                    "product"
-                                ],
                                 "type": "object",
                                 "properties": {
-                                    "product": {
-                                        "$ref": "#/components/schemas/Product"
-                                    },
                                     "images": {
                                         "type": "array",
                                         "items": {
@@ -1503,7 +1544,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Product"
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "object"
+                                    }
                                 }
                             }
                         }
@@ -3286,6 +3330,12 @@
                     "joinDate": {
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "members": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Member"
+                        }
                     }
                 }
             },
@@ -3297,7 +3347,6 @@
                     "interestRate",
                     "member",
                     "otherCost",
-                    "product",
                     "status",
                     "totalAmountOfProduct"
                 ],
@@ -3306,9 +3355,6 @@
                     "id": {
                         "type": "integer",
                         "format": "int64"
-                    },
-                    "product": {
-                        "$ref": "#/components/schemas/Product"
                     },
                     "member": {
                         "$ref": "#/components/schemas/Member"
@@ -3620,12 +3666,9 @@
                         "type": "number",
                         "format": "double"
                     },
-                    "stock": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "status": {
-                        "type": "string"
+                    "totalPrice": {
+                        "type": "number",
+                        "format": "double"
                     },
                     "isDeliveryRequired": {
                         "type": "boolean"
@@ -3634,22 +3677,19 @@
                         "type": "string",
                         "format": "date"
                     },
-                    "addedBy": {
-                        "type": "string"
-                    },
                     "soldByAgent": {
                         "$ref": "#/components/schemas/Agent"
+                    },
+                    "whoRequest": {
+                        "$ref": "#/components/schemas/Member"
+                    },
+                    "installment": {
+                        "$ref": "#/components/schemas/Installment"
                     },
                     "imageFilePaths": {
                         "type": "array",
                         "items": {
                             "type": "string"
-                        }
-                    },
-                    "installments": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Installment"
                         }
                     }
                 }

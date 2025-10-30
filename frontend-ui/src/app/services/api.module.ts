@@ -8,7 +8,7 @@ import { ApiConfiguration, ApiConfigurationParams } from './api-configuration';
 
 import { UsersService } from './services/users.service';
 import { ShareholderControllerService } from './services/shareholder-controller.service';
-import { ProductControllerService } from './services/product-controller.service';
+import { ProductsService } from './services/products.service';
 import { PaymentScheduleControllerService } from './services/payment-schedule-controller.service';
 import { MembersService } from './services/members.service';
 import { InstallmentControllerService } from './services/installment-controller.service';
@@ -28,7 +28,7 @@ import { ShareholderEarningControllerService } from './services/shareholder-earn
   providers: [
     UsersService,
     ShareholderControllerService,
-    ProductControllerService,
+    ProductsService,
     PaymentScheduleControllerService,
     MembersService,
     InstallmentControllerService,

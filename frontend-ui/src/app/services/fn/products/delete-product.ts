@@ -9,28 +9,30 @@ import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
 
-export interface UploadProductImages$Params {
+export interface DeleteProduct$Params {
   id: number;
-      body?: {
-'images': Array<Blob>;
-}
 }
 
-export function uploadProductImages(http: HttpClient, rootUrl: string, params: UploadProductImages$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
-  const rb = new RequestBuilder(rootUrl, uploadProductImages.PATH, 'post');
+export function deleteProduct(http: HttpClient, rootUrl: string, params: DeleteProduct$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+[key: string]: {
+};
+}>> {
+  const rb = new RequestBuilder(rootUrl, deleteProduct.PATH, 'delete');
   if (params) {
     rb.path('id', params.id, {});
-    rb.body(params.body, 'multipart/form-data');
   }
 
   return http.request(
-    rb.build({ responseType: 'text', accept: '*/*', context })
+    rb.build({ responseType: 'json', accept: 'application/json', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      return r as StrictHttpResponse<{
+      [key: string]: {
+      };
+      }>;
     })
   );
 }
 
-uploadProductImages.PATH = '/api/products/{id}/images';
+deleteProduct.PATH = '/api/products/{id}';

@@ -25,8 +25,7 @@ import { UpdateAgentComponent } from '../../page/agent/update-agent/update-agent
 import { DetailsAgentComponent } from '../../page/agent/details-agent/details-agent.component';
 import { AllProductsComponent } from '../../page/product/all-products/all-products.component';
 import { AddProductComponent } from '../../page/product/add-product/add-product.component';
-import { ProductDetailsComponent } from '../../page/product/product-details/product-details.component';
-import { EditProductComponent } from '../../page/product/edit-product/edit-product.component';
+
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -54,9 +53,7 @@ import { EditProductComponent } from '../../page/product/edit-product/edit-produ
     UpdateAgentComponent,
     DetailsAgentComponent,
     AllProductsComponent,
-    AddProductComponent,
-    ProductDetailsComponent,
-    EditProductComponent
+    AddProductComponent
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
@@ -71,7 +68,7 @@ export class AdminDashboardComponent implements OnInit {
     | 'all-agents' | 'add-agent'
     | 'user-details' | 'edit-user'
     | 'member-details' | 'edit-member'
-    | 'all-products' | 'add-product' | 'product-details' | 'edit-product'
+    | 'all-products' | 'add-product' 
     | 'agent-details' | 'edit-agent' = 'dashboard'
 
     ;
@@ -152,16 +149,7 @@ export class AdminDashboardComponent implements OnInit {
 
 
     // 🎁 Product events
-    window.addEventListener('viewProductDetails', (e: any) => {
-      this.selectedProductId = e.detail;
-      this.currentView = 'product-details';
-    });
-
-    window.addEventListener('editProduct', (e: any) => {
-      this.selectedProductId = e.detail;
-      this.currentView = 'edit-product';
-    });
-
+   
     window.addEventListener('addProduct', () => {
       this.currentView = 'add-product';
     });

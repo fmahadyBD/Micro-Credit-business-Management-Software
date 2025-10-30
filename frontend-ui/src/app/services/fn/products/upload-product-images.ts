@@ -16,7 +16,10 @@ export interface UploadProductImages$Params {
 }
 }
 
-export function uploadProductImages(http: HttpClient, rootUrl: string, params: UploadProductImages$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+export function uploadProductImages(http: HttpClient, rootUrl: string, params: UploadProductImages$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+[key: string]: {
+};
+}>> {
   const rb = new RequestBuilder(rootUrl, uploadProductImages.PATH, 'post');
   if (params) {
     rb.path('id', params.id, {});
@@ -24,11 +27,14 @@ export function uploadProductImages(http: HttpClient, rootUrl: string, params: U
   }
 
   return http.request(
-    rb.build({ responseType: 'text', accept: '*/*', context })
+    rb.build({ responseType: 'json', accept: 'application/json', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      return r as StrictHttpResponse<{
+      [key: string]: {
+      };
+      }>;
     })
   );
 }

@@ -4,7 +4,7 @@
 
 export { UsersService } from './services/users.service';
 export { ShareholderControllerService } from './services/shareholder-controller.service';
-export { ProductControllerService } from './services/product-controller.service';
+export { ProductsService } from './services/products.service';
 export { PaymentScheduleControllerService } from './services/payment-schedule-controller.service';
 export { MembersService } from './services/members.service';
 export { InstallmentControllerService } from './services/installment-controller.service';
