@@ -415,43 +415,13 @@
                 }
             }
         },
-        "/api/members/{id}": {
-            "get": {
-                "tags": [
-                    "members"
-                ],
-                "summary": "Get member by ID",
-                "operationId": "getMemberById",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
+        "/api/members/{id}/with-images": {
             "put": {
                 "tags": [
                     "members"
                 ],
-                "summary": "Update member by ID",
-                "operationId": "updateMember",
+                "summary": "Update existing member with optional images",
+                "operationId": "updateMemberWithImages",
                 "parameters": [
                     {
                         "name": "id",
@@ -460,49 +430,40 @@
                         "schema": {
                             "type": "integer",
                             "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "member",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/Member"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
+                                "type": "object",
+                                "properties": {
+                                    "nidCardImage": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "photo": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "nomineeNidCardImage": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "members"
-                ],
-                "summary": "Delete member by ID (moves to deleted_members)",
-                "operationId": "deleteMember",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    }
-                ],
+                },
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2903,12 +2864,77 @@
                 }
             }
         },
+        "/api/members/{id}": {
+            "get": {
+                "tags": [
+                    "members"
+                ],
+                "summary": "Get member by ID",
+                "operationId": "getMemberById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "members"
+                ],
+                "summary": "Delete member by ID (moves to deleted_members and deletes images)",
+                "operationId": "deleteMember",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/members/deleted": {
             "get": {
                 "tags": [
                     "members"
                 ],
-                "summary": "Get all deleted members (deletion history)",
+                "summary": "Get all deleted members",
                 "operationId": "getDeletedMembers",
                 "responses": {
                     "200": {

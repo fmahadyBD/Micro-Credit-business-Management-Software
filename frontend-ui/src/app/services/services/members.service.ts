@@ -23,8 +23,8 @@ import { GetDeletedMembers$Params } from '../fn/members/get-deleted-members';
 import { getMemberById } from '../fn/members/get-member-by-id';
 import { GetMemberById$Params } from '../fn/members/get-member-by-id';
 import { Member } from '../models/member';
-import { updateMember } from '../fn/members/update-member';
-import { UpdateMember$Params } from '../fn/members/update-member';
+import { updateMemberWithImages } from '../fn/members/update-member-with-images';
+import { UpdateMemberWithImages$Params } from '../fn/members/update-member-with-images';
 
 @Injectable({ providedIn: 'root' })
 export class MembersService extends BaseService {
@@ -32,115 +32,41 @@ export class MembersService extends BaseService {
     super(config, http);
   }
 
-  /** Path part for operation `getMemberById()` */
-  static readonly GetMemberByIdPath = '/api/members/{id}';
+  /** Path part for operation `updateMemberWithImages()` */
+  static readonly UpdateMemberWithImagesPath = '/api/members/{id}/with-images';
 
   /**
-   * Get member by ID.
+   * Update existing member with optional images.
    *
    *
    *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `getMemberById()` instead.
+   * To access only the response body, use `updateMemberWithImages()` instead.
    *
-   * This method doesn't expect any request body.
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
    */
-  getMemberById$Response(params: GetMemberById$Params, context?: HttpContext): Observable<StrictHttpResponse<{
-}>> {
-    return getMemberById(this.http, this.rootUrl, params, context);
-  }
-
-  /**
-   * Get member by ID.
-   *
-   *
-   *
-   * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `getMemberById$Response()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  getMemberById(params: GetMemberById$Params, context?: HttpContext): Observable<{
-}> {
-    return this.getMemberById$Response(params, context).pipe(
-      map((r: StrictHttpResponse<{
-}>): {
-} => r.body)
-    );
-  }
-
-  /** Path part for operation `updateMember()` */
-  static readonly UpdateMemberPath = '/api/members/{id}';
-
-  /**
-   * Update member by ID.
-   *
-   *
-   *
-   * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `updateMember()` instead.
-   *
-   * This method sends `application/json` and handles request body of type `application/json`.
-   */
-  updateMember$Response(params: UpdateMember$Params, context?: HttpContext): Observable<StrictHttpResponse<{
-}>> {
-    return updateMember(this.http, this.rootUrl, params, context);
-  }
-
-  /**
-   * Update member by ID.
-   *
-   *
-   *
-   * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `updateMember$Response()` instead.
-   *
-   * This method sends `application/json` and handles request body of type `application/json`.
-   */
-  updateMember(params: UpdateMember$Params, context?: HttpContext): Observable<{
-}> {
-    return this.updateMember$Response(params, context).pipe(
-      map((r: StrictHttpResponse<{
-}>): {
-} => r.body)
-    );
-  }
-
-  /** Path part for operation `deleteMember()` */
-  static readonly DeleteMemberPath = '/api/members/{id}';
-
-  /**
-   * Delete member by ID (moves to deleted_members).
-   *
-   *
-   *
-   * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `deleteMember()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  deleteMember$Response(params: DeleteMember$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+  updateMemberWithImages$Response(params: UpdateMemberWithImages$Params, context?: HttpContext): Observable<StrictHttpResponse<{
 [key: string]: {
 };
 }>> {
-    return deleteMember(this.http, this.rootUrl, params, context);
+    return updateMemberWithImages(this.http, this.rootUrl, params, context);
   }
 
   /**
-   * Delete member by ID (moves to deleted_members).
+   * Update existing member with optional images.
    *
    *
    *
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `deleteMember$Response()` instead.
+   * To access the full response (for headers, for example), `updateMemberWithImages$Response()` instead.
    *
-   * This method doesn't expect any request body.
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
    */
-  deleteMember(params: DeleteMember$Params, context?: HttpContext): Observable<{
+  updateMemberWithImages(params: UpdateMemberWithImages$Params, context?: HttpContext): Observable<{
 [key: string]: {
 };
 }> {
-    return this.deleteMember$Response(params, context).pipe(
+    return this.updateMemberWithImages$Response(params, context).pipe(
       map((r: StrictHttpResponse<{
 [key: string]: {
 };
@@ -229,11 +155,93 @@ export class MembersService extends BaseService {
     );
   }
 
+  /** Path part for operation `getMemberById()` */
+  static readonly GetMemberByIdPath = '/api/members/{id}';
+
+  /**
+   * Get member by ID.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getMemberById()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getMemberById$Response(params: GetMemberById$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return getMemberById(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * Get member by ID.
+   *
+   *
+   *
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getMemberById$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getMemberById(params: GetMemberById$Params, context?: HttpContext): Observable<{
+}> {
+    return this.getMemberById$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
+    );
+  }
+
+  /** Path part for operation `deleteMember()` */
+  static readonly DeleteMemberPath = '/api/members/{id}';
+
+  /**
+   * Delete member by ID (moves to deleted_members and deletes images).
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `deleteMember()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  deleteMember$Response(params: DeleteMember$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+[key: string]: {
+};
+}>> {
+    return deleteMember(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * Delete member by ID (moves to deleted_members and deletes images).
+   *
+   *
+   *
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `deleteMember$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  deleteMember(params: DeleteMember$Params, context?: HttpContext): Observable<{
+[key: string]: {
+};
+}> {
+    return this.deleteMember$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+[key: string]: {
+};
+}>): {
+[key: string]: {
+};
+} => r.body)
+    );
+  }
+
   /** Path part for operation `getDeletedMembers()` */
   static readonly GetDeletedMembersPath = '/api/members/deleted';
 
   /**
-   * Get all deleted members (deletion history).
+   * Get all deleted members.
    *
    *
    *
@@ -247,7 +255,7 @@ export class MembersService extends BaseService {
   }
 
   /**
-   * Get all deleted members (deletion history).
+   * Get all deleted members.
    *
    *
    *

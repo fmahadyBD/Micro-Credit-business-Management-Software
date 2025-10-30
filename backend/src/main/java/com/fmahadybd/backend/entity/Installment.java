@@ -115,34 +115,29 @@ public class Installment {
             imageFilePaths = new ArrayList<>();
     }
 
-    public Double getTotalAmountWithInterest() {
-        return totalAmountOfProduct + (totalAmountOfProduct * (interestRate != null ? interestRate : 15.0) / 100);
-    }
-
+    @Transient
     public Double getMonthlyInstallmentAmount() {
-        if (installmentMonths == null || installmentMonths <= 0)
-            return 0.0;
-        if (needPaidAmount == null)
-            return 0.0;
+        if (installmentMonths == null || installmentMonths <= 0) return 0.0;
+        if (needPaidAmount == null) return 0.0;
         return needPaidAmount / installmentMonths;
     }
 
     @AssertTrue(message = "Advanced payment cannot exceed total amount with interest")
     private boolean isAdvancedPaymentValid() {
-        if (advanced_paid == null || totalAmountOfProduct == null) {
-            return true; // Skip validation if required fields are null
-        }
+        if (advanced_paid == null || totalAmountOfProduct == null) return true;
         Double totalWithInterest = getTotalAmountWithInterest() + (otherCost != null ? otherCost : 0.0);
         return advanced_paid <= totalWithInterest;
     }
 
     @AssertTrue(message = "Need paid amount should match calculation")
     private boolean isNeedPaidAmountValid() {
-        if (needPaidAmount == null || totalAmountOfProduct == null) {
-            return true; // Skip validation if required fields are null
-        }
+        if (needPaidAmount == null || totalAmountOfProduct == null) return true;
         Double expected = getTotalAmountWithInterest() + (otherCost != null ? otherCost : 0.0)
                 - (advanced_paid != null ? advanced_paid : 0.0);
         return Math.abs(needPaidAmount - Math.max(expected, 0.0)) < 0.01;
+    }
+
+    public Double getTotalAmountWithInterest() {
+        return totalAmountOfProduct + (totalAmountOfProduct * (interestRate != null ? interestRate : 15.0) / 100);
     }
 }

@@ -27,6 +27,7 @@ public class AgentController {
 
     private final AgentService agentService;
     private final FileStorageService fileStorageService;
+    private final String imagFolder = "agent";
 
     /** Create a new Agent with validation */
     @PostMapping
@@ -51,7 +52,7 @@ public class AgentController {
             @RequestPart("agent") @Valid Agent agent,
             BindingResult result,
             @RequestPart(value = "photo", required = false) MultipartFile photo) {
-        
+
         if (result.hasErrors()) {
             String errorMessage = result.getAllErrors().get(0).getDefaultMessage();
             Map<String, Object> errorResponse = new HashMap<>();
@@ -65,7 +66,7 @@ public class AgentController {
             if (photo != null && !photo.isEmpty()) {
                 // Use agent ID if available, otherwise use 0 for new agents
                 Long agentId = agent.getId() != null ? agent.getId() : 0L;
-                String photoPath = fileStorageService.saveAgentPhoto(photo, agentId);
+                String photoPath = fileStorageService.saveFile(photo, agentId, imagFolder);
                 agent.setPhoto(photoPath);
             }
 
@@ -88,7 +89,7 @@ public class AgentController {
             @RequestPart("agent") @Valid Agent updatedAgent,
             BindingResult result,
             @RequestPart(value = "photo", required = false) MultipartFile photo) {
-        
+
         if (result.hasErrors()) {
             String errorMessage = result.getAllErrors().get(0).getDefaultMessage();
             Map<String, Object> errorResponse = new HashMap<>();
@@ -103,7 +104,7 @@ public class AgentController {
 
             // Handle photo upload
             if (photo != null && !photo.isEmpty()) {
-                String photoPath = fileStorageService.saveAgentPhoto(photo, id);
+                String photoPath = fileStorageService.saveFile(photo, id, imagFolder);
                 updatedAgent.setPhoto(photoPath);
             } else {
                 // Keep existing photo if no new photo provided
@@ -144,13 +145,13 @@ public class AgentController {
     public ResponseEntity<?> uploadAgentPhoto(
             @PathVariable Long id,
             @RequestPart("photo") MultipartFile photo) {
-        
+
         try {
             Agent existingAgent = agentService.getAgentById(id)
                     .orElseThrow(() -> new RuntimeException("Agent not found with ID: " + id));
 
             if (photo != null && !photo.isEmpty()) {
-                String photoPath = fileStorageService.saveAgentPhoto(photo, id);
+                String photoPath = fileStorageService.saveFile(photo, id, imagFolder);
                 existingAgent.setPhoto(photoPath);
                 Agent savedAgent = agentService.updateAgent(id, existingAgent);
                 return ResponseEntity.ok(savedAgent);

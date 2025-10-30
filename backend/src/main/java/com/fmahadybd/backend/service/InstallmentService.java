@@ -23,6 +23,8 @@ public class InstallmentService {
     private final FileStorageService fileStorageService;
     private final PaymentScheduleService paymentScheduleService;
 
+    private final String folder ="installment";
+
     public Installment save(Installment installment) {
         validateInstallment(installment);
         calculateInstallmentAmounts(installment);
@@ -56,7 +58,7 @@ public class InstallmentService {
         List<String> savedFilePaths = new ArrayList<>();
         for (MultipartFile file : files) {
             if (!file.isEmpty()) {
-                String filePath = fileStorageService.saveFile(file, installmentId);
+                String filePath = fileStorageService.saveFile(file, installmentId,folder);
                 if (filePath != null)
                     savedFilePaths.add(filePath);
             }

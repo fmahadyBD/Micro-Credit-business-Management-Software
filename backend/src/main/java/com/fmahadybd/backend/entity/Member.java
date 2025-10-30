@@ -7,30 +7,9 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.*;
 
 @Entity
 @Table(name = "members")
@@ -48,24 +27,18 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Name is mandatory")
-    @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
+    @NotBlank @Size(min = 2, max = 100)
     @Column(nullable = false)
     private String name;
 
-    @NotBlank(message = "Phone is mandatory")
-    @Size(min = 10, max = 15, message = "Phone must be between 10 and 15 characters")
+    @NotBlank @Size(min = 10, max = 15)
     @Column(nullable = false, unique = true)
     private String phone;
 
-    @NotBlank(message = "District (zila) is mandatory")
-    private String zila;
+    @NotBlank private String zila;
+    @NotBlank private String village;
 
-    @NotBlank(message = "Village is mandatory")
-    private String village;
-
-    @NotBlank(message = "NID card number is mandatory")
-    @Column(nullable = false, unique = true)
+    @NotBlank @Column(nullable = false, unique = true)
     private String nidCardNumber;
 
     @Column(name = "nid_card_image_path")
@@ -74,14 +47,10 @@ public class Member {
     @Column(name = "photo_path")
     private String photoPath;
 
-    @NotBlank(message = "Nominee name is mandatory")
-    private String nomineeName;
+    @NotBlank private String nomineeName;
+    @NotBlank private String nomineePhone;
 
-    @NotBlank(message = "Nominee phone is mandatory")
-    private String nomineePhone;
-
-    @NotBlank(message = "Nominee NID card number is mandatory")
-    @Column(name = "nominee_nid_card_number")
+    @NotBlank @Column(name = "nominee_nid_card_number")
     private String nomineeNidCardNumber;
 
     @Column(name = "nominee_nid_card_image_path")
@@ -93,7 +62,6 @@ public class Member {
     @Column(nullable = false)
     private MemberStatus status = MemberStatus.ACTIVE;
 
-    /** Many-to-Many with Agents */
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "member_agents",
@@ -104,13 +72,11 @@ public class Member {
     @Builder.Default
     private List<Agent> agents = new ArrayList<>();
 
-    /** One-to-Many with Installments */
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonManagedReference("member-installments")
     @Builder.Default
     private List<Installment> installments = new ArrayList<>();
 
-    /** Set default values before persisting */
     @PrePersist
     protected void onCreate() {
         if (joinDate == null) joinDate = LocalDate.now();

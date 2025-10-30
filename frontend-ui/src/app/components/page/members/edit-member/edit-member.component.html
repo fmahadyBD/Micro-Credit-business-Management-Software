@@ -1,7 +1,9 @@
 <main class="main-content" [class.collapsed]="isSidebarCollapsed">
   <div class="container-fluid mt-4">
     <div class="card shadow-sm">
-      <div class="card-header bg-warning text-white d-flex justify-content-between align-items-center">
+      <div
+        class="card-header bg-warning text-white d-flex justify-content-between align-items-center"
+      >
         <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Member</h4>
         <button class="btn btn-light btn-sm" (click)="goBack()">
           <i class="fas fa-arrow-left me-1"></i>Back to All Members
@@ -18,15 +20,29 @@
         </div>
 
         <!-- Error Alert -->
-        <div *ngIf="error && !loading" class="alert alert-danger alert-dismissible fade show">
+        <div
+          *ngIf="error && !loading"
+          class="alert alert-danger alert-dismissible fade show"
+        >
           <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
-          <button type="button" class="btn-close" (click)="error = null"></button>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="error = null"
+          ></button>
         </div>
 
         <!-- Success Alert -->
-        <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show">
+        <div
+          *ngIf="successMessage"
+          class="alert alert-success alert-dismissible fade show"
+        >
           <i class="fas fa-check-circle me-2"></i>{{ successMessage }}
-          <button type="button" class="btn-close" (click)="successMessage = null"></button>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="successMessage = null"
+          ></button>
         </div>
 
         <!-- Edit Form -->
@@ -34,11 +50,15 @@
           <div class="row">
             <!-- Basic Information -->
             <div class="col-12 mb-4">
-              <h5 class="border-bottom pb-2"><i class="fas fa-user me-2"></i>Basic Information</h5>
+              <h5 class="border-bottom pb-2">
+                <i class="fas fa-user me-2"></i>Basic Information
+              </h5>
             </div>
 
             <div class="col-md-6 mb-3">
-              <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
+              <label for="name" class="form-label"
+                >Name <span class="text-danger">*</span></label
+              >
               <input
                 type="text"
                 class="form-control"
@@ -50,14 +70,21 @@
                 maxlength="100"
                 #name="ngModel"
               />
-              <div *ngIf="name.invalid && (name.dirty || name.touched)" class="text-danger small mt-1">
+              <div
+                *ngIf="name.invalid && (name.dirty || name.touched)"
+                class="text-danger small mt-1"
+              >
                 <div *ngIf="name.errors?.['required']">Name is required</div>
-                <div *ngIf="name.errors?.['minlength']">Name must be at least 2 characters</div>
+                <div *ngIf="name.errors?.['minlength']">
+                  Name must be at least 2 characters
+                </div>
               </div>
             </div>
 
             <div class="col-md-6 mb-3">
-              <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
+              <label for="phone" class="form-label"
+                >Phone <span class="text-danger">*</span></label
+              >
               <input
                 type="tel"
                 class="form-control"
@@ -69,14 +96,21 @@
                 maxlength="15"
                 #phone="ngModel"
               />
-              <div *ngIf="phone.invalid && (phone.dirty || phone.touched)" class="text-danger small mt-1">
+              <div
+                *ngIf="phone.invalid && (phone.dirty || phone.touched)"
+                class="text-danger small mt-1"
+              >
                 <div *ngIf="phone.errors?.['required']">Phone is required</div>
-                <div *ngIf="phone.errors?.['minlength']">Phone must be at least 10 characters</div>
+                <div *ngIf="phone.errors?.['minlength']">
+                  Phone must be at least 10 characters
+                </div>
               </div>
             </div>
 
             <div class="col-md-6 mb-3">
-              <label for="nidCardNumber" class="form-label">NID Card Number <span class="text-danger">*</span></label>
+              <label for="nidCardNumber" class="form-label"
+                >NID Card Number <span class="text-danger">*</span></label
+              >
               <input
                 type="text"
                 class="form-control"
@@ -86,8 +120,16 @@
                 required
                 #nidCardNumber="ngModel"
               />
-              <div *ngIf="nidCardNumber.invalid && (nidCardNumber.dirty || nidCardNumber.touched)" class="text-danger small mt-1">
-                <div *ngIf="nidCardNumber.errors?.['required']">NID Card is required</div>
+              <div
+                *ngIf="
+                  nidCardNumber.invalid &&
+                  (nidCardNumber.dirty || nidCardNumber.touched)
+                "
+                class="text-danger small mt-1"
+              >
+                <div *ngIf="nidCardNumber.errors?.['required']">
+                  NID Card is required
+                </div>
               </div>
             </div>
 
@@ -107,11 +149,15 @@
 
             <!-- Address Information -->
             <div class="col-12 mb-4 mt-3">
-              <h5 class="border-bottom pb-2"><i class="fas fa-map-marker-alt me-2"></i>Address Information</h5>
+              <h5 class="border-bottom pb-2">
+                <i class="fas fa-map-marker-alt me-2"></i>Address Information
+              </h5>
             </div>
 
             <div class="col-md-6 mb-3">
-              <label for="village" class="form-label">Village <span class="text-danger">*</span></label>
+              <label for="village" class="form-label"
+                >Village <span class="text-danger">*</span></label
+              >
               <input
                 type="text"
                 class="form-control"
@@ -121,13 +167,20 @@
                 required
                 #village="ngModel"
               />
-              <div *ngIf="village.invalid && (village.dirty || village.touched)" class="text-danger small mt-1">
-                <div *ngIf="village.errors?.['required']">Village is required</div>
+              <div
+                *ngIf="village.invalid && (village.dirty || village.touched)"
+                class="text-danger small mt-1"
+              >
+                <div *ngIf="village.errors?.['required']">
+                  Village is required
+                </div>
               </div>
             </div>
 
             <div class="col-md-6 mb-3">
-              <label for="zila" class="form-label">Zila (District) <span class="text-danger">*</span></label>
+              <label for="zila" class="form-label"
+                >Zila (District) <span class="text-danger">*</span></label
+              >
               <input
                 type="text"
                 class="form-control"
@@ -137,18 +190,25 @@
                 required
                 #zila="ngModel"
               />
-              <div *ngIf="zila.invalid && (zila.dirty || zila.touched)" class="text-danger small mt-1">
+              <div
+                *ngIf="zila.invalid && (zila.dirty || zila.touched)"
+                class="text-danger small mt-1"
+              >
                 <div *ngIf="zila.errors?.['required']">Zila is required</div>
               </div>
             </div>
 
             <!-- Nominee Information -->
             <div class="col-12 mb-4 mt-3">
-              <h5 class="border-bottom pb-2"><i class="fas fa-user-tie me-2"></i>Nominee Information</h5>
+              <h5 class="border-bottom pb-2">
+                <i class="fas fa-user-tie me-2"></i>Nominee Information
+              </h5>
             </div>
 
             <div class="col-md-6 mb-3">
-              <label for="nomineeName" class="form-label">Nominee Name <span class="text-danger">*</span></label>
+              <label for="nomineeName" class="form-label"
+                >Nominee Name <span class="text-danger">*</span></label
+              >
               <input
                 type="text"
                 class="form-control"
@@ -158,13 +218,23 @@
                 required
                 #nomineeName="ngModel"
               />
-              <div *ngIf="nomineeName.invalid && (nomineeName.dirty || nomineeName.touched)" class="text-danger small mt-1">
-                <div *ngIf="nomineeName.errors?.['required']">Nominee name is required</div>
+              <div
+                *ngIf="
+                  nomineeName.invalid &&
+                  (nomineeName.dirty || nomineeName.touched)
+                "
+                class="text-danger small mt-1"
+              >
+                <div *ngIf="nomineeName.errors?.['required']">
+                  Nominee name is required
+                </div>
               </div>
             </div>
 
             <div class="col-md-6 mb-3">
-              <label for="nomineePhone" class="form-label">Nominee Phone <span class="text-danger">*</span></label>
+              <label for="nomineePhone" class="form-label"
+                >Nominee Phone <span class="text-danger">*</span></label
+              >
               <input
                 type="tel"
                 class="form-control"
@@ -176,14 +246,27 @@
                 maxlength="15"
                 #nomineePhone="ngModel"
               />
-              <div *ngIf="nomineePhone.invalid && (nomineePhone.dirty || nomineePhone.touched)" class="text-danger small mt-1">
-                <div *ngIf="nomineePhone.errors?.['required']">Nominee phone is required</div>
-                <div *ngIf="nomineePhone.errors?.['minlength']">Phone must be at least 10 characters</div>
+              <div
+                *ngIf="
+                  nomineePhone.invalid &&
+                  (nomineePhone.dirty || nomineePhone.touched)
+                "
+                class="text-danger small mt-1"
+              >
+                <div *ngIf="nomineePhone.errors?.['required']">
+                  Nominee phone is required
+                </div>
+                <div *ngIf="nomineePhone.errors?.['minlength']">
+                  Phone must be at least 10 characters
+                </div>
               </div>
             </div>
 
             <div class="col-md-6 mb-3">
-              <label for="nomineeNidCardNumber" class="form-label">Nominee NID Card Number <span class="text-danger">*</span></label>
+              <label for="nomineeNidCardNumber" class="form-label"
+                >Nominee NID Card Number
+                <span class="text-danger">*</span></label
+              >
               <input
                 type="text"
                 class="form-control"
@@ -193,15 +276,139 @@
                 required
                 #nomineeNidCardNumber="ngModel"
               />
-              <div *ngIf="nomineeNidCardNumber.invalid && (nomineeNidCardNumber.dirty || nomineeNidCardNumber.touched)" class="text-danger small mt-1">
-                <div *ngIf="nomineeNidCardNumber.errors?.['required']">Nominee NID Card number is required</div>
+              <div
+                *ngIf="
+                  nomineeNidCardNumber.invalid &&
+                  (nomineeNidCardNumber.dirty || nomineeNidCardNumber.touched)
+                "
+                class="text-danger small mt-1"
+              >
+                <div *ngIf="nomineeNidCardNumber.errors?.['required']">
+                  Nominee NID Card number is required
+                </div>
               </div>
             </div>
+            <!-- Member Images -->
+            <!-- Member Images Section - Replace your existing image section with this -->
+            <div class="col-12 mb-4 mt-3">
+              <h5 class="border-bottom pb-2">
+                <i class="fas fa-image me-2"></i>Member Images
+              </h5>
+              <p class="text-muted small">
+                Upload new images to replace existing ones (optional)
+              </p>
+            </div>
 
+            <div class="col-md-4 mb-3">
+              <label class="form-label d-block">NID Card Image</label>
+              <div class="text-center">
+                <!-- Show preview if new file selected, otherwise show existing image -->
+                <img
+                  *ngIf="nidCardPreview || member.nidCardImagePath"
+                  [src]="nidCardPreview || getImageUrl(member.nidCardImagePath)"
+                  class="img-thumbnail mb-2"
+                  style="max-height: 150px; max-width: 100%"
+                  alt="NID Card"
+                />
+                <p
+                  *ngIf="!nidCardPreview && !member.nidCardImagePath"
+                  class="text-muted small"
+                >
+                  No image available
+                </p>
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                (change)="onFileChange($event, 'nidCard')"
+                class="form-control"
+                #nidCardInput
+              />
+              <small class="text-muted d-block mt-1">
+                {{
+                  nidCardFile
+                    ? "New file selected: " + nidCardFile.name
+                    : "No new file selected"
+                }}
+              </small>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="form-label d-block">Member Photo</label>
+              <div class="text-center">
+                <img
+                  *ngIf="photoPreview || member.photoPath"
+                  [src]="photoPreview || getImageUrl(member.photoPath)"
+                  class="img-thumbnail mb-2"
+                  style="max-height: 150px; max-width: 100%"
+                  alt="Member Photo"
+                />
+                <p
+                  *ngIf="!photoPreview && !member.photoPath"
+                  class="text-muted small"
+                >
+                  No photo available
+                </p>
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                (change)="onFileChange($event, 'photo')"
+                class="form-control"
+                #photoInput
+              />
+              <small class="text-muted d-block mt-1">
+                {{
+                  photoFile
+                    ? "New file selected: " + photoFile.name
+                    : "No new file selected"
+                }}
+              </small>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="form-label d-block">Nominee NID Card Image</label>
+              <div class="text-center">
+                <img
+                  *ngIf="
+                    nomineeNidCardPreview || member.nomineeNidCardImagePath
+                  "
+                  [src]="
+                    nomineeNidCardPreview ||
+                    getImageUrl(member.nomineeNidCardImagePath)
+                  "
+                  class="img-thumbnail mb-2"
+                  style="max-height: 150px; max-width: 100%"
+                  alt="Nominee NID Card"
+                />
+                <p
+                  *ngIf="
+                    !nomineeNidCardPreview && !member.nomineeNidCardImagePath
+                  "
+                  class="text-muted small"
+                >
+                  No image available
+                </p>
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                (change)="onFileChange($event, 'nomineeNidCard')"
+                class="form-control"
+                #nomineeNidCardInput
+              />
+              <small class="text-muted d-block mt-1">
+                {{
+                  nomineeNidCardFile
+                    ? "New file selected: " + nomineeNidCardFile.name
+                    : "No new file selected"
+                }}
+              </small>
+            </div>
             <!-- Submit Buttons -->
             <div class="col-12 mt-4">
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 class="btn btn-warning text-white me-2"
                 [disabled]="memberForm.invalid || saving"
               >
@@ -213,8 +420,8 @@
                   Updating...
                 </span>
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 class="btn btn-secondary"
                 (click)="goBack()"
                 [disabled]="saving"

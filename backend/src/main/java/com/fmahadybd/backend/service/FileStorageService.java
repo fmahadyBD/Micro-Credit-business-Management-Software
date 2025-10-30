@@ -24,40 +24,37 @@ public class FileStorageService {
     private String fileUploadPath;
 
     /**
-     * Save installment file (existing method)
+     * Save installment file
      */
-    public String saveFile(MultipartFile sourceFile, Long installmentId) {
-        final String fileUploadSubPath = "installments" + separator + installmentId;
+    public String saveFile(MultipartFile sourceFile, Long installmentId,String folder) {
+        final String fileUploadSubPath = folder + separator + installmentId;
         return uploadFile(sourceFile, fileUploadSubPath);
     }
 
     /**
      * Save agent photo
      */
-    public String saveAgentPhoto(MultipartFile sourceFile, Long agentId) {
-        final String fileUploadSubPath = "agents" + separator + agentId;
-        return uploadFile(sourceFile, fileUploadSubPath);
-    }
+    // public String saveAgentPhoto(MultipartFile sourceFile, Long agentId, ) {
+    //     final String fileUploadSubPath = "agents" + separator + agentId;
+    //     return uploadFile(sourceFile, fileUploadSubPath);
+    // }
 
     /**
-     * Common file upload method
+     * Generic file upload method
      */
     private String uploadFile(MultipartFile sourceFile, String fileUploadSubPath) {
         final String finalUploadPath = fileUploadPath + separator + fileUploadSubPath;
         File targetFolder = new File(finalUploadPath);
 
-        if (!targetFolder.exists()) {
-            boolean folderCreated = targetFolder.mkdirs();
-            if (!folderCreated) {
-                log.warn("Failed to create the target folder: " + targetFolder);
-                return null;
-            }
+        if (!targetFolder.exists() && !targetFolder.mkdirs()) {
+            log.warn("Failed to create folder: " + targetFolder);
+            return null;
         }
-        
+
         final String fileExtension = getFileExtension(sourceFile.getOriginalFilename());
         String targetFilePath = finalUploadPath + separator + currentTimeMillis() + "." + fileExtension;
         Path targetPath = Paths.get(targetFilePath);
-        
+
         try {
             Files.write(targetPath, sourceFile.getBytes());
             log.info("File saved to: " + targetFilePath);
@@ -69,13 +66,23 @@ public class FileStorageService {
     }
 
     private String getFileExtension(String fileName) {
-        if (fileName == null || fileName.isEmpty()) {
-            return "";
-        }
+        if (fileName == null || fileName.isEmpty()) return "";
         int lastDotIndex = fileName.lastIndexOf(".");
-        if (lastDotIndex == -1) {
-            return "";
-        }
+        if (lastDotIndex == -1) return "";
         return fileName.substring(lastDotIndex + 1).toLowerCase();
+    }
+
+    /**
+     * Delete file if it exists
+     */
+    public void deleteFile(String filePath) {
+        if (filePath != null && !filePath.isEmpty()) {
+            try {
+                Files.deleteIfExists(Paths.get(filePath));
+                log.info("Deleted file: " + filePath);
+            } catch (IOException e) {
+                log.warn("Failed to delete file: " + filePath, e);
+            }
+        }
     }
 }
