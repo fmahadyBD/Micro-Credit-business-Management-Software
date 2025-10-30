@@ -12,8 +12,22 @@
   border-radius: 10px;
 }
 
-.card-header {
-  border-radius: 10px 10px 0 0 !important;
+/* Fix for card headers in dark mode */
+.card-header.bg-light {
+  background-color: #f8f9fa !important;
+  color: #212529 !important;
+}
+
+/* Dark mode override */
+[data-bs-theme="dark"] .card-header.bg-light {
+  background-color: #2d3748 !important;
+  color: #e2e8f0 !important;
+}
+
+/* Ensure all text in card headers is visible */
+.card-header h5,
+.card-header .mb-0 {
+  color: inherit !important;
 }
 
 .table th {

@@ -1,8 +1,12 @@
 <main class="main-content" [class.collapsed]="isSidebarCollapsed">
   <div class="container-fluid mt-4">
     <div class="card shadow-sm">
-      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-        <h4 class="mb-0"><i class="fas fa-user-circle me-2"></i>Member Details</h4>
+      <div
+        class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+      >
+        <h4 class="mb-0">
+          <i class="fas fa-user-circle me-2"></i>Member Details
+        </h4>
         <button class="btn btn-light btn-sm" (click)="goBack()">
           <i class="fas fa-arrow-left me-1"></i>Back to All Members
         </button>
@@ -28,7 +32,9 @@
           <div class="col-md-6 mb-4">
             <div class="card h-100">
               <div class="card-header bg-light">
-                <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Basic Information</h5>
+                <h5 class="mb-0">
+                  <i class="fas fa-id-card me-2"></i>Basic Information
+                </h5>
               </div>
               <div class="card-body">
                 <table class="table table-borderless">
@@ -71,7 +77,9 @@
           <div class="col-md-6 mb-4">
             <div class="card h-100">
               <div class="card-header bg-light">
-                <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Address Information</h5>
+                <h5 class="mb-0">
+                  <i class="fas fa-map-marker-alt me-2"></i>Address Information
+                </h5>
               </div>
               <div class="card-body">
                 <table class="table table-borderless">
@@ -94,7 +102,9 @@
           <div class="col-md-6 mb-4">
             <div class="card h-100">
               <div class="card-header bg-light">
-                <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Nominee Information</h5>
+                <h5 class="mb-0">
+                  <i class="fas fa-user-tie me-2"></i>Nominee Information
+                </h5>
               </div>
               <div class="card-body">
                 <table class="table table-borderless">
@@ -121,17 +131,22 @@
           <div class="col-md-6 mb-4">
             <div class="card h-100">
               <div class="card-header bg-light">
-                <h5 class="mb-0"><i class="fas fa-image me-2"></i>Member Photo</h5>
+                <h5 class="mb-0">
+                  <i class="fas fa-image me-2"></i>Member Photo
+                </h5>
               </div>
               <div class="card-body text-center">
-                <img 
-                  *ngIf="member.photoPath" 
-                  [src]="member.photoPath" 
-                  alt="Member Photo" 
+                <img
+                  *ngIf="member.photoPath"
+                  [src]="getImageUrl(member.photoPath)"
+                  alt="Member Photo"
                   class="img-thumbnail"
-                  style="max-width: 200px; max-height: 200px;"
+                  style="max-width: 200px; max-height: 200px"
+                  (error)="handleImageError($event)"
                 />
-                <p *ngIf="!member.photoPath" class="text-muted">No photo available</p>
+                <p *ngIf="!member.photoPath" class="text-muted">
+                  No photo available
+                </p>
               </div>
             </div>
           </div>
@@ -140,17 +155,22 @@
           <div class="col-md-6 mb-4">
             <div class="card h-100">
               <div class="card-header bg-light">
-                <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>NID Card Image</h5>
+                <h5 class="mb-0">
+                  <i class="fas fa-id-card me-2"></i>NID Card Image
+                </h5>
               </div>
               <div class="card-body text-center">
-                <img 
-                  *ngIf="member.nidCardImagePath" 
-                  [src]="member.nidCardImagePath" 
-                  alt="NID Card Image" 
+                <img
+                  *ngIf="member.nidCardImagePath"
+                  [src]="getImageUrl(member.nidCardImagePath)"
+                  alt="NID Card Image"
                   class="img-thumbnail"
-                  style="max-width: 200px; max-height: 200px;"
+                  style="max-width: 200px; max-height: 200px"
+                  (error)="handleImageError($event)"
                 />
-                <p *ngIf="!member.nidCardImagePath" class="text-muted">No NID card image available</p>
+                <p *ngIf="!member.nidCardImagePath" class="text-muted">
+                  No NID card image available
+                </p>
               </div>
             </div>
           </div>
@@ -159,26 +179,36 @@
           <div class="col-md-6 mb-4">
             <div class="card h-100">
               <div class="card-header bg-light">
-                <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Nominee NID Card Image</h5>
+                <h5 class="mb-0">
+                  <i class="fas fa-id-card me-2"></i>Nominee NID Card Image
+                </h5>
               </div>
               <div class="card-body text-center">
-                <img 
-                  *ngIf="member.nomineeNidCardImagePath" 
-                  [src]="member.nomineeNidCardImagePath" 
-                  alt="Nominee NID Card Image" 
+                <img
+                  *ngIf="member.nomineeNidCardImagePath"
+                  [src]="getImageUrl(member.nomineeNidCardImagePath)"
+                  alt="Nominee NID Card Image"
                   class="img-thumbnail"
-                  style="max-width: 200px; max-height: 200px;"
+                  style="max-width: 200px; max-height: 200px"
+                  (error)="handleImageError($event)"
                 />
-                <p *ngIf="!member.nomineeNidCardImagePath" class="text-muted">No nominee NID card image available</p>
+                <p *ngIf="!member.nomineeNidCardImagePath" class="text-muted">
+                  No nominee NID card image available
+                </p>
               </div>
             </div>
           </div>
 
           <!-- Agents Information -->
-          <div class="col-12 mb-4" *ngIf="member.agents && member.agents.length > 0">
+          <div
+            class="col-12 mb-4"
+            *ngIf="member.agents && member.agents.length > 0"
+          >
             <div class="card">
               <div class="card-header bg-light">
-                <h5 class="mb-0"><i class="fas fa-users me-2"></i>Associated Agents</h5>
+                <h5 class="mb-0">
+                  <i class="fas fa-users me-2"></i>Associated Agents
+                </h5>
               </div>
               <div class="card-body">
                 <div class="table-responsive">
@@ -204,10 +234,15 @@
           </div>
 
           <!-- Installments Information -->
-          <div class="col-12 mb-4" *ngIf="member.installments && member.installments.length > 0">
+          <div
+            class="col-12 mb-4"
+            *ngIf="member.installments && member.installments.length > 0"
+          >
             <div class="card">
               <div class="card-header bg-light">
-                <h5 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>Installment History</h5>
+                <h5 class="mb-0">
+                  <i class="fas fa-money-bill-wave me-2"></i>Installment History
+                </h5>
               </div>
               <div class="card-body">
                 <div class="table-responsive">

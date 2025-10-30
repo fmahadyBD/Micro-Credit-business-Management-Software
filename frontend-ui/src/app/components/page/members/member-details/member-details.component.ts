@@ -18,10 +18,13 @@ export class MemberDetailsComponent implements OnInit {
   error: string | null = null;
   isSidebarCollapsed = false;
 
+  // Add base URL for images (adjust according to your API)
+  private baseUrl = 'http://localhost:8080'; // Change this to your actual backend URL
+
   constructor(
     private membersService: MembersService,
     private sidebarService: SidebarTopbarService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.sidebarService.isCollapsed$.subscribe(collapsed => {
@@ -38,6 +41,11 @@ export class MemberDetailsComponent implements OnInit {
       next: (data: any) => {
         this.member = data;
         this.loading = false;
+        // Debug: log image paths
+        console.log('Member data:', data);
+        console.log('Photo path:', data.photoPath);
+        console.log('NID path:', data.nidCardImagePath);
+        console.log('Nominee NID path:', data.nomineeNidCardImagePath);
       },
       error: (err) => {
         this.error = 'Failed to load member details';
@@ -45,6 +53,31 @@ export class MemberDetailsComponent implements OnInit {
         console.error('Error loading member:', err);
       }
     });
+  }
+
+  // Add this method to get full image URL
+  getImageUrl(relativePath: string | undefined): string {
+    if (!relativePath) {
+      return '';
+    }
+    
+    // If the path is already a full URL, return it as is
+    if (relativePath.startsWith('http')) {
+      return relativePath;
+    }
+    
+    // If it's a relative path, prepend the base URL
+    // Remove leading slash if present to avoid double slashes
+    const cleanPath = relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
+    return `${this.baseUrl}/${cleanPath}`;
+  }
+
+  // Add this method to handle image loading errors
+  handleImageError(event: any): void {
+    console.error('Error loading image:', event);
+    event.target.style.display = 'none';
+    // You could also set a placeholder image here
+    // event.target.src = 'assets/images/placeholder.png';
   }
 
   goBack(): void {
@@ -57,7 +90,7 @@ export class MemberDetailsComponent implements OnInit {
   }
 
   getStatusClass(status: string | undefined): string {
-    switch(status) {
+    switch (status) {
       case 'ACTIVE': return 'badge bg-success';
       case 'INACTIVE': return 'badge bg-secondary';
       case 'SUSPENDED': return 'badge bg-warning';
