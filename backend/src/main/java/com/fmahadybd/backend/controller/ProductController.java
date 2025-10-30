@@ -46,11 +46,11 @@ public class ProductController {
         }
     }
 
-    @PostMapping(value = "/with-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Create product with images")
-    public ResponseEntity<Map<String, Object>> createProductWithImages(
-            @RequestParam("product") String productJson,
-            @RequestPart(value = "images", required = false) MultipartFile[] images) {
+   @PostMapping(value = "/with-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+public ResponseEntity<Map<String, Object>> createProductWithImages(
+        @RequestPart("product") String productJson,
+        @RequestPart(value = "images", required = false) MultipartFile[] images){
+
         
         Map<String, Object> response = new HashMap<>();
         try {
@@ -76,7 +76,7 @@ public class ProductController {
     public ResponseEntity<Map<String, Object>> uploadProductImages(
             @PathVariable Long id,
             @RequestPart("images") MultipartFile[] images) {
-        
+
         Map<String, Object> response = new HashMap<>();
         try {
             productService.uploadProductImages(images, id);
@@ -95,7 +95,7 @@ public class ProductController {
     public ResponseEntity<Map<String, Object>> deleteProductImage(
             @PathVariable Long id,
             @RequestParam String filePath) {
-        
+
         Map<String, Object> response = new HashMap<>();
         try {
             productService.deleteProductImage(id, filePath);
@@ -136,7 +136,7 @@ public class ProductController {
     public ResponseEntity<Map<String, Object>> updateProduct(
             @PathVariable Long id,
             @Valid @RequestBody Product product) {
-        
+
         Map<String, Object> response = new HashMap<>();
         try {
             Product updatedProduct = productService.updateProduct(id, product);

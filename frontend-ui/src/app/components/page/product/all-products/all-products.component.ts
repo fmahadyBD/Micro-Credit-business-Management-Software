@@ -21,7 +21,7 @@ export class AllProductsComponent implements OnInit {
   constructor(
     private productService: ProductsService,
     private sidebarService: SidebarTopbarService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.sidebarService.isCollapsed$.subscribe(collapsed => {
@@ -36,6 +36,7 @@ export class AllProductsComponent implements OnInit {
     this.productService.getAllProducts().subscribe({
       next: (data) => {
         this.products = data;
+        console.log('Loaded Products:', data); // Debug: Check what's actually returned
         this.loading = false;
       },
       error: (err) => {
@@ -45,6 +46,48 @@ export class AllProductsComponent implements OnInit {
       }
     });
   }
+
+  // Updated method to check for images
+  hasImages(product: Product): boolean {
+    // Check various possible image fields
+    const hasImages = !!(product as any).images && (product as any).images.length > 0;
+    const hasImageFilePaths = !!(product as any).imageFilePaths && (product as any).imageFilePaths.length > 0;
+    const hasImageUrls = !!(product as any).imageUrls && (product as any).imageUrls.length > 0;
+
+    console.log(`Product ${product.id} images:`, {
+      images: (product as any).images,
+      imageFilePaths: (product as any).imageFilePaths,
+      imageUrls: (product as any).imageUrls,
+      hasImages, hasImageFilePaths, hasImageUrls
+    });
+
+    return hasImages || hasImageFilePaths || hasImageUrls;
+  }
+
+  // Get the first available image URL
+  getFirstImageUrl(product: Product): string | null {
+    // Check in order of priority
+    if ((product as any).images && (product as any).images.length > 0) {
+      return this.getFullImageUrl((product as any).images[0]);
+    }
+    if ((product as any).imageFilePaths && (product as any).imageFilePaths.length > 0) {
+      return this.getFullImageUrl((product as any).imageFilePaths[0]);
+    }
+    if ((product as any).imageUrls && (product as any).imageUrls.length > 0) {
+      return this.getFullImageUrl((product as any).imageUrls[0]);
+    }
+    return null;
+  }
+
+  getFullImageUrl(imagePath: string): string {
+    if (!imagePath) return '';
+    if (imagePath.startsWith('http')) {
+      return imagePath;
+    }
+    const baseUrl = 'http://localhost:8080';
+    return `${baseUrl}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+  }
+
 
   viewDetails(productId: number): void {
     window.dispatchEvent(new CustomEvent('viewProductDetails', { detail: productId }));

@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @ToString(exclude = {"installment"})
 @EqualsAndHashCode(exclude = {"installment"})
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@JsonInclude(JsonInclude.Include.ALWAYS) // This ensures all fields are included in JSON
+@JsonInclude(JsonInclude.Include.ALWAYS)
 public class Product {
 
     @Id
@@ -30,7 +30,7 @@ public class Product {
     private Double costPrice;
 
     @Transient
-    private Double totalPrice; // This will be calculated but not stored in DB
+    private Double totalPrice;
 
     private Boolean isDeliveryRequired = false;
     private LocalDate dateAdded;
@@ -40,7 +40,8 @@ public class Product {
     @JsonIgnoreProperties({"members", "installments"})
     private Agent soldByAgent;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    // <-- CHANGE HERE: allow multiple products per member
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "who_request_member_id")
     private Member whoRequest;
 
@@ -57,7 +58,6 @@ public class Product {
         this.totalPrice = (price != null ? price : 0.0) + (costPrice != null ? costPrice : 0.0);
     }
 
-    // Add a getter that ensures totalPrice is always calculated when accessed
     public Double getTotalPrice() {
         if (this.totalPrice == null) {
             calculateTotalPrice();

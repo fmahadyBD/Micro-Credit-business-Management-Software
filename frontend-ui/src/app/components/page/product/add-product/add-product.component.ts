@@ -7,7 +7,7 @@ import { Product } from '../../../../services/models/product';
 import { Member } from '../../../../services/models/member';
 import { Agent } from '../../../../services/models/agent';
 import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
-import { ProductsService } from '../../../../services/services';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-add-product',
@@ -27,6 +27,7 @@ export class AddProductComponent implements OnInit {
   };
 
   selectedFiles: File[] = [];
+  imagePreviews: string[] = []; // ✅ For image previews
   loading: boolean = false;
   successMessage: string | null = null;
   error: string | null = null;
@@ -49,7 +50,7 @@ export class AddProductComponent implements OnInit {
   loadingAgents: boolean = false;
 
   constructor(
-    private productService: ProductsService,
+    private http: HttpClient,
     private membersService: MembersService,
     private agentsService: AgentsService,
     private sidebarService: SidebarTopbarService
@@ -63,7 +64,7 @@ export class AddProductComponent implements OnInit {
     this.loadAgents();
   }
 
-  // Load all members
+  // 🔹 Load members from backend
   loadMembers(): void {
     this.loadingMembers = true;
     this.membersService.getAllMembers().subscribe({
@@ -78,7 +79,7 @@ export class AddProductComponent implements OnInit {
     });
   }
 
-  // Load all agents
+  // 🔹 Load agents from backend
   loadAgents(): void {
     this.loadingAgents = true;
     this.agentsService.getAllAgents().subscribe({
@@ -93,14 +94,13 @@ export class AddProductComponent implements OnInit {
     });
   }
 
-  // Member search functionality
+  // 🔹 Member Search
   onMemberSearch(): void {
     if (!this.memberSearchTerm.trim()) {
       this.filteredMembers = [];
       this.showMemberDropdown = false;
       return;
     }
-
     const searchLower = this.memberSearchTerm.toLowerCase();
     this.filteredMembers = this.members.filter(member =>
       member.name?.toLowerCase().includes(searchLower) ||
@@ -122,14 +122,13 @@ export class AddProductComponent implements OnInit {
     this.filteredMembers = [];
   }
 
-  // Agent search functionality
+  // 🔹 Agent Search
   onAgentSearch(): void {
     if (!this.agentSearchTerm.trim()) {
       this.filteredAgents = [];
       this.showAgentDropdown = false;
       return;
     }
-
     const searchLower = this.agentSearchTerm.toLowerCase();
     this.filteredAgents = this.agents.filter(agent =>
       agent.name?.toLowerCase().includes(searchLower) ||
@@ -151,102 +150,68 @@ export class AddProductComponent implements OnInit {
     this.filteredAgents = [];
   }
 
+  // 🔹 Handle image selection + preview
   onFileSelected(event: any): void {
     const files: FileList = event.target.files;
+
     for (let i = 0; i < files.length; i++) {
-      this.selectedFiles.push(files[i]);
+      const file = files[i];
+      this.selectedFiles.push(file);
+
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imagePreviews.push(e.target.result);
+      };
+      reader.readAsDataURL(file);
     }
-    event.target.value = '';
+
+    event.target.value = ''; // reset input
   }
 
   removeFile(file: File): void {
-    this.selectedFiles = this.selectedFiles.filter(f => f !== file);
+    const index = this.selectedFiles.indexOf(file);
+    if (index >= 0) {
+      this.selectedFiles.splice(index, 1);
+      this.imagePreviews.splice(index, 1);
+    }
   }
 
+  // 🔹 Submit form with images
   onSubmit(): void {
+    if (!this.product.name || this.product.price === undefined) return;
+
     this.loading = true;
     this.error = null;
 
-    if (this.selectedFiles.length > 0) {
-      const formData = new FormData();
-      
-      const productData: any = {
-        name: this.product.name,
-        description: this.product.description,
-        category: this.product.category,
-        price: this.product.price,
-        costPrice: this.product.costPrice,
-        isDeliveryRequired: this.product.isDeliveryRequired
-      };
+    const productData: any = {
+      name: this.product.name,
+      description: this.product.description,
+      category: this.product.category,
+      price: this.product.price,
+      costPrice: this.product.costPrice,
+      isDeliveryRequired: this.product.isDeliveryRequired,
+      whoRequest: this.selectedMember ? { id: this.selectedMember.id } : undefined,
+      soldByAgent: this.selectedAgent ? { id: this.selectedAgent.id } : undefined
+    };
 
-      // Add whoRequest if member is selected
-      if (this.selectedMember) {
-        productData.whoRequest = { id: this.selectedMember.id };
+    const formData = new FormData();
+    formData.append('product', JSON.stringify(productData));
+    this.selectedFiles.forEach(file => formData.append('images', file, file.name));
+
+    this.http.post('http://localhost:8080/api/products/with-images', formData).subscribe({
+      next: (res: any) => {
+        this.loading = false;
+        this.successMessage = 'Product created successfully!';
+        console.log('Created Product:', res.product);
+        this.resetForm();
+        setTimeout(() => window.dispatchEvent(new CustomEvent('productAdded')), 1500);
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error('Error creating product:', err);
+        this.error = err.error?.message || 'Failed to create product';
       }
-
-      // Add soldByAgent if agent is selected
-      if (this.selectedAgent) {
-        productData.soldByAgent = { id: this.selectedAgent.id };
-      }
-
-      formData.append('product', new Blob([JSON.stringify(productData)], {
-        type: 'application/json'
-      }));
-
-      this.selectedFiles.forEach((file) => {
-        formData.append('images', file, file.name);
-      });
-
-      const params: any = {
-        body: formData
-      };
-
-      this.productService.createProductWithImages(params).subscribe({
-        next: (createdProduct) => {
-          this.loading = false;
-          this.successMessage = 'Product created successfully with images!';
-          this.resetForm();
-          setTimeout(() => {
-            window.dispatchEvent(new CustomEvent('productAdded'));
-          }, 1500);
-        },
-        error: (err) => {
-          this.loading = false;
-          this.error = 'Failed to create product with images';
-          console.error('Error creating product:', err);
-        }
-      });
-    } else {
-      const productToSave: any = {
-        ...this.product
-      };
-
-      // Add whoRequest if member is selected
-      if (this.selectedMember) {
-        productToSave.whoRequest = { id: this.selectedMember.id };
-      }
-
-      // Add soldByAgent if agent is selected
-      if (this.selectedAgent) {
-        productToSave.soldByAgent = { id: this.selectedAgent.id };
-      }
-
-      this.productService.createProduct({ body: productToSave }).subscribe({
-        next: (createdProduct) => {
-          this.loading = false;
-          this.successMessage = 'Product created successfully!';
-          this.resetForm();
-          setTimeout(() => {
-            window.dispatchEvent(new CustomEvent('productAdded'));
-          }, 1500);
-        },
-        error: (err) => {
-          this.loading = false;
-          this.error = 'Failed to create product';
-          console.error('Error creating product:', err);
-        }
-      });
-    }
+    });
   }
 
   resetForm(): void {
@@ -259,6 +224,7 @@ export class AddProductComponent implements OnInit {
       isDeliveryRequired: false
     };
     this.selectedFiles = [];
+    this.imagePreviews = []; // ✅ Clear previews
     this.clearMember();
     this.clearAgent();
   }

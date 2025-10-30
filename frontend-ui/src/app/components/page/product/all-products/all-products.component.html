@@ -48,18 +48,18 @@
               <tr *ngFor="let product of products">
                 <td>{{ product.id }}</td>
                 <td>
-                  <img *ngIf="product.imageFilePaths && product.imageFilePaths.length > 0" 
-                       [src]="product.imageFilePaths[0]" 
-                       alt="{{ product.name }}"
-                       class="product-thumbnail"
-                       style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                  <img *ngIf="hasImages(product)" [src]="getFirstImageUrl(product)" alt="{{ product.name }}"
+                    class="product-thumbnail" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+
+
                   <span *ngIf="!product.imageFilePaths || product.imageFilePaths.length === 0" class="text-muted">
                     <i class="fas fa-image"></i>
                   </span>
                 </td>
                 <td>
                   <div class="fw-bold">{{ product.name }}</div>
-                  <small class="text-muted" *ngIf="product.description">{{ product.description | slice:0:50 }}{{ product.description && product.description.length > 50 ? '...' : '' }}</small>
+                  <small class="text-muted" *ngIf="product.description">{{ product.description | slice:0:50 }}{{
+                    product.description && product.description.length > 50 ? '...' : '' }}</small>
                 </td>
                 <td>
                   <span class="badge bg-secondary" *ngIf="product.category">{{ product.category }}</span>
@@ -98,25 +98,13 @@
                 <td>{{ formatDate(product.dateAdded) }}</td>
                 <td class="text-center">
                   <div class="btn-group btn-group-sm" role="group">
-                    <button 
-                      class="btn btn-info text-white"
-                      (click)="viewDetails(product.id!)"
-                      title="View Details"
-                    >
+                    <button class="btn btn-info text-white" (click)="viewDetails(product.id!)" title="View Details">
                       <i class="fas fa-eye"></i>
                     </button>
-                    <button 
-                      class="btn btn-warning text-white"
-                      (click)="editProduct(product.id!)"
-                      title="Edit Product"
-                    >
+                    <button class="btn btn-warning text-white" (click)="editProduct(product.id!)" title="Edit Product">
                       <i class="fas fa-edit"></i>
                     </button>
-                    <button 
-                      class="btn btn-danger"
-                      (click)="deleteProduct(product.id!)"
-                      title="Delete Product"
-                    >
+                    <button class="btn btn-danger" (click)="deleteProduct(product.id!)" title="Delete Product">
                       <i class="fas fa-trash"></i>
                     </button>
                   </div>
