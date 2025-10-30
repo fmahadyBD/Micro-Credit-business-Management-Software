@@ -19,6 +19,7 @@ export class SideBarComponent implements OnInit, OnDestroy {
     | 'all-members' | 'add-member'
     | 'all-agents' | 'add-agent'
     | 'all-products' | 'add-product'
+    | 'all-installments' | 'add-installment'
   >();
 
   sidebarOpen = false;
@@ -66,7 +67,8 @@ export class SideBarComponent implements OnInit, OnDestroy {
       | 'all-users' | 'add-user' | 'deleted-users'
       | 'all-members' | 'add-member'
       | 'all-agents' | 'add-agent'
-       | 'all-products' | 'add-product' 
+      | 'all-products' | 'add-product'
+      | 'add-installment'
   ) {
     event.preventDefault();
     event.stopPropagation();

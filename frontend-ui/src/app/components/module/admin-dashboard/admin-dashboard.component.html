@@ -79,4 +79,10 @@
     *ngIf="currentView === 'edit-product' && selectedProductId !== null"
     [productId]="selectedProductId!"
   ></app-edit-product> -->
+
+
+
+  <!-- 💳 Installments -->
+<app-add-installment *ngIf="currentView === 'add-installment'"></app-add-installment>
+
 </main>

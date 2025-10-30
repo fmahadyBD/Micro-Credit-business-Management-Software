@@ -25,6 +25,7 @@ import { UpdateAgentComponent } from '../../page/agent/update-agent/update-agent
 import { DetailsAgentComponent } from '../../page/agent/details-agent/details-agent.component';
 import { AllProductsComponent } from '../../page/product/all-products/all-products.component';
 import { AddProductComponent } from '../../page/product/add-product/add-product.component';
+import { AddInstallmentComponent } from '../../page/installment/add-installment/add-installment.component';
 
 
 @Component({
@@ -53,7 +54,11 @@ import { AddProductComponent } from '../../page/product/add-product/add-product.
     UpdateAgentComponent,
     DetailsAgentComponent,
     AllProductsComponent,
-    AddProductComponent
+    AddProductComponent,
+
+    // 💳 Installments
+
+    AddInstallmentComponent
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
@@ -68,10 +73,12 @@ export class AdminDashboardComponent implements OnInit {
     | 'all-agents' | 'add-agent'
     | 'user-details' | 'edit-user'
     | 'member-details' | 'edit-member'
-    | 'all-products' | 'add-product' 
-    | 'agent-details' | 'edit-agent' = 'dashboard'
+    | 'all-products' | 'add-product'
+    | 'agent-details' | 'edit-agent'
+    | 'add-installment'
+    | 'all-installments' = 'dashboard';
 
-    ;
+  ;
 
   selectedUserId: number | null = null;
   selectedMemberId: number | null = null;
@@ -149,7 +156,7 @@ export class AdminDashboardComponent implements OnInit {
 
 
     // 🎁 Product events
-   
+
     window.addEventListener('addProduct', () => {
       this.currentView = 'add-product';
     });
@@ -165,6 +172,9 @@ export class AdminDashboardComponent implements OnInit {
 
 
 
+    window.addEventListener('addInstallment', () => {
+      this.currentView = 'add-installment';
+    });
 
 
 

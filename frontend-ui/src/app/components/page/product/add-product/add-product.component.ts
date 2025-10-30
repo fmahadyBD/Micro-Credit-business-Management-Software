@@ -224,7 +224,7 @@ export class AddProductComponent implements OnInit {
       isDeliveryRequired: false
     };
     this.selectedFiles = [];
-    this.imagePreviews = []; // ✅ Clear previews
+    this.imagePreviews = []; 
     this.clearMember();
     this.clearAgent();
   }

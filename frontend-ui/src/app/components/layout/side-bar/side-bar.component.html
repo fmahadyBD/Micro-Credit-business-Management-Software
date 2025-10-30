@@ -178,22 +178,35 @@
     </li>
 
     <!-- Installment -->
+    <!-- Installment -->
     <li class="menu-item">
-      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 3)">
+      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 7)">
         <span class="menu-icon"><i class="fas fa-credit-card"></i></span>
-        <span class="menu-text">Installment</span>
+        <span class="menu-text">Installments</span>
         <span class="menu-arrow"
           ><i
             class="fas fa-chevron-right"
-            [class.rotated]="activeSubmenu === 3"
+            [class.rotated]="activeSubmenu === 7"
           ></i
         ></span>
       </a>
-      <ul class="submenu" [class.show]="activeSubmenu === 3">
-        <li><a href="#" class="submenu-link">Payment Plans</a></li>
-        <li><a href="#" class="submenu-link">Active Installments</a></li>
-        <li><a href="#" class="submenu-link">Payment History</a></li>
-        <li><a href="#" class="submenu-link">Overdue Payments</a></li>
+      <ul class="submenu" [class.show]="activeSubmenu === 7">
+        <li>
+          <!-- <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'all-installments')"
+            >All Installments</a
+          > -->
+        </li>
+        <li>
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'add-installment')"
+            >Add Installment</a
+          >
+        </li>
       </ul>
     </li>
 

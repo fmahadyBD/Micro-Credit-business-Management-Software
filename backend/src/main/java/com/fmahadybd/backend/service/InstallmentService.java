@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fmahadybd.backend.dto.InstallmentUpdateDTO;
 import com.fmahadybd.backend.entity.Installment;
+import com.fmahadybd.backend.entity.Product;
 import com.fmahadybd.backend.repository.InstallmentRepository;
 
 import jakarta.transaction.Transactional;
@@ -23,7 +24,7 @@ public class InstallmentService {
     private final FileStorageService fileStorageService;
     private final PaymentScheduleService paymentScheduleService;
 
-    private final String folder ="installment";
+    private final String folder = "installment";
 
     public Installment save(Installment installment) {
         validateInstallment(installment);
@@ -40,12 +41,31 @@ public class InstallmentService {
         return savedInstallment;
     }
 
+    // public Installment saveWithImages(Installment installment, MultipartFile[]
+    // images) {
+    // Installment savedInstallment = save(installment);
+
+    // if (images != null && images.length > 0) {
+    // uploadInstallmentImages(images, savedInstallment.getId());
+    // savedInstallment =
+    // installmentRepository.findById(savedInstallment.getId()).orElse(savedInstallment);
+    // }
+
+    // return savedInstallment;
+    // }
+
     public Installment saveWithImages(Installment installment, MultipartFile[] images) {
+        // Ensure product requires delivery
+        setProductDeliveryRequired(installment);
+
+        // Save installment first
         Installment savedInstallment = save(installment);
 
+        // Upload images if any
         if (images != null && images.length > 0) {
             uploadInstallmentImages(images, savedInstallment.getId());
-            savedInstallment = installmentRepository.findById(savedInstallment.getId()).orElse(savedInstallment);
+            savedInstallment = installmentRepository.findById(savedInstallment.getId())
+                    .orElse(savedInstallment);
         }
 
         return savedInstallment;
@@ -58,7 +78,7 @@ public class InstallmentService {
         List<String> savedFilePaths = new ArrayList<>();
         for (MultipartFile file : files) {
             if (!file.isEmpty()) {
-                String filePath = fileStorageService.saveFile(file, installmentId,folder);
+                String filePath = fileStorageService.saveFile(file, installmentId, folder);
                 if (filePath != null)
                     savedFilePaths.add(filePath);
             }
@@ -164,4 +184,12 @@ public class InstallmentService {
         installment.setNeedPaidAmount(Math.max(totalWithInterest + other - advance, 0.0));
         installment.setTotalRemainingAmount(installment.getNeedPaidAmount());
     }
+
+    private void setProductDeliveryRequired(Installment installment) {
+        Product product = installment.getProduct();
+        if (product != null) {
+            product.setIsDeliveryRequired(true);
+        }
+    }
+
 }
