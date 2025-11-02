@@ -1,6 +1,11 @@
 package com.fmahadybd.backend.service;
 
+import com.fmahadybd.backend.dto.ProductRequestDTO;
+import com.fmahadybd.backend.dto.ProductResponseDTO;
 import com.fmahadybd.backend.entity.Product;
+import com.fmahadybd.backend.mapper.ProductMapper;
+import com.fmahadybd.backend.repository.AgentRepository;
+import com.fmahadybd.backend.repository.MemberRepository;
 import com.fmahadybd.backend.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +22,9 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final FileStorageService fileStorageService;
-    
+    private final AgentRepository agentRepository;
+    private final MemberRepository memberRepository;
+
     private final String folder = "products";
 
     /** Create product without images */
@@ -26,19 +33,54 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    public ProductResponseDTO createProductWithImages(ProductRequestDTO dto, MultipartFile[] images) {
+        Product product = new Product();
+
+        // Map DTO fields
+        product.setName(dto.getName());
+        product.setCategory(dto.getCategory());
+        product.setDescription(dto.getDescription());
+        product.setPrice(dto.getPrice());
+        product.setCostPrice(dto.getCostPrice());
+        product.setIsDeliveryRequired(dto.getIsDeliveryRequired() != null ? dto.getIsDeliveryRequired() : false);
+        product.setDateAdded(LocalDate.now());
+
+        if (dto.getSoldByAgentId() != null) {
+            agentRepository.findById(dto.getSoldByAgentId()).ifPresent(product::setSoldByAgent);
+        }
+
+        if (dto.getWhoRequestId() != null) {
+            memberRepository.findById(dto.getWhoRequestId()).ifPresent(product::setWhoRequest);
+        }
+
+        // Save images if any
+        if (images != null && images.length > 0) {
+            Arrays.stream(images)
+                    .filter(image -> !image.isEmpty())
+                    .forEach(image -> {
+                        String filePath = fileStorageService.saveFile(image, 0L, folder);
+                        product.getImageFilePaths().add(filePath);
+                    });
+        }
+
+        Product saved = productRepository.save(product);
+
+        return ProductMapper.toResponseDTO(saved);
+    }
+
     /** Create product with images */
     public Product saveWithImages(Product product, MultipartFile[] images) {
         product.setDateAdded(LocalDate.now());
-        
+
         if (images != null && images.length > 0) {
             Arrays.stream(images)
-                  .filter(image -> !image.isEmpty())
-                  .forEach(image -> {
-                      String filePath = fileStorageService.saveFile(image, 0L, folder);
-                      product.getImageFilePaths().add(filePath);
-                  });
+                    .filter(image -> !image.isEmpty())
+                    .forEach(image -> {
+                        String filePath = fileStorageService.saveFile(image, 0L, folder);
+                        product.getImageFilePaths().add(filePath);
+                    });
         }
-        
+
         return productRepository.save(product);
     }
 
@@ -49,12 +91,12 @@ public class ProductService {
 
         if (images != null && images.length > 0) {
             Arrays.stream(images)
-                  .filter(image -> !image.isEmpty())
-                  .forEach(image -> {
-                      String filePath = fileStorageService.saveFile(image, productId, folder);
-                      product.getImageFilePaths().add(filePath);
-                  });
-            
+                    .filter(image -> !image.isEmpty())
+                    .forEach(image -> {
+                        String filePath = fileStorageService.saveFile(image, productId, folder);
+                        product.getImageFilePaths().add(filePath);
+                    });
+
             productRepository.save(product);
         }
     }
@@ -93,7 +135,7 @@ public class ProductService {
             product.setIsDeliveryRequired(updatedProduct.getIsDeliveryRequired());
             product.setSoldByAgent(updatedProduct.getSoldByAgent());
             product.setWhoRequest(updatedProduct.getWhoRequest());
-            
+
             return productRepository.save(product);
         }).orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
     }

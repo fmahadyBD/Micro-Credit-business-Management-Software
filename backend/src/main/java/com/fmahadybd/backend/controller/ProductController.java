@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fmahadybd.backend.dto.ProductRequestDTO;
+import com.fmahadybd.backend.dto.ProductResponseDTO;
 import com.fmahadybd.backend.entity.Product;
 import com.fmahadybd.backend.service.ProductService;
 
@@ -46,22 +48,47 @@ public class ProductController {
         }
     }
 
-   @PostMapping(value = "/with-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-public ResponseEntity<Map<String, Object>> createProductWithImages(
-        @RequestPart("product") String productJson,
-        @RequestPart(value = "images", required = false) MultipartFile[] images){
+    // @PostMapping(value = "/with-images", consumes =
+    // MediaType.MULTIPART_FORM_DATA_VALUE)
+    // public ResponseEntity<Map<String, Object>> createProductWithImages(
+    // @RequestPart("product") String productJson,
+    // @RequestPart(value = "images", required = false) MultipartFile[] images) {
 
-        
+    // Map<String, Object> response = new HashMap<>();
+    // try {
+    // Product product = objectMapper.readValue(productJson, Product.class);
+    // Product savedProduct = productService.saveWithImages(product, images);
+
+    // response.put("success", true);
+    // response.put("message", "Product created successfully!");
+    // response.put("product", savedProduct);
+    // return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+    // } catch (Exception e) {
+    // response.put("success", false);
+    // response.put("message", "Error: " + e.getMessage());
+    // return ResponseEntity.badRequest().body(response);
+    // }
+    // }
+
+    @PostMapping(value = "/with-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, Object>> createProductWithImages(
+            @RequestPart("product") String productJson,
+            @RequestPart(value = "images", required = false) MultipartFile[] images) {
+
         Map<String, Object> response = new HashMap<>();
         try {
-            Product product = objectMapper.readValue(productJson, Product.class);
-            Product savedProduct = productService.saveWithImages(product, images);
-            
+            // Convert JSON to DTO
+            ProductRequestDTO productDTO = objectMapper.readValue(productJson, ProductRequestDTO.class);
+
+            // Call service
+            ProductResponseDTO savedProduct = productService.createProductWithImages(productDTO, images);
+
             response.put("success", true);
             response.put("message", "Product created successfully!");
             response.put("product", savedProduct);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-            
+
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Error: " + e.getMessage());
@@ -90,26 +117,26 @@ public ResponseEntity<Map<String, Object>> createProductWithImages(
         }
     }
 
-    @DeleteMapping("/{id}/images")
-    @Operation(summary = "Delete product image")
-    public ResponseEntity<Map<String, Object>> deleteProductImage(
-            @PathVariable Long id,
-            @RequestParam String filePath) {
+    // @DeleteMapping("/{id}/images")
+    // @Operation(summary = "Delete product image")
+    // public ResponseEntity<Map<String, Object>> deleteProductImage(
+    // @PathVariable Long id,
+    // @RequestParam String filePath) {
 
-        Map<String, Object> response = new HashMap<>();
-        try {
-            productService.deleteProductImage(id, filePath);
-            response.put("success", true);
-            response.put("message", "Image deleted successfully!");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "Error deleting image: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
+    // Map<String, Object> response = new HashMap<>();
+    // try {
+    // productService.deleteProductImage(id, filePath);
+    // response.put("success", true);
+    // response.put("message", "Image deleted successfully!");
+    // return ResponseEntity.ok(response);
+    // } catch (Exception e) {
+    // response.put("success", false);
+    // response.put("message", "Error deleting image: " + e.getMessage());
+    // return ResponseEntity.badRequest().body(response);
+    // }
+    // }
 
-    // ---------------- READ ----------------
+    // // ---------------- READ ----------------
 
     @GetMapping
     @Operation(summary = "Get all products")

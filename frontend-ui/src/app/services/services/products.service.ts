@@ -17,8 +17,6 @@ import { createProductWithImages } from '../fn/products/create-product-with-imag
 import { CreateProductWithImages$Params } from '../fn/products/create-product-with-images';
 import { deleteProduct } from '../fn/products/delete-product';
 import { DeleteProduct$Params } from '../fn/products/delete-product';
-import { deleteProductImage } from '../fn/products/delete-product-image';
-import { DeleteProductImage$Params } from '../fn/products/delete-product-image';
 import { getAllProducts } from '../fn/products/get-all-products';
 import { GetAllProducts$Params } from '../fn/products/get-all-products';
 import { getProductById } from '../fn/products/get-product-by-id';
@@ -275,51 +273,6 @@ export class ProductsService extends BaseService {
 };
 }> {
     return this.uploadProductImages$Response(params, context).pipe(
-      map((r: StrictHttpResponse<{
-[key: string]: {
-};
-}>): {
-[key: string]: {
-};
-} => r.body)
-    );
-  }
-
-  /** Path part for operation `deleteProductImage()` */
-  static readonly DeleteProductImagePath = '/api/products/{id}/images';
-
-  /**
-   * Delete product image.
-   *
-   *
-   *
-   * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `deleteProductImage()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  deleteProductImage$Response(params: DeleteProductImage$Params, context?: HttpContext): Observable<StrictHttpResponse<{
-[key: string]: {
-};
-}>> {
-    return deleteProductImage(this.http, this.rootUrl, params, context);
-  }
-
-  /**
-   * Delete product image.
-   *
-   *
-   *
-   * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `deleteProductImage$Response()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  deleteProductImage(params: DeleteProductImage$Params, context?: HttpContext): Observable<{
-[key: string]: {
-};
-}> {
-    return this.deleteProductImage$Response(params, context).pipe(
       map((r: StrictHttpResponse<{
 [key: string]: {
 };

@@ -1395,47 +1395,6 @@
                         }
                     }
                 }
-            },
-            "delete": {
-                "tags": [
-                    "products"
-                ],
-                "summary": "Delete product image",
-                "operationId": "deleteProductImage",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    },
-                    {
-                        "name": "filePath",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "additionalProperties": {
-                                        "type": "object"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
         },
         "/api/products/with-images": {
@@ -3328,15 +3287,8 @@
                     "joinDate": {
                         "type": "string",
                         "format": "date-time"
-                    },
-                    "members": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Member"
-                        }
                     }
-                },
-                "description": "Agent who provided the product"
+                }
             },
             "Installment": {
                 "required": [
@@ -3354,6 +3306,9 @@
                     "id": {
                         "type": "integer",
                         "format": "int64"
+                    },
+                    "product": {
+                        "$ref": "#/components/schemas/Product"
                     },
                     "member": {
                         "$ref": "#/components/schemas/Member"
@@ -3411,12 +3366,6 @@
                     "createdTime": {
                         "type": "string",
                         "format": "date-time"
-                    },
-                    "paymentSchedules": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/PaymentSchedule"
-                        }
                     },
                     "monthlyInstallmentAmount": {
                         "type": "number",
@@ -3508,69 +3457,6 @@
                     }
                 },
                 "description": "Member information"
-            },
-            "PaymentSchedule": {
-                "required": [
-                    "collectingAgent",
-                    "installment",
-                    "paidAmount",
-                    "remainingAmount",
-                    "status",
-                    "totalAmount"
-                ],
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    "installment": {
-                        "$ref": "#/components/schemas/Installment"
-                    },
-                    "paidAmount": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "totalAmount": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "remainingAmount": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "status": {
-                        "type": "string",
-                        "enum": [
-                            "PENDING",
-                            "PARTIALLY_PAID",
-                            "PAID",
-                            "OVERDUE",
-                            "CANCELLED",
-                            "ADJUSTED",
-                            "COMPLETED"
-                        ]
-                    },
-                    "collectingAgent": {
-                        "$ref": "#/components/schemas/Agent"
-                    },
-                    "paymentDate": {
-                        "type": "string",
-                        "format": "date"
-                    },
-                    "notes": {
-                        "type": "string"
-                    },
-                    "createdTime": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updatedTime": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
-                },
-                "description": "Payment schedules"
             },
             "Product": {
                 "type": "object",
@@ -3777,6 +3663,69 @@
                     }
                 },
                 "description": "Installment response with all details"
+            },
+            "PaymentSchedule": {
+                "required": [
+                    "collectingAgent",
+                    "installment",
+                    "paidAmount",
+                    "remainingAmount",
+                    "status",
+                    "totalAmount"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "installment": {
+                        "$ref": "#/components/schemas/Installment"
+                    },
+                    "paidAmount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "totalAmount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "remainingAmount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "PARTIALLY_PAID",
+                            "PAID",
+                            "OVERDUE",
+                            "CANCELLED",
+                            "ADJUSTED",
+                            "COMPLETED"
+                        ]
+                    },
+                    "collectingAgent": {
+                        "$ref": "#/components/schemas/Agent"
+                    },
+                    "paymentDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "createdTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "description": "Payment schedules"
             },
             "RequestProduct": {
                 "type": "object",

@@ -23,11 +23,10 @@ export class AddProductComponent implements OnInit {
     category: '',
     price: 0,
     costPrice: 0,
-    isDeliveryRequired: false
   };
 
   selectedFiles: File[] = [];
-  imagePreviews: string[] = []; // ✅ For image previews
+  imagePreviews: string[] = [];
   loading: boolean = false;
   successMessage: string | null = null;
   error: string | null = null;
@@ -54,7 +53,7 @@ export class AddProductComponent implements OnInit {
     private membersService: MembersService,
     private agentsService: AgentsService,
     private sidebarService: SidebarTopbarService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.sidebarService.isCollapsed$.subscribe(collapsed => {
@@ -183,6 +182,17 @@ export class AddProductComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
+    // const productData: any = {
+    //   name: this.product.name,
+    //   description: this.product.description,
+    //   category: this.product.category,
+    //   price: this.product.price,
+    //   costPrice: this.product.costPrice,
+    //   isDeliveryRequired: this.product.isDeliveryRequired,
+    //   whoRequest: this.selectedMember ? { id: this.selectedMember.id } : undefined,
+    //   soldByAgent: this.selectedAgent ? { id: this.selectedAgent.id } : undefined
+    // };
+
     const productData: any = {
       name: this.product.name,
       description: this.product.description,
@@ -190,9 +200,10 @@ export class AddProductComponent implements OnInit {
       price: this.product.price,
       costPrice: this.product.costPrice,
       isDeliveryRequired: this.product.isDeliveryRequired,
-      whoRequest: this.selectedMember ? { id: this.selectedMember.id } : undefined,
-      soldByAgent: this.selectedAgent ? { id: this.selectedAgent.id } : undefined
+      whoRequestId: this.selectedMember ? this.selectedMember.id : null,
+      soldByAgentId: this.selectedAgent ? this.selectedAgent.id : null
     };
+
 
     const formData = new FormData();
     formData.append('product', JSON.stringify(productData));
@@ -224,7 +235,7 @@ export class AddProductComponent implements OnInit {
       isDeliveryRequired: false
     };
     this.selectedFiles = [];
-    this.imagePreviews = []; 
+    this.imagePreviews = [];
     this.clearMember();
     this.clearAgent();
   }

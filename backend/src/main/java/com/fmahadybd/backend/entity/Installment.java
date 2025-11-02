@@ -89,13 +89,9 @@ public class Installment {
     @Column(name = "created_time", nullable = false, updatable = false)
     private LocalDateTime createdTime;
 
-    // @OneToMany(mappedBy = "installment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    // @JsonManagedReference("installment-payments")
-    // private List<PaymentSchedule> paymentSchedules = new ArrayList<>();
-
     @OneToMany(mappedBy = "installment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference("installment-payments") // ✅ This allows serialization
-    @JsonIgnore // ✅ ADD THIS for extra safety
+    @JsonManagedReference("installment-payments") 
+    @JsonIgnore 
     private List<PaymentSchedule> paymentSchedules = new ArrayList<>();
 
     @PrePersist

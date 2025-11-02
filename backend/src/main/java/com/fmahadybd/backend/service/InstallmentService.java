@@ -18,6 +18,7 @@ import com.fmahadybd.backend.entity.Installment;
 import com.fmahadybd.backend.entity.Product;
 import com.fmahadybd.backend.mapper.InstallmentMapper;
 import com.fmahadybd.backend.repository.InstallmentRepository;
+import com.fmahadybd.backend.repository.ProductRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +29,8 @@ public class InstallmentService {
     private final InstallmentRepository installmentRepository;
     private final FileStorageService fileStorageService;
     private final InstallmentMapper installmentMapper;
+    private final ProductService productService;
+    private final ProductRepository productRepository;
 
     private final String folder = "installment";
 
@@ -37,6 +40,19 @@ public class InstallmentService {
 
         if (installment.getCreatedTime() == null) {
             installment.setCreatedTime(LocalDateTime.now());
+        }
+
+        Long productId = installment.getProduct().getId();
+
+        try {
+            Product product = productService.getProductById(productId)
+                    .orElseThrow(() -> new RuntimeException("Product not found with ID: " + productId));
+
+            product.setIsDeliveryRequired(true);
+            productRepository.save(product);
+
+        } catch (Exception e) {
+            System.err.println("Error updating product delivery requirement: " + e.getMessage());
         }
 
         Installment savedInstallment = installmentRepository.save(installment);

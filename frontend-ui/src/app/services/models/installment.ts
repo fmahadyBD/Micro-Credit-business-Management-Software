@@ -4,7 +4,7 @@
 
 import { Agent } from '../models/agent';
 import { Member } from '../models/member';
-import { PaymentSchedule } from '../models/payment-schedule';
+import { Product } from '../models/product';
 export interface Installment {
   advanced_paid: number;
   createdTime?: string;
@@ -17,7 +17,7 @@ export interface Installment {
   monthlyInstallmentAmount?: number;
   needPaidAmount?: number;
   otherCost: number;
-  paymentSchedules?: Array<PaymentSchedule>;
+  product?: Product;
   status: 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'OVERDUE' | 'CANCELLED' | 'DEFAULTED';
   totalAmountOfProduct: number;
   totalAmountWithInterest?: number;
