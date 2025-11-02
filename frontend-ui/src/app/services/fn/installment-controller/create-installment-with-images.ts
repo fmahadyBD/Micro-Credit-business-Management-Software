@@ -12,7 +12,7 @@ import { Installment } from '../../models/installment';
 
 export interface CreateInstallmentWithImages$Params {
       body?: {
-'installment': Installment;
+'installment': string;
 'images'?: Array<Blob>;
 }
 }

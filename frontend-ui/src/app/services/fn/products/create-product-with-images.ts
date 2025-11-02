@@ -10,19 +10,18 @@ import { RequestBuilder } from '../../request-builder';
 
 
 export interface CreateProductWithImages$Params {
-  product: string;
       body?: {
+'product': string;
 'images'?: Array<Blob>;
 }
 }
 
-export function createProductWithImages(http: HttpClient, rootUrl: string, params: CreateProductWithImages$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+export function createProductWithImages(http: HttpClient, rootUrl: string, params?: CreateProductWithImages$Params, context?: HttpContext): Observable<StrictHttpResponse<{
 [key: string]: {
 };
 }>> {
   const rb = new RequestBuilder(rootUrl, createProductWithImages.PATH, 'post');
   if (params) {
-    rb.query('product', params.product, {});
     rb.body(params.body, 'multipart/form-data');
   }
 

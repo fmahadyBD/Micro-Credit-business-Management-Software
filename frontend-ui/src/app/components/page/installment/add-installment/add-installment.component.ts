@@ -5,11 +5,11 @@ import { HttpClient } from '@angular/common/http';
 import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
 import { AgentsService } from '../../../../services/services/agents.service';
 import { ProductsService } from '../../../../services/services/products.service';
-import { InstallmentControllerService } from '../../../../services/services/installment-controller.service';
 import { Installment } from '../../../../services/models/installment';
 import { Member } from '../../../../services/models/member';
 import { Agent } from '../../../../services/models/agent';
 import { Product } from '../../../../services/models/product';
+import { InstallmentManagementService } from '../../../../services/services';
 
 @Component({
   selector: 'app-add-installment',
@@ -60,7 +60,7 @@ export class AddInstallmentComponent implements OnInit {
     private http: HttpClient,
     private productsService: ProductsService,
     private agentsService: AgentsService,
-    private installmentService: InstallmentControllerService,
+    private installmentService: InstallmentManagementService,
     private sidebarService: SidebarTopbarService
   ) { }
 

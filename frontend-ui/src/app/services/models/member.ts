@@ -4,6 +4,10 @@
 
 import { Agent } from '../models/agent';
 import { Installment } from '../models/installment';
+
+/**
+ * Member information
+ */
 export interface Member {
   agents?: Array<Agent>;
   id?: number;

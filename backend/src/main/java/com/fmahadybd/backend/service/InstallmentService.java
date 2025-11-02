@@ -1,20 +1,25 @@
 package com.fmahadybd.backend.service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.fmahadybd.backend.dto.InstallmentUpdateDTO;
-import com.fmahadybd.backend.entity.Installment;
-import com.fmahadybd.backend.entity.Product;
-import com.fmahadybd.backend.repository.InstallmentRepository;
-
-import jakarta.transaction.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.springframework.stereotype.Service;
+// import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fmahadybd.backend.dto.InstallmentResponseDTO;
+import com.fmahadybd.backend.dto.InstallmentUpdateDTO;
+import com.fmahadybd.backend.entity.Installment;
+import com.fmahadybd.backend.entity.Product;
+import com.fmahadybd.backend.mapper.InstallmentMapper;
+import com.fmahadybd.backend.repository.InstallmentRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +27,7 @@ public class InstallmentService {
 
     private final InstallmentRepository installmentRepository;
     private final FileStorageService fileStorageService;
-    private final PaymentScheduleService paymentScheduleService;
+    private final InstallmentMapper installmentMapper;
 
     private final String folder = "installment";
 
@@ -36,23 +41,8 @@ public class InstallmentService {
 
         Installment savedInstallment = installmentRepository.save(installment);
 
-        paymentScheduleService.createPaymentSchedules(savedInstallment, savedInstallment.getGiven_product_agent());
-
         return savedInstallment;
     }
-
-    // public Installment saveWithImages(Installment installment, MultipartFile[]
-    // images) {
-    // Installment savedInstallment = save(installment);
-
-    // if (images != null && images.length > 0) {
-    // uploadInstallmentImages(images, savedInstallment.getId());
-    // savedInstallment =
-    // installmentRepository.findById(savedInstallment.getId()).orElse(savedInstallment);
-    // }
-
-    // return savedInstallment;
-    // }
 
     public Installment saveWithImages(Installment installment, MultipartFile[] images) {
         // Ensure product requires delivery
@@ -91,25 +81,6 @@ public class InstallmentService {
         installment.setImageFilePaths(currentPaths);
 
         installmentRepository.save(installment);
-    }
-
-    public List<Installment> findAll() {
-        return installmentRepository.findAll();
-    }
-
-    public Optional<Installment> findById(Long id) {
-        return installmentRepository.findById(id);
-    }
-
-    @Transactional
-    public Installment update(Long id, InstallmentUpdateDTO installmentDTO) {
-        Installment existing = installmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Installment not found with id: " + id));
-
-        updateFields(existing, installmentDTO);
-        calculateInstallmentAmounts(existing);
-
-        return installmentRepository.save(existing);
     }
 
     private void updateFields(Installment existing, InstallmentUpdateDTO dto) {
@@ -182,7 +153,7 @@ public class InstallmentService {
 
         Double totalWithInterest = total + (total * interest / 100);
         installment.setNeedPaidAmount(Math.max(totalWithInterest + other - advance, 0.0));
-        installment.setTotalRemainingAmount(installment.getNeedPaidAmount());
+
     }
 
     private void setProductDeliveryRequired(Installment installment) {
@@ -190,6 +161,41 @@ public class InstallmentService {
         if (product != null) {
             product.setIsDeliveryRequired(true);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<InstallmentResponseDTO> searchInstallments(String keyword) {
+        List<Installment> results = installmentRepository.searchInstallments(keyword);
+        return installmentMapper.toResponseDTOList(results);
+    }
+
+    @Transactional(readOnly = true)
+    public List<InstallmentResponseDTO> findAll() {
+        List<Installment> installments = installmentRepository.findAll();
+        return installmentMapper.toResponseDTOList(installments);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<InstallmentResponseDTO> findById(Long id) {
+        return installmentRepository.findById(id)
+                .map(installmentMapper::toResponseDTO);
+    }
+
+    // Internal method - returns entity (for image operations)
+    public Optional<Installment> findEntityById(Long id) {
+        return installmentRepository.findById(id);
+    }
+
+    @Transactional
+    public InstallmentResponseDTO update(Long id, InstallmentUpdateDTO installmentDTO) {
+        Installment existing = installmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Installment not found with id: " + id));
+
+        updateFields(existing, installmentDTO);
+        calculateInstallmentAmounts(existing);
+
+        Installment updated = installmentRepository.save(existing);
+        return installmentMapper.toResponseDTO(updated);
     }
 
 }

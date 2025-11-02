@@ -9,13 +9,13 @@ import { ApiConfiguration, ApiConfigurationParams } from './api-configuration';
 import { UsersService } from './services/users.service';
 import { ShareholderControllerService } from './services/shareholder-controller.service';
 import { ProductsService } from './services/products.service';
-import { PaymentScheduleControllerService } from './services/payment-schedule-controller.service';
 import { MembersService } from './services/members.service';
-import { InstallmentControllerService } from './services/installment-controller.service';
+import { InstallmentManagementService } from './services/installment-management.service';
 import { AgentsService } from './services/agents.service';
 import { WithdrawalControllerService } from './services/withdrawal-controller.service';
 import { ShareTransactionControllerService } from './services/share-transaction-controller.service';
 import { RequestProductControllerService } from './services/request-product-controller.service';
+import { PaymentScheduleControllerService } from './services/payment-schedule-controller.service';
 import { ShareholderEarningControllerService } from './services/shareholder-earning-controller.service';
 
 /**
@@ -29,13 +29,13 @@ import { ShareholderEarningControllerService } from './services/shareholder-earn
     UsersService,
     ShareholderControllerService,
     ProductsService,
-    PaymentScheduleControllerService,
     MembersService,
-    InstallmentControllerService,
+    InstallmentManagementService,
     AgentsService,
     WithdrawalControllerService,
     ShareTransactionControllerService,
     RequestProductControllerService,
+    PaymentScheduleControllerService,
     ShareholderEarningControllerService,
     ApiConfiguration
   ],

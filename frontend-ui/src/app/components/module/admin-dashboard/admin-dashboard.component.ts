@@ -26,6 +26,9 @@ import { DetailsAgentComponent } from '../../page/agent/details-agent/details-ag
 import { AllProductsComponent } from '../../page/product/all-products/all-products.component';
 import { AddProductComponent } from '../../page/product/add-product/add-product.component';
 import { AddInstallmentComponent } from '../../page/installment/add-installment/add-installment.component';
+import { PaymentScheduleComponent } from '../../page/payment-schedule/payment-schedule/payment-schedule.component';
+
+// ✅ NEW: Import Payment Schedule Component
 
 
 @Component({
@@ -53,12 +56,13 @@ import { AddInstallmentComponent } from '../../page/installment/add-installment/
     AddNewAgentComponent,
     UpdateAgentComponent,
     DetailsAgentComponent,
+    // 🎁 Products
     AllProductsComponent,
     AddProductComponent,
-
     // 💳 Installments
-
-    AddInstallmentComponent
+    AddInstallmentComponent,
+    // 💰 NEW: Payment Schedules
+    PaymentScheduleComponent
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
@@ -75,25 +79,20 @@ export class AdminDashboardComponent implements OnInit {
     | 'member-details' | 'edit-member'
     | 'all-products' | 'add-product'
     | 'agent-details' | 'edit-agent'
-    | 'add-installment'
-    | 'all-installments' = 'dashboard';
-
-  ;
+    | 'add-installment' | 'all-installments'
+    | 'payment-schedules' | 'record-payment' // ✅ NEW: Added payment views
+    = 'dashboard';
 
   selectedUserId: number | null = null;
   selectedMemberId: number | null = null;
   selectedAgentId: number | null = null;
-
+  selectedProductId: number | null = null;
 
   constructor(private sidebarService: SidebarTopbarService) { }
 
   setView(view: any) {
     this.currentView = view;
   }
-
-  // Add product ID tracking
-  selectedProductId: number | null = null;
-
 
   ngOnInit() {
     // Sidebar collapse handling
@@ -153,10 +152,7 @@ export class AdminDashboardComponent implements OnInit {
       this.currentView = 'all-agents';
     });
 
-
-
     // 🎁 Product events
-
     window.addEventListener('addProduct', () => {
       this.currentView = 'add-product';
     });
@@ -166,19 +162,18 @@ export class AdminDashboardComponent implements OnInit {
       this.currentView = 'all-products';
     });
 
-
-
-
-
-
-
+    // 💳 Installment events
     window.addEventListener('addInstallment', () => {
       this.currentView = 'add-installment';
     });
 
+    // ✅ NEW: Payment Schedule events (optional - if you need custom events)
+    window.addEventListener('viewPaymentSchedules', () => {
+      this.currentView = 'payment-schedules';
+    });
 
-
-
-
+    window.addEventListener('recordPayment', () => {
+      this.currentView = 'record-payment';
+    });
   }
 }

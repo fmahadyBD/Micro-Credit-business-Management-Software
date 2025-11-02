@@ -334,16 +334,12 @@ export class ProductsService extends BaseService {
   static readonly CreateProductWithImagesPath = '/api/products/with-images';
 
   /**
-   * Create product with images.
-   *
-   *
-   *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
    * To access only the response body, use `createProductWithImages()` instead.
    *
    * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
    */
-  createProductWithImages$Response(params: CreateProductWithImages$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+  createProductWithImages$Response(params?: CreateProductWithImages$Params, context?: HttpContext): Observable<StrictHttpResponse<{
 [key: string]: {
 };
 }>> {
@@ -351,16 +347,12 @@ export class ProductsService extends BaseService {
   }
 
   /**
-   * Create product with images.
-   *
-   *
-   *
    * This method provides access only to the response body.
    * To access the full response (for headers, for example), `createProductWithImages$Response()` instead.
    *
    * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
    */
-  createProductWithImages(params: CreateProductWithImages$Params, context?: HttpContext): Observable<{
+  createProductWithImages(params?: CreateProductWithImages$Params, context?: HttpContext): Observable<{
 [key: string]: {
 };
 }> {

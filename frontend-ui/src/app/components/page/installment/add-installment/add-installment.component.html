@@ -29,40 +29,21 @@
                 </label>
                 <div class="position-relative">
                   <div class="input-group">
-                    <input 
-                      type="text" 
-                      class="form-control" 
-                      placeholder="Search product by name or category..." 
-                      [(ngModel)]="productSearchTerm"
-                      (input)="onProductSearch()"
-                      (focus)="onProductSearch()"
-                      name="productSearch"
-                      [disabled]="loadingProducts"
-                      required
-                    >
-                    <button 
-                      *ngIf="selectedProduct" 
-                      class="btn btn-outline-danger" 
-                      type="button"
-                      (click)="clearProduct()"
-                      title="Clear selection"
-                    >
+                    <input type="text" class="form-control" placeholder="Search product by name or category..."
+                      [(ngModel)]="productSearchTerm" (input)="onProductSearch()" (focus)="onProductSearch()"
+                      name="productSearch" [disabled]="loadingProducts" required>
+                    <button *ngIf="selectedProduct" class="btn btn-outline-danger" type="button"
+                      (click)="clearProduct()" title="Clear selection">
                       <i class="fas fa-times"></i>
                     </button>
                   </div>
-                  
+
                   <!-- Product Dropdown -->
-                  <div 
-                    *ngIf="showProductDropdown" 
-                    class="dropdown-menu show w-100 shadow-lg" 
-                    style="max-height: 300px; overflow-y: auto; position: absolute; z-index: 1000;"
-                  >
-                    <button 
-                      *ngFor="let product of filteredProducts" 
-                      type="button"
+                  <div *ngIf="showProductDropdown" class="dropdown-menu show w-100 shadow-lg"
+                    style="max-height: 300px; overflow-y: auto; position: absolute; z-index: 1000;">
+                    <button *ngFor="let product of filteredProducts" type="button"
                       class="dropdown-item d-flex justify-content-between align-items-start"
-                      (click)="selectProduct(product)"
-                    >
+                      (click)="selectProduct(product)">
                       <div class="flex-grow-1">
                         <div class="fw-bold">{{ product.name }}</div>
                         <small class="text-muted">
@@ -82,7 +63,7 @@
                   <div *ngIf="selectedProduct" class="alert alert-info mt-2 py-2 px-3">
                     <small>
                       <strong>Selected:</strong> {{ selectedProduct.name }}<br>
-                      <i class="fas fa-tag me-1"></i>{{ selectedProduct.category }} | 
+                      <i class="fas fa-tag me-1"></i>{{ selectedProduct.category }} |
                       <i class="fas fa-money-bill me-1"></i>৳{{ selectedProduct.price }}
                     </small>
                   </div>
@@ -93,9 +74,9 @@
                 <div class="col-md-6">
                   <div class="mb-3">
                     <label for="totalAmount" class="form-label">Total Amount *</label>
-                    <input type="number" class="form-control" id="totalAmount" name="totalAmount" 
-                           [(ngModel)]="installment.totalAmountOfProduct" required min="0.01" step="0.01" 
-                           #totalAmount="ngModel">
+                    <input type="number" class="form-control" id="totalAmount" name="totalAmount"
+                      [(ngModel)]="installment.totalAmountOfProduct" required min="0.01" step="0.01"
+                      #totalAmount="ngModel">
                     <div *ngIf="totalAmount.invalid && (totalAmount.dirty || totalAmount.touched)" class="text-danger">
                       <small *ngIf="totalAmount.errors?.['required']">Total amount is required</small>
                       <small *ngIf="totalAmount.errors?.['min']">Amount must be positive</small>
@@ -105,8 +86,8 @@
                 <div class="col-md-6">
                   <div class="mb-3">
                     <label for="otherCost" class="form-label">Other Cost</label>
-                    <input type="number" class="form-control" id="otherCost" name="otherCost" 
-                           [(ngModel)]="installment.otherCost" min="0" step="0.01">
+                    <input type="number" class="form-control" id="otherCost" name="otherCost"
+                      [(ngModel)]="installment.otherCost" min="0" step="0.01">
                   </div>
                 </div>
               </div>
@@ -115,10 +96,10 @@
                 <div class="col-md-6">
                   <div class="mb-3">
                     <label for="advancedPaid" class="form-label">Advanced Payment *</label>
-                    <input type="number" class="form-control" id="advancedPaid" name="advancedPaid" 
-                           [(ngModel)]="installment.advanced_paid" required min="0" step="0.01" 
-                           #advancedPaid="ngModel">
-                    <div *ngIf="advancedPaid.invalid && (advancedPaid.dirty || advancedPaid.touched)" class="text-danger">
+                    <input type="number" class="form-control" id="advancedPaid" name="advancedPaid"
+                      [(ngModel)]="installment.advanced_paid" required min="0" step="0.01" #advancedPaid="ngModel">
+                    <div *ngIf="advancedPaid.invalid && (advancedPaid.dirty || advancedPaid.touched)"
+                      class="text-danger">
                       <small *ngIf="advancedPaid.errors?.['required']">Advanced payment is required</small>
                     </div>
                   </div>
@@ -126,12 +107,14 @@
                 <div class="col-md-6">
                   <div class="mb-3">
                     <label for="installmentMonths" class="form-label">Installment Months *</label>
-                    <input type="number" class="form-control" id="installmentMonths" name="installmentMonths" 
-                           [(ngModel)]="installment.installmentMonths" required min="1" max="60" 
-                           #installmentMonths="ngModel">
-                    <div *ngIf="installmentMonths.invalid && (installmentMonths.dirty || installmentMonths.touched)" class="text-danger">
+                    <input type="number" class="form-control" id="installmentMonths" name="installmentMonths"
+                      [(ngModel)]="installment.installmentMonths" required min="1" max="60"
+                      #installmentMonths="ngModel">
+                    <div *ngIf="installmentMonths.invalid && (installmentMonths.dirty || installmentMonths.touched)"
+                      class="text-danger">
                       <small *ngIf="installmentMonths.errors?.['required']">Months is required</small>
-                      <small *ngIf="installmentMonths.errors?.['min'] || installmentMonths.errors?.['max']">Must be between 1-60</small>
+                      <small *ngIf="installmentMonths.errors?.['min'] || installmentMonths.errors?.['max']">Must be
+                        between 1-60</small>
                     </div>
                   </div>
                 </div>
@@ -141,10 +124,11 @@
                 <div class="col-md-6">
                   <div class="mb-3">
                     <label for="interestRate" class="form-label">Interest Rate (%) *</label>
-                    <input type="number" class="form-control" id="interestRate" name="interestRate" 
-                           [(ngModel)]="installment.interestRate" required min="0" max="100" step="0.01" 
-                           #interestRate="ngModel">
-                    <div *ngIf="interestRate.invalid && (interestRate.dirty || interestRate.touched)" class="text-danger">
+                    <input type="number" class="form-control" id="interestRate" name="interestRate"
+                      [(ngModel)]="installment.interestRate" required min="0" max="100" step="0.01"
+                      #interestRate="ngModel">
+                    <div *ngIf="interestRate.invalid && (interestRate.dirty || interestRate.touched)"
+                      class="text-danger">
                       <small *ngIf="interestRate.errors?.['required']">Interest rate is required</small>
                     </div>
                   </div>
@@ -152,8 +136,8 @@
                 <div class="col-md-6">
                   <div class="mb-3">
                     <label for="status" class="form-label">Status *</label>
-                    <select class="form-select" id="status" name="status" 
-                            [(ngModel)]="installment.status" required #status="ngModel">
+                    <select class="form-select" id="status" name="status" [(ngModel)]="installment.status" required
+                      #status="ngModel">
                       <option value="PENDING">Pending</option>
                       <option value="ACTIVE">Active</option>
                       <option value="COMPLETED">Completed</option>
@@ -176,7 +160,7 @@
                 <div *ngIf="selectedMember" class="alert alert-info py-2 px-3">
                   <small>
                     <strong>{{ selectedMember.name }}</strong><br>
-                    <i class="fas fa-phone me-1"></i>{{ selectedMember.phone }} | 
+                    <i class="fas fa-phone me-1"></i>{{ selectedMember.phone }} |
                     <i class="fas fa-id-card me-1"></i>{{ selectedMember.nidCardNumber }}<br>
                     <i class="fas fa-map-marker-alt me-1"></i>{{ selectedMember.village }}, {{ selectedMember.zila }}
                   </small>
@@ -193,40 +177,21 @@
                 </label>
                 <div class="position-relative">
                   <div class="input-group">
-                    <input 
-                      type="text" 
-                      class="form-control" 
-                      placeholder="Search by name, phone, or NID..." 
-                      [(ngModel)]="agentSearchTerm"
-                      (input)="onAgentSearch()"
-                      (focus)="onAgentSearch()"
-                      name="agentSearch"
-                      [disabled]="loadingAgents"
-                      required
-                    >
-                    <button 
-                      *ngIf="selectedAgent" 
-                      class="btn btn-outline-danger" 
-                      type="button"
-                      (click)="clearAgent()"
-                      title="Clear selection"
-                    >
+                    <input type="text" class="form-control" placeholder="Search by name, phone, or NID..."
+                      [(ngModel)]="agentSearchTerm" (input)="onAgentSearch()" (focus)="onAgentSearch()"
+                      name="agentSearch" [disabled]="loadingAgents" required>
+                    <button *ngIf="selectedAgent" class="btn btn-outline-danger" type="button" (click)="clearAgent()"
+                      title="Clear selection">
                       <i class="fas fa-times"></i>
                     </button>
                   </div>
-                  
+
                   <!-- Agent Dropdown -->
-                  <div 
-                    *ngIf="showAgentDropdown" 
-                    class="dropdown-menu show w-100 shadow-lg" 
-                    style="max-height: 300px; overflow-y: auto; position: absolute; z-index: 1000;"
-                  >
-                    <button 
-                      *ngFor="let agent of filteredAgents" 
-                      type="button"
+                  <div *ngIf="showAgentDropdown" class="dropdown-menu show w-100 shadow-lg"
+                    style="max-height: 300px; overflow-y: auto; position: absolute; z-index: 1000;">
+                    <button *ngFor="let agent of filteredAgents" type="button"
                       class="dropdown-item d-flex justify-content-between align-items-start"
-                      (click)="selectAgent(agent)"
-                    >
+                      (click)="selectAgent(agent)">
                       <div class="flex-grow-1">
                         <div class="fw-bold">{{ agent.name }}</div>
                         <small class="text-muted">
@@ -236,11 +201,8 @@
                           <i class="fas fa-id-card me-1"></i>{{ agent.nidCard }}
                         </small>
                       </div>
-                      <span 
-                        class="badge" 
-                        [class.bg-success]="agent.status === 'Active'"
-                        [class.bg-secondary]="agent.status !== 'Active'"
-                      >
+                      <span class="badge" [class.bg-success]="agent.status === 'Active'"
+                        [class.bg-secondary]="agent.status !== 'Active'">
                         {{ agent.status }}
                       </span>
                     </button>
@@ -253,7 +215,7 @@
                   <div *ngIf="selectedAgent" class="alert alert-info mt-2 py-2 px-3">
                     <small>
                       <strong>Selected:</strong> {{ selectedAgent.name }}<br>
-                      <i class="fas fa-phone me-1"></i>{{ selectedAgent.phone }} | 
+                      <i class="fas fa-phone me-1"></i>{{ selectedAgent.phone }} |
                       <i class="fas fa-map-marker-alt me-1"></i>{{ selectedAgent.village }}, {{ selectedAgent.zila }}
                     </small>
                   </div>
@@ -264,26 +226,20 @@
               <div class="mb-3">
                 <label class="form-label">Installment Images</label>
                 <div class="border rounded p-3 text-center">
-                  <input type="file" class="form-control" id="images" 
-                         (change)="onFileSelected($event)" multiple accept="image/*">
+                  <input type="file" class="form-control" id="images" (change)="onFileSelected($event)" multiple
+                    accept="image/*">
                   <small class="text-muted">Select multiple images (JPEG, PNG, etc.)</small>
-                  
+
                   <!-- Image Previews -->
                   <div *ngIf="imagePreviews.length > 0" class="mt-3">
                     <h6>Selected Images:</h6>
                     <div class="d-flex flex-wrap gap-3">
                       <div *ngFor="let preview of imagePreviews; let i = index" class="position-relative">
-                        <img 
-                          [src]="preview" 
-                          alt="Preview" 
-                          style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd;"
-                        >
-                        <button 
-                          type="button" 
+                        <img [src]="preview" alt="Preview"
+                          style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd;">
+                        <button type="button"
                           class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle"
-                          style="border-radius: 50%;"
-                          (click)="removeFile(selectedFiles[i])"
-                        >
+                          style="border-radius: 50%;" (click)="removeFile(selectedFiles[i])">
                           <i class="fas fa-times"></i>
                         </button>
                       </div>
@@ -315,8 +271,8 @@
 
           <!-- Form Actions -->
           <div class="d-flex gap-2 mt-3">
-            <button type="submit" class="btn btn-success" 
-                    [disabled]="!installmentForm.form.valid || loading || !selectedProduct || !selectedAgent">
+            <button type="submit" class="btn btn-success"
+              [disabled]="!installmentForm.form.valid || loading || !selectedProduct || !selectedAgent">
               <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
               <i class="fas fa-save me-2"></i>Add Installment
             </button>

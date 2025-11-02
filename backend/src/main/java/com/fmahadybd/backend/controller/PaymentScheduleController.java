@@ -1,15 +1,17 @@
 package com.fmahadybd.backend.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import com.fmahadybd.backend.entity.Agent;
-import com.fmahadybd.backend.entity.PaymentSchedule;
-import com.fmahadybd.backend.entity.PaymentTransaction;
+import com.fmahadybd.backend.dto.PaymentScheduleRequestDTO;
+import com.fmahadybd.backend.dto.PaymentScheduleResponseDTO;
 import com.fmahadybd.backend.service.PaymentScheduleService;
-
+import jakarta.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payment-schedules")
@@ -18,94 +20,120 @@ public class PaymentScheduleController {
 
     private final PaymentScheduleService paymentScheduleService;
 
+    @PostMapping("/pay")
+    public ResponseEntity<?> payInstallment(
+            @Valid @RequestBody PaymentScheduleRequestDTO request,
+            BindingResult bindingResult) {
 
-        @GetMapping("/installment/{installmentId}")
-    public ResponseEntity<List<PaymentSchedule>> getPaymentSchedules(
-            @PathVariable Long installmentId) {
-        
-        List<PaymentSchedule> schedules = paymentScheduleService.getPaymentSchedulesByInstallment(installmentId);
-        return ResponseEntity.ok(schedules);
+        // Manual validation error handling
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("errors", errors, "message", "Validation failed"));
+        }
+
+        try {
+            PaymentScheduleResponseDTO response = paymentScheduleService.savePayment(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Invalid payment", "message", e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Resource not found", "message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal server error", "message", e.getMessage()));
+        }
     }
 
-
-    @PostMapping("/{scheduleId}/pay")
-    public ResponseEntity<PaymentSchedule> addPayment(
-            @PathVariable Long scheduleId,
-            @RequestParam Double amount,
-            @RequestParam Long agentId,
-            @RequestParam(required = false) String notes) {
-        
-        Agent agent = new Agent();
-        agent.setId(agentId);
-        
-        PaymentSchedule updatedSchedule = paymentScheduleService.addPayment(scheduleId, amount, agent, notes);
-        return ResponseEntity.ok(updatedSchedule);
+    @GetMapping("/installment/{installmentId}/monthly-amount")
+    public ResponseEntity<?> getMonthlyInstallmentAmount(@PathVariable Long installmentId) {
+        try {
+            Double monthlyAmount = paymentScheduleService.perMonth(installmentId);
+            return ResponseEntity.ok(Map.of(
+                    "installmentId", installmentId,
+                    "monthlyAmount", monthlyAmount));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Installment not found", "message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal server error", "message", e.getMessage()));
+        }
     }
 
-    @PostMapping("/{scheduleId}/partial-pay")
-    public ResponseEntity<PaymentSchedule> handlePartialPayment(
-            @PathVariable Long scheduleId,
-            @RequestParam Double amount,
-            @RequestParam Long agentId,
-            @RequestParam(required = false) String notes) {
-        
-        Agent agent = new Agent();
-        agent.setId(agentId);
-        
-        PaymentSchedule updatedSchedule = paymentScheduleService.handlePartialPayment(scheduleId, amount, agent, notes);
-        return ResponseEntity.ok(updatedSchedule);
+    @GetMapping("/installment/{installmentId}")
+    public ResponseEntity<?> getPaymentsByInstallment(@PathVariable Long installmentId) {
+        try {
+            List<PaymentScheduleResponseDTO> payments = paymentScheduleService
+                    .getPaymentsByInstallmentId(installmentId);
+            return ResponseEntity.ok(payments);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Installment not found", "message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal server error", "message", e.getMessage()));
+        }
     }
 
-    @PostMapping("/{scheduleId}/advance-pay")
-    public ResponseEntity<PaymentSchedule> advancePayment(
-            @PathVariable Long scheduleId,
-            @RequestParam Double amount,
-            @RequestParam Long agentId,
-            @RequestParam(required = false) String notes) {
-        
-        Agent agent = new Agent();
-        agent.setId(agentId);
-        
-        PaymentSchedule updatedSchedule = paymentScheduleService.advancePayment(scheduleId, amount, agent, notes);
-        return ResponseEntity.ok(updatedSchedule);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getPaymentById(@PathVariable Long id) {
+        try {
+            PaymentScheduleResponseDTO payment = paymentScheduleService.getPaymentById(id);
+            return ResponseEntity.ok(payment);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Payment not found", "message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal server error", "message", e.getMessage()));
+        }
     }
 
-    @PutMapping("/{scheduleId}/edit-payment")
-    public ResponseEntity<PaymentSchedule> editPayment(
-            @PathVariable Long scheduleId,
-            @RequestParam Long transactionId,
-            @RequestParam Double newAmount,
-            @RequestParam Long agentId,
-            @RequestParam(required = false) String notes) {
-        
-        Agent agent = new Agent();
-        agent.setId(agentId);
-        
-        PaymentSchedule updatedSchedule = paymentScheduleService.editPayment(scheduleId, transactionId, newAmount, agent, notes);
-        return ResponseEntity.ok(updatedSchedule);
+    @GetMapping("/agent/{agentId}")
+    public ResponseEntity<?> getPaymentsByAgent(@PathVariable Long agentId) {
+        try {
+            List<PaymentScheduleResponseDTO> payments = paymentScheduleService
+                    .getPaymentsByAgentId(agentId);
+            return ResponseEntity.ok(payments);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Agent not found", "message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal server error", "message", e.getMessage()));
+        }
     }
 
-    @PutMapping("/{scheduleId}")
-    public ResponseEntity<PaymentSchedule> updatePaymentSchedule(
-            @PathVariable Long scheduleId,
-            @RequestBody PaymentSchedule scheduleDetails) {
-        
-        PaymentSchedule updatedSchedule = paymentScheduleService.updatePaymentSchedule(scheduleId, scheduleDetails);
-        return ResponseEntity.ok(updatedSchedule);
+    @GetMapping("/member/{memberId}")
+    public ResponseEntity<?> getPaymentsByMember(@PathVariable Long memberId) {
+        try {
+            List<PaymentScheduleResponseDTO> payments = paymentScheduleService
+                    .getPaymentsByMemberId(memberId);
+            return ResponseEntity.ok(payments);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Member not found", "message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal server error", "message", e.getMessage()));
+        }
     }
 
-
-    @GetMapping("/{scheduleId}/transactions")
-    public ResponseEntity<List<PaymentTransaction>> getPaymentTransactions(
-            @PathVariable Long scheduleId) {
-        
-        List<PaymentTransaction> transactions = paymentScheduleService.getPaymentTransactionsBySchedule(scheduleId);
-        return ResponseEntity.ok(transactions);
-    }
-
-    @GetMapping("/overdue")
-    public ResponseEntity<List<PaymentSchedule>> getOverdueSchedules() {
-        List<PaymentSchedule> overdueSchedules = paymentScheduleService.getOverdueSchedules();
-        return ResponseEntity.ok(overdueSchedules);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePayment(@PathVariable Long id) {
+        try {
+            paymentScheduleService.deletePayment(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Payment not found", "message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal server error", "message", e.getMessage()));
+        }
     }
 }

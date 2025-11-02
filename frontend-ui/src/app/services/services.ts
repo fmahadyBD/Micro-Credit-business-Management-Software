@@ -5,11 +5,11 @@
 export { UsersService } from './services/users.service';
 export { ShareholderControllerService } from './services/shareholder-controller.service';
 export { ProductsService } from './services/products.service';
-export { PaymentScheduleControllerService } from './services/payment-schedule-controller.service';
 export { MembersService } from './services/members.service';
-export { InstallmentControllerService } from './services/installment-controller.service';
+export { InstallmentManagementService } from './services/installment-management.service';
 export { AgentsService } from './services/agents.service';
 export { WithdrawalControllerService } from './services/withdrawal-controller.service';
 export { ShareTransactionControllerService } from './services/share-transaction-controller.service';
 export { RequestProductControllerService } from './services/request-product-controller.service';
+export { PaymentScheduleControllerService } from './services/payment-schedule-controller.service';
 export { ShareholderEarningControllerService } from './services/shareholder-earning-controller.service';

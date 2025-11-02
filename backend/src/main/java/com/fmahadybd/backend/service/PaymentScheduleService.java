@@ -3,255 +3,189 @@ package com.fmahadybd.backend.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.fmahadybd.backend.dto.PaymentScheduleRequestDTO;
+import com.fmahadybd.backend.dto.PaymentScheduleResponseDTO;
 import com.fmahadybd.backend.entity.*;
-import com.fmahadybd.backend.repository.InstallmentRepository;
-import com.fmahadybd.backend.repository.PaymentScheduleRepository;
-import com.fmahadybd.backend.repository.PaymentTransactionRepository;
-
+import com.fmahadybd.backend.repository.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class PaymentScheduleService {
 
-    private final PaymentScheduleRepository paymentScheduleRepository;
-    private final PaymentTransactionRepository paymentTransactionRepository;
-    private final InstallmentRepository installmentRepository;
+        private final PaymentScheduleRepository paymentScheduleRepository;
+        private final InstallmentRepository installmentRepository;
+        private final AgentRepository agentRepository;
 
-    /** Create payment schedules when an installment is created */
-    public void createPaymentSchedules(Installment installment, Agent defaultAgent) {
-        Double monthlyAmount = installment.getMonthlyInstallmentAmount();
-        LocalDate startDate = LocalDate.now().plusMonths(1);
-
-        for (int i = 0; i < installment.getInstallmentMonths(); i++) {
-            PaymentSchedule schedule = PaymentSchedule.builder()
-                    .installment(installment)
-                    .dueDate(startDate.plusMonths(i))
-                    .monthlyAmount(monthlyAmount)
-                    .paidAmount(0.0)
-                    .remainingAmount(monthlyAmount)
-                    .status(PaymentStatus.PENDING)
-                    .collectingAgent(defaultAgent)
-                    .build();
-
-            paymentScheduleRepository.save(schedule);
+        public Double perMonth(long id) {
+                Installment installment = installmentRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Installment not found with id: " + id));
+                return installment.getMonthlyInstallmentAmount();
         }
 
-        updateInstallmentRemainingAmount(installment.getId());
-    }
+        @Transactional
+        public PaymentScheduleResponseDTO savePayment(PaymentScheduleRequestDTO request) {
+                // Validate installment and agent exist
+                Installment installment = installmentRepository.findById(request.getInstallmentId())
+                                .orElseThrow(() -> new RuntimeException("Installment not found with id: "
+                                                + request.getInstallmentId()));
 
-    /** Add payment to a schedule */
-    public PaymentSchedule addPayment(Long scheduleId, Double amount, Agent agent, String notes) {
-        PaymentSchedule schedule = paymentScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new RuntimeException("Payment schedule not found with id: " + scheduleId));
+                Agent agent = agentRepository.findById(request.getAgentId())
+                                .orElseThrow(() -> new RuntimeException("Agent not found with id: "
+                                                + request.getAgentId()));
 
-        PaymentTransaction transaction = schedule.addPayment(amount, agent, notes);
-        paymentTransactionRepository.save(transaction);
+                // Calculate payment details
+                double totalPaid = installment.getPaymentSchedules()
+                                .stream()
+                                .mapToDouble(PaymentSchedule::getPaidAmount)
+                                .sum();
 
-        PaymentSchedule updatedSchedule = paymentScheduleRepository.save(schedule);
-        updateInstallmentRemainingAmount(schedule.getInstallment().getId());
+                System.out.println("Total Pid: "+ totalPaid);
 
-        return updatedSchedule;
-    }
+                double previousRemaining = Math.max(installment.getNeedPaidAmount() - totalPaid, 0.0);
 
-    /** Edit existing payment */
-    public PaymentSchedule editPayment(Long scheduleId, Long transactionId, Double newAmount, Agent agent, String notes) {
-        PaymentSchedule schedule = paymentScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new RuntimeException("Payment schedule not found with id: " + scheduleId));
+                System.out.println("Remaing Balance: "+ previousRemaining);
 
-        PaymentTransaction transaction = schedule.editPayment(transactionId, newAmount, agent, notes);
-        paymentTransactionRepository.save(transaction);
+                // Validate payment amount
+                // if (request.getAmount() >= previousRemaining) {
+                //         throw new IllegalArgumentException("Payment amount (" + request.getAmount()
+                //                         + ") exceeds remaining amount (" + previousRemaining + ")");
+                // }
 
-        PaymentSchedule updatedSchedule = paymentScheduleRepository.save(schedule);
-        updateInstallmentRemainingAmount(schedule.getInstallment().getId());
+                // Create payment schedule
+                PaymentSchedule schedule = PaymentSchedule.builder()
+                                .installment(installment)
+                                .collectingAgent(agent)
+                                .paidAmount(request.getAmount())
+                                .totalAmount(installment.getNeedPaidAmount())
+                                .remainingAmount(previousRemaining - request.getAmount())
+                                .notes(request.getNotes() != null ? request.getNotes() : "")
+                                .paymentDate(LocalDate.now())
+                                .createdTime(LocalDateTime.now())
+                                .updatedTime(LocalDateTime.now())
+                                .build();
 
-        return updatedSchedule;
-    }
-
-    /** Handle partial payment with installment extension */
-    public PaymentSchedule handlePartialPayment(Long scheduleId, Double paidAmount, Agent agent, String notes) {
-        PaymentSchedule schedule = paymentScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new RuntimeException("Payment schedule not found with id: " + scheduleId));
-
-        Installment installment = schedule.getInstallment();
-
-        if (paidAmount < schedule.getMonthlyAmount()) {
-            Double remaining = schedule.getMonthlyAmount() - paidAmount;
-
-            // Add current partial payment
-            PaymentTransaction transaction = schedule.addPayment(paidAmount, agent, notes);
-            paymentTransactionRepository.save(transaction);
-            paymentScheduleRepository.save(schedule);
-
-            // Apply remaining to next month
-            addRemainingToNextMonth(installment.getId(), scheduleId, remaining, agent);
-        } else {
-            // Full payment
-            PaymentTransaction transaction = schedule.addPayment(paidAmount, agent, notes);
-            paymentTransactionRepository.save(transaction);
-            paymentScheduleRepository.save(schedule);
-        }
-
-        updateInstallmentRemainingAmount(installment.getId());
-        return schedule;
-    }
-
-    /** Update payment schedule details */
-    public PaymentSchedule updatePaymentSchedule(Long scheduleId, PaymentSchedule scheduleDetails) {
-        PaymentSchedule schedule = paymentScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new RuntimeException("Payment schedule not found with id: " + scheduleId));
-
-        if (scheduleDetails.getMonthlyAmount() != null) {
-            schedule.setMonthlyAmount(scheduleDetails.getMonthlyAmount());
-        }
-        if (scheduleDetails.getDueDate() != null) {
-            schedule.setDueDate(scheduleDetails.getDueDate());
-        }
-        if (scheduleDetails.getCollectingAgent() != null) {
-            schedule.setCollectingAgent(scheduleDetails.getCollectingAgent());
-        }
-        if (scheduleDetails.getNotes() != null) {
-            schedule.setNotes(scheduleDetails.getNotes());
-        }
-
-        schedule.calculateRemainingAmount();
-        schedule.updatePaymentStatus();
-        PaymentSchedule updatedSchedule = paymentScheduleRepository.save(schedule);
-
-        updateInstallmentRemainingAmount(schedule.getInstallment().getId());
-        return updatedSchedule;
-    }
-
-    /** Advance payment - pay future installments early */
-    public PaymentSchedule advancePayment(Long scheduleId, Double amount, Agent agent, String notes) {
-        PaymentSchedule schedule = paymentScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new RuntimeException("Payment schedule not found with id: " + scheduleId));
-
-        Installment installment = schedule.getInstallment();
-
-        if (amount > schedule.getRemainingAmount()) {
-            Double overpayment = amount - schedule.getRemainingAmount();
-
-            // Pay current schedule fully
-            PaymentTransaction transaction = schedule.addPayment(schedule.getRemainingAmount(), agent, notes);
-            paymentTransactionRepository.save(transaction);
-            paymentScheduleRepository.save(schedule);
-
-            // Apply overpayment to next schedules
-            applyOverpaymentToNextSchedules(installment.getId(), scheduleId, overpayment, agent, notes);
-        } else {
-            PaymentTransaction transaction = schedule.addPayment(amount, agent, notes);
-            paymentTransactionRepository.save(transaction);
-            paymentScheduleRepository.save(schedule);
-        }
-
-        updateInstallmentRemainingAmount(installment.getId());
-        return schedule;
-    }
-
-    /** Add remaining amount to next month */
-    private void addRemainingToNextMonth(Long installmentId, Long currentScheduleId, Double remainingAmount, Agent agent) {
-        List<PaymentSchedule> schedules = paymentScheduleRepository.findByInstallmentIdOrderByDueDate(installmentId);
-
-        int currentIndex = -1;
-        for (int i = 0; i < schedules.size(); i++) {
-            if (schedules.get(i).getId().equals(currentScheduleId)) {
-                currentIndex = i;
-                break;
-            }
-        }
-
-        if (currentIndex != -1 && currentIndex < schedules.size() - 1) {
-            PaymentSchedule nextSchedule = schedules.get(currentIndex + 1);
-            nextSchedule.setMonthlyAmount(nextSchedule.getMonthlyAmount() + remainingAmount);
-            nextSchedule.setRemainingAmount(nextSchedule.getRemainingAmount() + remainingAmount);
-            nextSchedule.setCollectingAgent(agent);
-            paymentScheduleRepository.save(nextSchedule);
-        } else {
-            // Create new month at the end
-            Installment installment = installmentRepository.findById(installmentId)
-                    .orElseThrow(() -> new RuntimeException("Installment not found"));
-
-            PaymentSchedule newSchedule = PaymentSchedule.builder()
-                    .installment(installment)
-                    .dueDate(LocalDate.now().plusMonths(schedules.size() + 1))
-                    .monthlyAmount(remainingAmount)
-                    .paidAmount(0.0)
-                    .remainingAmount(remainingAmount)
-                    .status(PaymentStatus.PENDING)
-                    .collectingAgent(agent)
-                    .build();
-
-            paymentScheduleRepository.save(newSchedule);
-
-            installment.setInstallmentMonths(installment.getInstallmentMonths() + 1);
-            installmentRepository.save(installment);
-        }
-    }
-
-    /** Apply overpayment to next schedules */
-    private void applyOverpaymentToNextSchedules(Long installmentId, Long currentScheduleId, Double overpayment, Agent agent, String notes) {
-        List<PaymentSchedule> schedules = paymentScheduleRepository.findByInstallmentIdOrderByDueDate(installmentId);
-
-        int currentIndex = -1;
-        for (int i = 0; i < schedules.size(); i++) {
-            if (schedules.get(i).getId().equals(currentScheduleId)) {
-                currentIndex = i;
-                break;
-            }
-        }
-
-        if (currentIndex != -1) {
-            for (int i = currentIndex + 1; i < schedules.size() && overpayment > 0; i++) {
-                PaymentSchedule nextSchedule = schedules.get(i);
-                Double paymentAmount = Math.min(overpayment, nextSchedule.getRemainingAmount());
-
-                if (paymentAmount > 0) {
-                    PaymentTransaction transaction = nextSchedule.addPayment(paymentAmount, agent,
-                            notes + " (Advance from schedule " + currentScheduleId + ")");
-                    paymentTransactionRepository.save(transaction);
-                    paymentScheduleRepository.save(nextSchedule);
-
-                    overpayment -= paymentAmount;
+                // Set status
+                if (schedule.getRemainingAmount() <= 0.01) {
+                        schedule.setStatus(PaymentStatus.COMPLETED);
+                        installment.setStatus(InstallmentStatus.COMPLETED);
+                        installmentRepository.save(installment);
+                } else {
+                        schedule.setStatus(PaymentStatus.PAID);
+                        if (installment.getStatus() == InstallmentStatus.PENDING) {
+                                installment.setStatus(InstallmentStatus.ACTIVE);
+                                installmentRepository.save(installment);
+                        }
                 }
-            }
+
+                PaymentSchedule savedSchedule = paymentScheduleRepository.save(schedule);
+
+                return mapToResponseDTO(savedSchedule, previousRemaining);
         }
-    }
 
-    /** Recalculate installment remaining amount from all schedules */
-    private void updateInstallmentRemainingAmount(Long installmentId) {
-        Installment installment = installmentRepository.findById(installmentId)
-                .orElseThrow(() -> new RuntimeException("Installment not found"));
 
-        double totalRemaining = installment.getPaymentSchedules().stream()
-                .mapToDouble(PaymentSchedule::getRemainingAmount)
-                .sum();
 
-        installment.setTotalRemainingAmount(totalRemaining);
-        installmentRepository.save(installment);
-    }
 
-    /** Get schedules for an installment */
-    public List<PaymentSchedule> getPaymentSchedulesByInstallment(Long installmentId) {
-        return paymentScheduleRepository.findByInstallmentIdOrderByDueDate(installmentId);
-    }
 
-    /** Get transactions for a schedule */
-    public List<PaymentTransaction> getPaymentTransactionsBySchedule(Long scheduleId) {
-        PaymentSchedule schedule = paymentScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new RuntimeException("Payment schedule not found"));
-        return schedule.getPaymentTransactions();
-    }
+        @Transactional(readOnly = true)
+        public List<PaymentScheduleResponseDTO> getPaymentsByInstallmentId(Long installmentId) {
+                List<PaymentSchedule> schedules = paymentScheduleRepository
+                                .findByInstallmentIdOrderByCreatedTimeDesc(installmentId);
 
-    public Optional<PaymentSchedule> findById(Long id) {
-        return paymentScheduleRepository.findById(id);
-    }
+                return schedules.stream()
+                                .map(s -> mapToResponseDTO(s, null))
+                                .collect(Collectors.toList());
+        }
 
-    public List<PaymentSchedule> getOverdueSchedules() {
-        return paymentScheduleRepository.findOverdueSchedules(LocalDate.now());
-    }
+        @Transactional(readOnly = true)
+        public PaymentScheduleResponseDTO getPaymentById(Long id) {
+                PaymentSchedule schedule = paymentScheduleRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Payment schedule not found with id: " + id));
+
+                return mapToResponseDTO(schedule, null);
+        }
+
+        @Transactional(readOnly = true)
+        public List<PaymentScheduleResponseDTO> getPaymentsByAgentId(Long agentId) {
+                // Verify agent exists
+                agentRepository.findById(agentId)
+                                .orElseThrow(() -> new RuntimeException("Agent not found with id: " + agentId));
+
+                List<PaymentSchedule> schedules = paymentScheduleRepository
+                                .findByCollectingAgentIdOrderByCreatedTimeDesc(agentId);
+
+                return schedules.stream()
+                                .map(s -> mapToResponseDTO(s, null))
+                                .collect(Collectors.toList());
+        }
+
+        @Transactional(readOnly = true)
+        public List<PaymentScheduleResponseDTO> getPaymentsByMemberId(Long memberId) {
+                List<PaymentSchedule> schedules = paymentScheduleRepository
+                                .findByInstallmentMemberIdOrderByCreatedTimeDesc(memberId);
+
+                return schedules.stream()
+                                .map(s -> mapToResponseDTO(s, null))
+                                .collect(Collectors.toList());
+        }
+
+        @Transactional
+        public void deletePayment(Long id) {
+                PaymentSchedule schedule = paymentScheduleRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Payment schedule not found with id: " + id));
+
+                // Recalculate installment status if deleting a payment
+                Installment installment = schedule.getInstallment();
+                paymentScheduleRepository.delete(schedule);
+
+                // Recalculate remaining amount and status
+                double totalPaid = installment.getPaymentSchedules()
+                                .stream()
+                                .filter(ps -> !ps.getId().equals(id))
+                                .mapToDouble(PaymentSchedule::getPaidAmount)
+                                .sum();
+
+                double remaining = installment.getNeedPaidAmount() - totalPaid;
+
+                if (remaining > 0.01) {
+                        if (totalPaid > 0) {
+                                installment.setStatus(InstallmentStatus.ACTIVE);
+                        } else {
+                                installment.setStatus(InstallmentStatus.PENDING);
+                        }
+                        installmentRepository.save(installment);
+                }
+        }
+
+        private PaymentScheduleResponseDTO mapToResponseDTO(PaymentSchedule schedule,
+                        Double previousRemaining) {
+                Installment installment = schedule.getInstallment();
+                Member member = installment.getMember();
+                Agent agent = schedule.getCollectingAgent();
+
+                int totalPayments = installment.getPaymentSchedules().size();
+
+                return PaymentScheduleResponseDTO.builder()
+                                .id(schedule.getId())
+                                .installmentId(installment.getId())
+                                .memberName(member.getName())
+                                .memberPhone(member.getPhone())
+                                .paidAmount(schedule.getPaidAmount())
+                                .totalAmount(schedule.getTotalAmount())
+                                .remainingAmount(schedule.getRemainingAmount())
+                                .status(schedule.getStatus())
+                                .agentName(agent.getName())
+                                .agentId(agent.getId())
+                                .paymentDate(schedule.getPaymentDate())
+                                .notes(schedule.getNotes())
+                                .createdTime(schedule.getCreatedTime())
+                                .updatedTime(schedule.getUpdatedTime())
+                                .previousRemainingAmount(previousRemaining)
+                                .isFullyPaid(schedule.getRemainingAmount() <= 0.01)
+                                .totalPaymentsMade(totalPayments)
+                                .build();
+        }
 }

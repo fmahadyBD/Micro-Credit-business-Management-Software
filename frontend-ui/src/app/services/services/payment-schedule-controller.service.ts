@@ -11,24 +11,20 @@ import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
 
-import { addPayment } from '../fn/payment-schedule-controller/add-payment';
-import { AddPayment$Params } from '../fn/payment-schedule-controller/add-payment';
-import { advancePayment } from '../fn/payment-schedule-controller/advance-payment';
-import { AdvancePayment$Params } from '../fn/payment-schedule-controller/advance-payment';
-import { editPayment } from '../fn/payment-schedule-controller/edit-payment';
-import { EditPayment$Params } from '../fn/payment-schedule-controller/edit-payment';
-import { getOverdueSchedules } from '../fn/payment-schedule-controller/get-overdue-schedules';
-import { GetOverdueSchedules$Params } from '../fn/payment-schedule-controller/get-overdue-schedules';
-import { getPaymentSchedules } from '../fn/payment-schedule-controller/get-payment-schedules';
-import { GetPaymentSchedules$Params } from '../fn/payment-schedule-controller/get-payment-schedules';
-import { getPaymentTransactions } from '../fn/payment-schedule-controller/get-payment-transactions';
-import { GetPaymentTransactions$Params } from '../fn/payment-schedule-controller/get-payment-transactions';
-import { handlePartialPayment } from '../fn/payment-schedule-controller/handle-partial-payment';
-import { HandlePartialPayment$Params } from '../fn/payment-schedule-controller/handle-partial-payment';
-import { PaymentSchedule } from '../models/payment-schedule';
-import { PaymentTransaction } from '../models/payment-transaction';
-import { updatePaymentSchedule } from '../fn/payment-schedule-controller/update-payment-schedule';
-import { UpdatePaymentSchedule$Params } from '../fn/payment-schedule-controller/update-payment-schedule';
+import { deletePayment } from '../fn/payment-schedule-controller/delete-payment';
+import { DeletePayment$Params } from '../fn/payment-schedule-controller/delete-payment';
+import { getMonthlyInstallmentAmount } from '../fn/payment-schedule-controller/get-monthly-installment-amount';
+import { GetMonthlyInstallmentAmount$Params } from '../fn/payment-schedule-controller/get-monthly-installment-amount';
+import { getPaymentById } from '../fn/payment-schedule-controller/get-payment-by-id';
+import { GetPaymentById$Params } from '../fn/payment-schedule-controller/get-payment-by-id';
+import { getPaymentsByAgent } from '../fn/payment-schedule-controller/get-payments-by-agent';
+import { GetPaymentsByAgent$Params } from '../fn/payment-schedule-controller/get-payments-by-agent';
+import { getPaymentsByInstallment } from '../fn/payment-schedule-controller/get-payments-by-installment';
+import { GetPaymentsByInstallment$Params } from '../fn/payment-schedule-controller/get-payments-by-installment';
+import { getPaymentsByMember } from '../fn/payment-schedule-controller/get-payments-by-member';
+import { GetPaymentsByMember$Params } from '../fn/payment-schedule-controller/get-payments-by-member';
+import { payInstallment } from '../fn/payment-schedule-controller/pay-installment';
+import { PayInstallment$Params } from '../fn/payment-schedule-controller/pay-installment';
 
 @Injectable({ providedIn: 'root' })
 export class PaymentScheduleControllerService extends BaseService {
@@ -36,203 +32,206 @@ export class PaymentScheduleControllerService extends BaseService {
     super(config, http);
   }
 
-  /** Path part for operation `updatePaymentSchedule()` */
-  static readonly UpdatePaymentSchedulePath = '/api/payment-schedules/{scheduleId}';
+  /** Path part for operation `payInstallment()` */
+  static readonly PayInstallmentPath = '/api/payment-schedules/pay';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `updatePaymentSchedule()` instead.
+   * To access only the response body, use `payInstallment()` instead.
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  updatePaymentSchedule$Response(params: UpdatePaymentSchedule$Params, context?: HttpContext): Observable<StrictHttpResponse<PaymentSchedule>> {
-    return updatePaymentSchedule(this.http, this.rootUrl, params, context);
+  payInstallment$Response(params: PayInstallment$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return payInstallment(this.http, this.rootUrl, params, context);
   }
 
   /**
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `updatePaymentSchedule$Response()` instead.
+   * To access the full response (for headers, for example), `payInstallment$Response()` instead.
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  updatePaymentSchedule(params: UpdatePaymentSchedule$Params, context?: HttpContext): Observable<PaymentSchedule> {
-    return this.updatePaymentSchedule$Response(params, context).pipe(
-      map((r: StrictHttpResponse<PaymentSchedule>): PaymentSchedule => r.body)
+  payInstallment(params: PayInstallment$Params, context?: HttpContext): Observable<{
+}> {
+    return this.payInstallment$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
     );
   }
 
-  /** Path part for operation `editPayment()` */
-  static readonly EditPaymentPath = '/api/payment-schedules/{scheduleId}/edit-payment';
+  /** Path part for operation `getPaymentById()` */
+  static readonly GetPaymentByIdPath = '/api/payment-schedules/{id}';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `editPayment()` instead.
+   * To access only the response body, use `getPaymentById()` instead.
    *
    * This method doesn't expect any request body.
    */
-  editPayment$Response(params: EditPayment$Params, context?: HttpContext): Observable<StrictHttpResponse<PaymentSchedule>> {
-    return editPayment(this.http, this.rootUrl, params, context);
+  getPaymentById$Response(params: GetPaymentById$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return getPaymentById(this.http, this.rootUrl, params, context);
   }
 
   /**
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `editPayment$Response()` instead.
+   * To access the full response (for headers, for example), `getPaymentById$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  editPayment(params: EditPayment$Params, context?: HttpContext): Observable<PaymentSchedule> {
-    return this.editPayment$Response(params, context).pipe(
-      map((r: StrictHttpResponse<PaymentSchedule>): PaymentSchedule => r.body)
+  getPaymentById(params: GetPaymentById$Params, context?: HttpContext): Observable<{
+}> {
+    return this.getPaymentById$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
     );
   }
 
-  /** Path part for operation `addPayment()` */
-  static readonly AddPaymentPath = '/api/payment-schedules/{scheduleId}/pay';
+  /** Path part for operation `deletePayment()` */
+  static readonly DeletePaymentPath = '/api/payment-schedules/{id}';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `addPayment()` instead.
+   * To access only the response body, use `deletePayment()` instead.
    *
    * This method doesn't expect any request body.
    */
-  addPayment$Response(params: AddPayment$Params, context?: HttpContext): Observable<StrictHttpResponse<PaymentSchedule>> {
-    return addPayment(this.http, this.rootUrl, params, context);
+  deletePayment$Response(params: DeletePayment$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return deletePayment(this.http, this.rootUrl, params, context);
   }
 
   /**
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `addPayment$Response()` instead.
+   * To access the full response (for headers, for example), `deletePayment$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  addPayment(params: AddPayment$Params, context?: HttpContext): Observable<PaymentSchedule> {
-    return this.addPayment$Response(params, context).pipe(
-      map((r: StrictHttpResponse<PaymentSchedule>): PaymentSchedule => r.body)
+  deletePayment(params: DeletePayment$Params, context?: HttpContext): Observable<{
+}> {
+    return this.deletePayment$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
     );
   }
 
-  /** Path part for operation `handlePartialPayment()` */
-  static readonly HandlePartialPaymentPath = '/api/payment-schedules/{scheduleId}/partial-pay';
+  /** Path part for operation `getPaymentsByMember()` */
+  static readonly GetPaymentsByMemberPath = '/api/payment-schedules/member/{memberId}';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `handlePartialPayment()` instead.
+   * To access only the response body, use `getPaymentsByMember()` instead.
    *
    * This method doesn't expect any request body.
    */
-  handlePartialPayment$Response(params: HandlePartialPayment$Params, context?: HttpContext): Observable<StrictHttpResponse<PaymentSchedule>> {
-    return handlePartialPayment(this.http, this.rootUrl, params, context);
+  getPaymentsByMember$Response(params: GetPaymentsByMember$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return getPaymentsByMember(this.http, this.rootUrl, params, context);
   }
 
   /**
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `handlePartialPayment$Response()` instead.
+   * To access the full response (for headers, for example), `getPaymentsByMember$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  handlePartialPayment(params: HandlePartialPayment$Params, context?: HttpContext): Observable<PaymentSchedule> {
-    return this.handlePartialPayment$Response(params, context).pipe(
-      map((r: StrictHttpResponse<PaymentSchedule>): PaymentSchedule => r.body)
+  getPaymentsByMember(params: GetPaymentsByMember$Params, context?: HttpContext): Observable<{
+}> {
+    return this.getPaymentsByMember$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
     );
   }
 
-  /** Path part for operation `advancePayment()` */
-  static readonly AdvancePaymentPath = '/api/payment-schedules/{scheduleId}/advance-pay';
+  /** Path part for operation `getPaymentsByInstallment()` */
+  static readonly GetPaymentsByInstallmentPath = '/api/payment-schedules/installment/{installmentId}';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `advancePayment()` instead.
+   * To access only the response body, use `getPaymentsByInstallment()` instead.
    *
    * This method doesn't expect any request body.
    */
-  advancePayment$Response(params: AdvancePayment$Params, context?: HttpContext): Observable<StrictHttpResponse<PaymentSchedule>> {
-    return advancePayment(this.http, this.rootUrl, params, context);
+  getPaymentsByInstallment$Response(params: GetPaymentsByInstallment$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return getPaymentsByInstallment(this.http, this.rootUrl, params, context);
   }
 
   /**
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `advancePayment$Response()` instead.
+   * To access the full response (for headers, for example), `getPaymentsByInstallment$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  advancePayment(params: AdvancePayment$Params, context?: HttpContext): Observable<PaymentSchedule> {
-    return this.advancePayment$Response(params, context).pipe(
-      map((r: StrictHttpResponse<PaymentSchedule>): PaymentSchedule => r.body)
+  getPaymentsByInstallment(params: GetPaymentsByInstallment$Params, context?: HttpContext): Observable<{
+}> {
+    return this.getPaymentsByInstallment$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
     );
   }
 
-  /** Path part for operation `getPaymentTransactions()` */
-  static readonly GetPaymentTransactionsPath = '/api/payment-schedules/{scheduleId}/transactions';
+  /** Path part for operation `getMonthlyInstallmentAmount()` */
+  static readonly GetMonthlyInstallmentAmountPath = '/api/payment-schedules/installment/{installmentId}/monthly-amount';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `getPaymentTransactions()` instead.
+   * To access only the response body, use `getMonthlyInstallmentAmount()` instead.
    *
    * This method doesn't expect any request body.
    */
-  getPaymentTransactions$Response(params: GetPaymentTransactions$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<PaymentTransaction>>> {
-    return getPaymentTransactions(this.http, this.rootUrl, params, context);
+  getMonthlyInstallmentAmount$Response(params: GetMonthlyInstallmentAmount$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return getMonthlyInstallmentAmount(this.http, this.rootUrl, params, context);
   }
 
   /**
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `getPaymentTransactions$Response()` instead.
+   * To access the full response (for headers, for example), `getMonthlyInstallmentAmount$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  getPaymentTransactions(params: GetPaymentTransactions$Params, context?: HttpContext): Observable<Array<PaymentTransaction>> {
-    return this.getPaymentTransactions$Response(params, context).pipe(
-      map((r: StrictHttpResponse<Array<PaymentTransaction>>): Array<PaymentTransaction> => r.body)
+  getMonthlyInstallmentAmount(params: GetMonthlyInstallmentAmount$Params, context?: HttpContext): Observable<{
+}> {
+    return this.getMonthlyInstallmentAmount$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
     );
   }
 
-  /** Path part for operation `getOverdueSchedules()` */
-  static readonly GetOverdueSchedulesPath = '/api/payment-schedules/overdue';
+  /** Path part for operation `getPaymentsByAgent()` */
+  static readonly GetPaymentsByAgentPath = '/api/payment-schedules/agent/{agentId}';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `getOverdueSchedules()` instead.
+   * To access only the response body, use `getPaymentsByAgent()` instead.
    *
    * This method doesn't expect any request body.
    */
-  getOverdueSchedules$Response(params?: GetOverdueSchedules$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<PaymentSchedule>>> {
-    return getOverdueSchedules(this.http, this.rootUrl, params, context);
+  getPaymentsByAgent$Response(params: GetPaymentsByAgent$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return getPaymentsByAgent(this.http, this.rootUrl, params, context);
   }
 
   /**
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `getOverdueSchedules$Response()` instead.
+   * To access the full response (for headers, for example), `getPaymentsByAgent$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  getOverdueSchedules(params?: GetOverdueSchedules$Params, context?: HttpContext): Observable<Array<PaymentSchedule>> {
-    return this.getOverdueSchedules$Response(params, context).pipe(
-      map((r: StrictHttpResponse<Array<PaymentSchedule>>): Array<PaymentSchedule> => r.body)
-    );
-  }
-
-  /** Path part for operation `getPaymentSchedules()` */
-  static readonly GetPaymentSchedulesPath = '/api/payment-schedules/installment/{installmentId}';
-
-  /**
-   * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `getPaymentSchedules()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  getPaymentSchedules$Response(params: GetPaymentSchedules$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<PaymentSchedule>>> {
-    return getPaymentSchedules(this.http, this.rootUrl, params, context);
-  }
-
-  /**
-   * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `getPaymentSchedules$Response()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  getPaymentSchedules(params: GetPaymentSchedules$Params, context?: HttpContext): Observable<Array<PaymentSchedule>> {
-    return this.getPaymentSchedules$Response(params, context).pipe(
-      map((r: StrictHttpResponse<Array<PaymentSchedule>>): Array<PaymentSchedule> => r.body)
+  getPaymentsByAgent(params: GetPaymentsByAgent$Params, context?: HttpContext): Observable<{
+}> {
+    return this.getPaymentsByAgent$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
     );
   }
 

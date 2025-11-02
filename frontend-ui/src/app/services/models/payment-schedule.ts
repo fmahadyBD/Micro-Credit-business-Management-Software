@@ -4,19 +4,20 @@
 
 import { Agent } from '../models/agent';
 import { Installment } from '../models/installment';
-import { PaymentTransaction } from '../models/payment-transaction';
+
+/**
+ * Payment schedules
+ */
 export interface PaymentSchedule {
   collectingAgent: Agent;
   createdTime?: string;
-  dueDate: string;
   id?: number;
   installment: Installment;
-  monthlyAmount: number;
   notes?: string;
   paidAmount: number;
   paymentDate?: string;
-  paymentTransactions?: Array<PaymentTransaction>;
   remainingAmount: number;
-  status: 'PENDING' | 'PARTIALLY_PAID' | 'PAID' | 'OVERDUE' | 'CANCELLED' | 'ADJUSTED';
+  status: 'PENDING' | 'PARTIALLY_PAID' | 'PAID' | 'OVERDUE' | 'CANCELLED' | 'ADJUSTED' | 'COMPLETED';
+  totalAmount: number;
   updatedTime?: string;
 }

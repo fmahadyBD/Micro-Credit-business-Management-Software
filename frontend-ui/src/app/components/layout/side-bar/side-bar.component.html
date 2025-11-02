@@ -38,10 +38,7 @@
       </a>
     </li>
 
-    <!-- Update in side-bar.component.html -->
-    <!-- Add this after the Agents section and before the Installment section -->
-
-    <!-- ✅ Products -->
+    <!-- Products -->
     <li class="menu-item">
       <a href="#" class="menu-link" (click)="toggleSubmenu($event, 6)">
         <span class="menu-icon"><i class="fas fa-box"></i></span>
@@ -113,7 +110,7 @@
       </ul>
     </li>
 
-    <!-- ✅ Members -->
+    <!-- Members -->
     <li class="menu-item">
       <a href="#" class="menu-link" (click)="toggleSubmenu($event, 1)">
         <span class="menu-icon"><i class="fas fa-id-badge"></i></span>
@@ -145,7 +142,7 @@
       </ul>
     </li>
 
-    <!-- ✅ Agents -->
+    <!-- Agents -->
     <li class="menu-item">
       <a href="#" class="menu-link" (click)="toggleSubmenu($event, 2)">
         <span class="menu-icon"><i class="fas fa-user-secret"></i></span>
@@ -177,8 +174,7 @@
       </ul>
     </li>
 
-    <!-- Installment -->
-    <!-- Installment -->
+    <!-- Installments -->
     <li class="menu-item">
       <a href="#" class="menu-link" (click)="toggleSubmenu($event, 7)">
         <span class="menu-icon"><i class="fas fa-credit-card"></i></span>
@@ -192,12 +188,12 @@
       </a>
       <ul class="submenu" [class.show]="activeSubmenu === 7">
         <li>
-          <!-- <a
+          <a
             href="#"
             class="submenu-link"
             (click)="handleSubmenuClick($event, 'all-installments')"
             >All Installments</a
-          > -->
+          >
         </li>
         <li>
           <a
@@ -205,6 +201,38 @@
             class="submenu-link"
             (click)="handleSubmenuClick($event, 'add-installment')"
             >Add Installment</a
+          >
+        </li>
+      </ul>
+    </li>
+
+    <!-- ✅ NEW: Payment Schedules -->
+    <li class="menu-item">
+      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 8)">
+        <span class="menu-icon"><i class="fas fa-money-bill-wave"></i></span>
+        <span class="menu-text">Payments</span>
+        <span class="menu-arrow"
+          ><i
+            class="fas fa-chevron-right"
+            [class.rotated]="activeSubmenu === 8"
+          ></i
+        ></span>
+      </a>
+      <ul class="submenu" [class.show]="activeSubmenu === 8">
+        <li>
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'payment-schedules')"
+            >Payment Schedules</a
+          >
+        </li>
+        <li>
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'record-payment')"
+            >Record Payment</a
           >
         </li>
       </ul>

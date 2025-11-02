@@ -1,0 +1,228 @@
+<main class="main-content" [class.collapsed]="isSidebarCollapsed">
+  <div class="container mt-3">
+    <h2>Payment Schedule Management</h2>
+
+    <!-- Search Section -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label">Search by Member Name, Product Name, or Phone</label>
+          <input type="text" [(ngModel)]="searchTerm" placeholder="Enter member name, product name, or phone number..."
+            class="form-control" (keyup.enter)="onSearch()" />
+        </div>
+
+        <button class="btn btn-primary me-2" (click)="onSearch()" [disabled]="isSearching">
+          <span *ngIf="isSearching" class="spinner-border spinner-border-sm me-2"></span>
+          {{ isSearching ? "Searching..." : "Search" }}
+        </button>
+
+        <button class="btn btn-secondary" (click)="clearSelection()" [disabled]="isSearching">
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show">
+      {{ errorMessage }}
+      <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show">
+      {{ successMessage }}
+      <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+    </div>
+
+    <!-- Search Results -->
+    <div *ngIf="installments.length > 0" class="card mb-3">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          Search Results ({{ installments.length }})
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="list-group">
+          <a *ngFor="let inst of installments" (click)="selectInstallment(inst)"
+            [class.active]="selectedInstallment?.id === inst.id" class="list-group-item list-group-item-action"
+            style="cursor: pointer">
+            <div class="d-flex w-100 justify-content-between">
+              <h6 class="mb-1">
+                <strong>{{ inst.member.name }}</strong> -
+                {{ inst.member.phone }}
+              </h6>
+              <small [class]="getStatusClass(inst.status)">{{
+                inst.status
+                }}</small>
+            </div>
+            <p class="mb-1" *ngIf="inst.product">
+              <strong>Product:</strong> {{ inst.product.name }} -
+              {{ inst.product.category }}
+            </p>
+
+
+
+
+
+            <small class="text-muted">
+              <strong>Total Amount:</strong>
+              {{ formatCurrency(inst.totalAmountWithInterest) }} ৳ |
+              <strong>Remaining:</strong>
+              {{ formatCurrency(inst.needPaidAmount) }} ৳ |
+              <strong>Monthly:</strong>
+              {{ formatCurrency(inst.monthlyInstallmentAmount) }} ৳
+            </small>
+
+
+
+
+          </a>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+    <!-- Selected Installment Details -->
+    <div *ngIf="selectedInstallment" class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Payment Details</h5>
+        <button class="btn btn-sm btn-outline-secondary" (click)="clearSelection()">
+          Change Selection
+        </button>
+      </div>
+      <div class="card-body">
+        <!-- Installment Summary -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <h6>Member Information</h6>
+            <p class="mb-1">
+              <strong>Name:</strong> {{ selectedInstallment.member.name }}
+            </p>
+            <p class="mb-1">
+              <strong>Phone:</strong> {{ selectedInstallment.member.phone }}
+            </p>
+            <p class="mb-0">
+              <strong>Status:</strong>
+              <span [class]="getStatusClass(selectedInstallment.status)">
+                {{ selectedInstallment.status }}
+              </span>
+            </p>
+          </div>
+          <div class="col-md-6">
+            <h6>Product Information</h6>
+            <p class="mb-1" *ngIf="selectedInstallment.product">
+              <strong>Product:</strong> {{ selectedInstallment.product.name }}
+            </p>
+            <p class="mb-1" *ngIf="selectedInstallment.product">
+              <strong>Category:</strong>
+              {{ selectedInstallment.product.category }}
+            </p>
+
+
+
+
+
+
+            <p class="mb-0">
+              <strong>Total Amount:</strong>
+              {{
+              formatCurrency(selectedInstallment.totalAmountWithInterest)
+              }}
+              ৳
+            </p>
+
+
+
+
+            
+          </div>
+        </div>
+
+
+
+
+
+
+
+        <!-- Amount Summary -->
+        <div class="row mb-4">
+          <div class="col-md-4">
+            <div class="card bg-light">
+              <div class="card-body text-center">
+                <h6 class="card-title">Total Paid</h6>
+                <h4 class="text-success">
+                  {{ formatCurrency(getTotalPaidAmount()) }} ৳
+                </h4>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card bg-light">
+              <div class="card-body text-center">
+                <h6 class="card-title">Remaining</h6>
+                <h4 class="text-danger">
+                  {{ formatCurrency(getRemainingAmount()) }} ৳
+                </h4>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card bg-light">
+              <div class="card-body text-center">
+                <h6 class="card-title">Monthly</h6>
+                <h4 class="text-info">
+                  {{
+                  formatCurrency(selectedInstallment.monthlyInstallmentAmount)
+                  }}
+                  ৳
+                </h4>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+        <!-- Payment Form -->
+        <form (ngSubmit)="onPayInstallment()">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Payment Amount (৳)</label>
+                <input type="number" [(ngModel)]="paymentAmount" name="paymentAmount" class="form-control" step="0.01"
+                  min="0.01" [max]="getRemainingAmount()" required />
+                <div class="form-text">
+                  Maximum amount: {{ formatCurrency(getRemainingAmount()) }} ৳
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Notes (Optional)</label>
+                <textarea [(ngModel)]="notes" name="notes" class="form-control" rows="3"
+                  placeholder="Add any notes about this payment..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-success" [disabled]="isSubmitting || getRemainingAmount() <= 0">
+            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+            {{ isSubmitting ? "Processing..." : "Submit Payment" }}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>

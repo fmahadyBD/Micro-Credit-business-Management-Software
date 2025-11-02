@@ -5,6 +5,10 @@
 import { Agent } from '../models/agent';
 import { Installment } from '../models/installment';
 import { Member } from '../models/member';
+
+/**
+ * Product details
+ */
 export interface Product {
   category?: string;
   costPrice?: number;

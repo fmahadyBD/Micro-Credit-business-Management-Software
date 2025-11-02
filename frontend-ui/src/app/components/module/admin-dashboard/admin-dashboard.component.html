@@ -16,9 +16,7 @@
   <!-- 👥 Users -->
   <app-all-users *ngIf="currentView === 'all-users'"></app-all-users>
   <app-add-new-user *ngIf="currentView === 'add-user'"></app-add-new-user>
-  <app-deleted-users
-    *ngIf="currentView === 'deleted-users'"
-  ></app-deleted-users>
+  <app-deleted-users *ngIf="currentView === 'deleted-users'"></app-deleted-users>
 
   <!-- 👨‍👩‍👧 Members -->
   <app-all-members *ngIf="currentView === 'all-members'"></app-all-members>
@@ -33,7 +31,6 @@
     *ngIf="currentView === 'user-details' && selectedUserId !== null"
     [userId]="selectedUserId!"
   ></app-user-details>
-
   <app-edit-user
     *ngIf="currentView === 'edit-user' && selectedUserId !== null"
     [userId]="selectedUserId!"
@@ -44,23 +41,16 @@
     *ngIf="currentView === 'member-details' && selectedMemberId !== null"
     [memberId]="selectedMemberId!"
   ></app-member-details>
-
   <app-edit-member
     *ngIf="currentView === 'edit-member' && selectedMemberId !== null"
     [memberId]="selectedMemberId!"
   ></app-edit-member>
-
-  <!-- Agent Details & Edit (remove input bindings) -->
-  <!-- <app-agent-details
-    *ngIf="currentView === 'agent-details'"
-  ></app-agent-details> -->
 
   <!-- Agent Details & Edit -->
   <app-agent-details
     *ngIf="currentView === 'agent-details' && selectedAgentId !== null"
     [agentId]="selectedAgentId!"
   ></app-agent-details>
-
   <app-update-agent
     *ngIf="currentView === 'edit-agent' && selectedAgentId !== null"
     [agentId]="selectedAgentId!"
@@ -70,19 +60,11 @@
   <app-all-products *ngIf="currentView === 'all-products'"></app-all-products>
   <app-add-product *ngIf="currentView === 'add-product'"></app-add-product>
 
-  <!-- <app-product-details
-    *ngIf="currentView === 'product-details' && selectedProductId !== null"
-    [productId]="selectedProductId!"
-  ></app-product-details> -->
-
-  <!-- <app-edit-product
-    *ngIf="currentView === 'edit-product' && selectedProductId !== null"
-    [productId]="selectedProductId!"
-  ></app-edit-product> -->
-
-
-
   <!-- 💳 Installments -->
-<app-add-installment *ngIf="currentView === 'add-installment'"></app-add-installment>
+  <app-add-installment *ngIf="currentView === 'add-installment'"></app-add-installment>
 
+  <!-- ✅ NEW: 💰 Payment Schedules -->
+  <app-payment-schedule 
+    *ngIf="currentView === 'payment-schedules' || currentView === 'record-payment'">
+  </app-payment-schedule>
 </main>

@@ -26,7 +26,8 @@ public class Installment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+
     @JoinColumn(name = "product_id")
     @JsonIgnoreProperties({ "installment" })
     private Product product;
@@ -91,19 +92,16 @@ public class Installment {
     @JsonManagedReference("installment-payments")
     private List<PaymentSchedule> paymentSchedules = new ArrayList<>();
 
-    @Column(nullable = false)
-    private Double totalRemainingAmount;
-
     @PrePersist
     @PreUpdate
     private void calculateAmounts() {
-        Double totalWithInterest = totalAmountOfProduct
-                + (totalAmountOfProduct * (interestRate != null ? interestRate : 15.0) / 100);
-        Double calculatedNeedPaid = totalWithInterest + (otherCost != null ? otherCost : 0.0)
-                - (advanced_paid != null ? advanced_paid : 0.0);
+        double safeInterestRate = interestRate != null ? interestRate : 15.0;
+        double safeTotal = totalAmountOfProduct != null ? totalAmountOfProduct : 0.0;
+        double safeOtherCost = otherCost != null ? otherCost : 0.0;
+        double safeAdvanced = advanced_paid != null ? advanced_paid : 0.0;
 
-        this.needPaidAmount = Math.max(calculatedNeedPaid, 0.0);
-        this.totalRemainingAmount = this.needPaidAmount;
+        double totalWithInterest = safeTotal + (safeTotal * safeInterestRate / 100);
+        this.needPaidAmount = Math.max(totalWithInterest + safeOtherCost - safeAdvanced, 0.0);
 
         if (status == null)
             status = InstallmentStatus.PENDING;

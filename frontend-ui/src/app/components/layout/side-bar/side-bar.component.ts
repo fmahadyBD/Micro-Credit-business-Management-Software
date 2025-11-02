@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
 import { CommonModule } from '@angular/common';
 
+
 @Component({
   selector: 'app-side-bar',
   standalone: true,
@@ -12,7 +13,6 @@ import { CommonModule } from '@angular/common';
 })
 export class SideBarComponent implements OnInit, OnDestroy {
   @Input() collapsed = false;
-
   @Output() submenuSelected = new EventEmitter<
     | 'dashboard'
     | 'all-users' | 'add-user' | 'deleted-users'
@@ -20,11 +20,11 @@ export class SideBarComponent implements OnInit, OnDestroy {
     | 'all-agents' | 'add-agent'
     | 'all-products' | 'add-product'
     | 'all-installments' | 'add-installment'
+    | 'payment-schedules' | 'record-payment'
   >();
 
   sidebarOpen = false;
   activeSubmenu: number | null = null;
-
   private mobileSubscription?: Subscription;
   private collapseSubscription?: Subscription;
 
@@ -68,11 +68,11 @@ export class SideBarComponent implements OnInit, OnDestroy {
       | 'all-members' | 'add-member'
       | 'all-agents' | 'add-agent'
       | 'all-products' | 'add-product'
-      | 'add-installment'
+      | 'all-installments' | 'add-installment'
+      | 'payment-schedules' | 'record-payment'
   ) {
     event.preventDefault();
     event.stopPropagation();
-
     if (view) this.submenuSelected.emit(view);
     if (window.innerWidth < 768) this.closeSidebar();
   }
