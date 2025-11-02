@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import com.fmahadybd.backend.dto.InstallmentBalanceDTO;
 import com.fmahadybd.backend.dto.PaymentScheduleRequestDTO;
 import com.fmahadybd.backend.dto.PaymentScheduleResponseDTO;
 import com.fmahadybd.backend.service.PaymentScheduleService;
@@ -136,4 +138,19 @@ public class PaymentScheduleController {
                     .body(Map.of("error", "Internal server error", "message", e.getMessage()));
         }
     }
+
+    @GetMapping("/installment/{installmentId}/balance")
+    public ResponseEntity<?> getRemainingBalance(@PathVariable Long installmentId) {
+        try {
+            InstallmentBalanceDTO balance = paymentScheduleService.getRemainingBalanceByInstallmentId(installmentId);
+            return ResponseEntity.ok(balance);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Installment not found", "message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal server error", "message", e.getMessage()));
+        }
+    }
+
 }

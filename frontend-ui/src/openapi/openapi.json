@@ -416,8 +416,8 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "Installment found",
+                    "404": {
+                        "description": "Installment not found",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -426,8 +426,8 @@
                             }
                         }
                     },
-                    "404": {
-                        "description": "Installment not found",
+                    "200": {
+                        "description": "Installment found",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1638,8 +1638,8 @@
                     "required": true
                 },
                 "responses": {
-                    "400": {
-                        "description": "Invalid input",
+                    "201": {
+                        "description": "Installment created successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1648,8 +1648,8 @@
                             }
                         }
                     },
-                    "201": {
-                        "description": "Installment created successfully",
+                    "400": {
+                        "description": "Invalid input",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1785,8 +1785,8 @@
                     }
                 },
                 "responses": {
-                    "400": {
-                        "description": "Invalid input",
+                    "201": {
+                        "description": "Installment created successfully with images",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1795,8 +1795,8 @@
                             }
                         }
                     },
-                    "201": {
-                        "description": "Installment created successfully with images",
+                    "400": {
+                        "description": "Invalid input",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2774,6 +2774,37 @@
                     "payment-schedule-controller"
                 ],
                 "operationId": "getMonthlyInstallmentAmount",
+                "parameters": [
+                    {
+                        "name": "installmentId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment-schedules/installment/{installmentId}/balance": {
+            "get": {
+                "tags": [
+                    "payment-schedule-controller"
+                ],
+                "operationId": "getRemainingBalance",
                 "parameters": [
                     {
                         "name": "installmentId",

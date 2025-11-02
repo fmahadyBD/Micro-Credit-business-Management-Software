@@ -3,6 +3,8 @@ package com.fmahadybd.backend.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.fmahadybd.backend.dto.InstallmentBalanceDTO;
 import com.fmahadybd.backend.dto.PaymentScheduleRequestDTO;
 import com.fmahadybd.backend.dto.PaymentScheduleResponseDTO;
 import com.fmahadybd.backend.entity.*;
@@ -43,16 +45,16 @@ public class PaymentScheduleService {
                                 .mapToDouble(PaymentSchedule::getPaidAmount)
                                 .sum();
 
-                System.out.println("Total Pid: "+ totalPaid);
+                System.out.println("Total Pid: " + totalPaid);
 
                 double previousRemaining = Math.max(installment.getNeedPaidAmount() - totalPaid, 0.0);
 
-                System.out.println("Remaing Balance: "+ previousRemaining);
+                System.out.println("Remaing Balance: " + previousRemaining);
 
                 // Validate payment amount
                 // if (request.getAmount() >= previousRemaining) {
-                //         throw new IllegalArgumentException("Payment amount (" + request.getAmount()
-                //                         + ") exceeds remaining amount (" + previousRemaining + ")");
+                // throw new IllegalArgumentException("Payment amount (" + request.getAmount()
+                // + ") exceeds remaining amount (" + previousRemaining + ")");
                 // }
 
                 // Create payment schedule
@@ -86,10 +88,6 @@ public class PaymentScheduleService {
                 return mapToResponseDTO(savedSchedule, previousRemaining);
         }
 
-
-
-
-
         @Transactional(readOnly = true)
         public List<PaymentScheduleResponseDTO> getPaymentsByInstallmentId(Long installmentId) {
                 List<PaymentSchedule> schedules = paymentScheduleRepository
@@ -98,6 +96,33 @@ public class PaymentScheduleService {
                 return schedules.stream()
                                 .map(s -> mapToResponseDTO(s, null))
                                 .collect(Collectors.toList());
+        }
+
+        @Transactional(readOnly = true)
+        public InstallmentBalanceDTO getRemainingBalanceByInstallmentId(Long installmentId) {
+                Installment installment = installmentRepository.findById(installmentId)
+                                .orElseThrow(() -> new RuntimeException(
+                                                "Installment not found with id: " + installmentId));
+
+                // Calculate total paid amount
+                Double totalPaid = paymentScheduleRepository.findTotalPaidAmountByInstallmentId(installmentId);
+
+                // Get total payments count
+                List<PaymentSchedule> payments = paymentScheduleRepository
+                                .findByInstallmentIdOrderByCreatedTimeDesc(installmentId);
+                int totalPayments = payments.size();
+
+                // Calculate remaining balance
+                Double remainingBalance = Math.max(installment.getNeedPaidAmount() - totalPaid, 0.0);
+
+                return InstallmentBalanceDTO.builder()
+                                .installmentId(installmentId)
+                                .totalAmount(installment.getNeedPaidAmount())
+                                .totalPaid(totalPaid)
+                                .remainingBalance(remainingBalance)
+                                .totalPayments(totalPayments)
+                                .status(installment.getStatus().toString())
+                                .build();
         }
 
         @Transactional(readOnly = true)

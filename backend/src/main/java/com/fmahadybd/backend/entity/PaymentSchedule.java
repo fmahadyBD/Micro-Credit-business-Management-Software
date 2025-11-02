@@ -28,23 +28,25 @@ public class PaymentSchedule {
     private Long id;
 
     @NotNull
+    // @ManyToOne(fetch = FetchType.LAZY)
+    // @JoinColumn(name = "installment_id", nullable = false)
+    // @JsonBackReference("installment-payments")
+    // private Installment installment;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "installment_id", nullable = false)
-    @JsonBackReference("installment-payments")
+    @JsonBackReference("installment-payments") // ✅ This prevents serialization
     private Installment installment;
-
 
     @NotNull
     @PositiveOrZero
     @Column(nullable = false)
     private Double paidAmount = 0.00;
 
-
-
     @NotNull
     @PositiveOrZero
     @Column(nullable = false)
-    private Double totalAmount ;
+    private Double totalAmount;
 
     @NotNull
     @PositiveOrZero
@@ -64,7 +66,6 @@ public class PaymentSchedule {
 
     private LocalDate paymentDate;
     private String notes;
-
 
     @Column(name = "created_time", nullable = false, updatable = false)
     private LocalDateTime createdTime;

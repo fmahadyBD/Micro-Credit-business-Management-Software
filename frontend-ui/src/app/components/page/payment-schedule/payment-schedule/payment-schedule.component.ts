@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-  PaymentScheduleControllerService, 
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  PaymentScheduleControllerService,
   InstallmentManagementService
 } from '../../../../services/services';
 import { InstallmentResponseDto } from '../../../../services/models/installment-response-dto';
 import { PaymentScheduleRequestDto } from '../../../../services/models/payment-schedule-request-dto';
 import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
+import { InstallmentBalance } from '../../../../service/models/InstallmentBalance';
 
 @Component({
   selector: 'app-payment-schedule',
@@ -19,37 +21,41 @@ import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service
 export class PaymentScheduleComponent implements OnInit {
 
   // Search properties
-  searchQuery: string = '';
+  searchQuery = '';
   searchResults: InstallmentResponseDto[] = [];
   selectedInstallment: InstallmentResponseDto | null = null;
-  
+
   // Payment schedule properties
-  paymentAmount: number = 0;
-  notes: string = '';
-  totalAmount: number =0;
-  reamingAmount: number =0;
-  monthlyAmount: number =0;
-  
+  paymentAmount = 0;
+  notes = '';
+
+  // Balance data
+  balanceData: InstallmentBalance | null = null;
+
   // UI state
-  isLoading: boolean = false;
-  isSearching: boolean = false;
-  isSubmitting: boolean = false;
-  errorMessage: string = '';
-  successMessage: string = '';
+  isLoading = false;
+  isSearching = false;
+  isSubmitting = false;
+  errorMessage = '';
+  successMessage = '';
   isSidebarCollapsed = false;
 
   constructor(
     private installmentService: InstallmentManagementService,
     private paymentService: PaymentScheduleControllerService,
-     private sidebarService: SidebarTopbarService
-  ) {}
+    private sidebarService: SidebarTopbarService
+  ) {
+    // Subscribe to sidebar state with automatic cleanup
+    this.sidebarService.isCollapsed$
+      .pipe(takeUntilDestroyed())
+      .subscribe(collapsed => {
+        this.isSidebarCollapsed = collapsed;
+      });
+  }
 
   ngOnInit(): void {
-    this.sidebarService.isCollapsed$.subscribe(collapsed => {
-      this.isSidebarCollapsed = collapsed;
-    });
+    // Initialization logic if needed
   }
-  
 
   // Search installments by product name, member name, or phone
   onSearch(): void {
@@ -60,9 +66,10 @@ export class PaymentScheduleComponent implements OnInit {
 
     this.isSearching = true;
     this.errorMessage = '';
+    this.successMessage = '';
     this.searchResults = [];
 
-    this.installmentService.searchInstallment({ 
+    this.installmentService.searchInstallment({
       keyword: this.searchQuery
     } as any)
       .subscribe({
@@ -74,14 +81,14 @@ export class PaymentScheduleComponent implements OnInit {
           } else {
             this.searchResults = [installments];
           }
-          
+
           if (this.searchResults.length === 0) {
             this.errorMessage = 'No installments found matching your search';
           }
         },
         error: (error) => {
           this.isSearching = false;
-          this.errorMessage = 'Error searching installments: ' + (error.error?.message || error.message);
+          this.errorMessage = 'Unable to search installments. Please try again.';
           console.error('Search error:', error);
         }
       });
@@ -92,11 +99,36 @@ export class PaymentScheduleComponent implements OnInit {
     this.selectedInstallment = installment;
     this.errorMessage = '';
     this.successMessage = '';
-    
+    this.balanceData = null;
+
     // Set default payment amount to monthly installment amount
     if (installment.monthlyInstallmentAmount) {
       this.paymentAmount = installment.monthlyInstallmentAmount;
     }
+
+    // Load balance data immediately
+    this.loadBalanceData();
+  }
+
+  // Load balance data for selected installment
+  private loadBalanceData(): void {
+    if (!this.selectedInstallment?.id) return;
+
+    this.isLoading = true;
+
+    this.paymentService.getRemainingBalance({
+      installmentId: this.selectedInstallment.id
+    }).subscribe({
+      next: (response: any) => {  // Change back to 'any'
+        this.balanceData = response;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading balance:', error);
+        this.errorMessage = 'Unable to load balance information';
+        this.isLoading = false;
+      }
+    });
   }
 
   // Submit payment
@@ -111,8 +143,9 @@ export class PaymentScheduleComponent implements OnInit {
       return;
     }
 
-    if (this.paymentAmount > this.getRemainingAmount()) {
-      this.errorMessage = 'Payment amount cannot exceed remaining amount';
+    const remainingAmount = this.getRemainingAmount();
+    if (this.paymentAmount > remainingAmount) {
+      this.errorMessage = `Payment amount cannot exceed remaining amount of ${this.formatCurrency(remainingAmount)}`;
       return;
     }
 
@@ -120,7 +153,6 @@ export class PaymentScheduleComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    // Use the correct property names from PaymentScheduleRequestDto
     const paymentRequest: PaymentScheduleRequestDto = {
       installmentId: this.selectedInstallment.id!,
       amount: this.paymentAmount,
@@ -132,45 +164,48 @@ export class PaymentScheduleComponent implements OnInit {
       .subscribe({
         next: () => {
           this.isSubmitting = false;
-          this.successMessage = 'Payment submitted successfully!';
-          
+          this.successMessage = `Payment of ${this.formatCurrency(this.paymentAmount)} submitted successfully!`;
+
           // Reset form
           this.paymentAmount = this.selectedInstallment?.monthlyInstallmentAmount || 0;
           this.notes = '';
-          
-          // Reload installment data to update remaining amount
+
+          // Reload installment and balance data
           this.reloadInstallmentData();
         },
         error: (error) => {
           this.isSubmitting = false;
-          this.errorMessage = 'Error submitting payment: ' + (error.error?.message || error.message);
+          this.errorMessage = 'Unable to process payment. Please try again.';
           console.error('Payment error:', error);
         }
       });
   }
 
-// TODO this work need to do
+  // Get remaining amount
   getRemainingAmount(): number {
-    if (!this.selectedInstallment) return 0;
-
-
-    return this.selectedInstallment.needPaidAmount || 0;
+    return this.balanceData?.remainingBalance || 0;
   }
 
-// TODO this work need to do
+  // Get total paid amount
   getTotalPaidAmount(): number {
     if (!this.selectedInstallment) return 0;
-    return (this.selectedInstallment.advanced_paid || 0);
+
+    if (this.balanceData) {
+      return this.balanceData.totalPaid;
+    }
+    return this.selectedInstallment.advanced_paid || 0;
   }
 
   // Reload installment data after payment
-  reloadInstallmentData(): void {
+  private reloadInstallmentData(): void {
     if (!this.selectedInstallment?.id) return;
 
     this.installmentService.getInstallmentById({ id: this.selectedInstallment.id })
       .subscribe({
         next: (updatedInstallment) => {
           this.selectedInstallment = updatedInstallment;
+          // Reload balance after getting updated installment
+          this.loadBalanceData();
         },
         error: (error) => {
           console.error('Error reloading installment:', error);
@@ -187,6 +222,7 @@ export class PaymentScheduleComponent implements OnInit {
     this.notes = '';
     this.errorMessage = '';
     this.successMessage = '';
+    this.balanceData = null;
   }
 
   // Format currency

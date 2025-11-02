@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -88,8 +89,13 @@ public class Installment {
     @Column(name = "created_time", nullable = false, updatable = false)
     private LocalDateTime createdTime;
 
+    // @OneToMany(mappedBy = "installment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    // @JsonManagedReference("installment-payments")
+    // private List<PaymentSchedule> paymentSchedules = new ArrayList<>();
+
     @OneToMany(mappedBy = "installment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference("installment-payments")
+    @JsonManagedReference("installment-payments") // ✅ This allows serialization
+    @JsonIgnore // ✅ ADD THIS for extra safety
     private List<PaymentSchedule> paymentSchedules = new ArrayList<>();
 
     @PrePersist

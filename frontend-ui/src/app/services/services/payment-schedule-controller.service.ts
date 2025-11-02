@@ -23,6 +23,8 @@ import { getPaymentsByInstallment } from '../fn/payment-schedule-controller/get-
 import { GetPaymentsByInstallment$Params } from '../fn/payment-schedule-controller/get-payments-by-installment';
 import { getPaymentsByMember } from '../fn/payment-schedule-controller/get-payments-by-member';
 import { GetPaymentsByMember$Params } from '../fn/payment-schedule-controller/get-payments-by-member';
+import { getRemainingBalance } from '../fn/payment-schedule-controller/get-remaining-balance';
+import { GetRemainingBalance$Params } from '../fn/payment-schedule-controller/get-remaining-balance';
 import { payInstallment } from '../fn/payment-schedule-controller/pay-installment';
 import { PayInstallment$Params } from '../fn/payment-schedule-controller/pay-installment';
 
@@ -200,6 +202,35 @@ export class PaymentScheduleControllerService extends BaseService {
   getMonthlyInstallmentAmount(params: GetMonthlyInstallmentAmount$Params, context?: HttpContext): Observable<{
 }> {
     return this.getMonthlyInstallmentAmount$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+}>): {
+} => r.body)
+    );
+  }
+
+  /** Path part for operation `getRemainingBalance()` */
+  static readonly GetRemainingBalancePath = '/api/payment-schedules/installment/{installmentId}/balance';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getRemainingBalance()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getRemainingBalance$Response(params: GetRemainingBalance$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+}>> {
+    return getRemainingBalance(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getRemainingBalance$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getRemainingBalance(params: GetRemainingBalance$Params, context?: HttpContext): Observable<{
+}> {
+    return this.getRemainingBalance$Response(params, context).pipe(
       map((r: StrictHttpResponse<{
 }>): {
 } => r.body)
