@@ -26,7 +26,7 @@ public class Installment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
 
     @JoinColumn(name = "product_id")
     @JsonIgnoreProperties({ "installment" })
