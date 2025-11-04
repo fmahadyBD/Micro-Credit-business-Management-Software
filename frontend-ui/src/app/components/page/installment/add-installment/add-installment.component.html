@@ -52,6 +52,9 @@
                         <small class="text-success ms-2">
                           <i class="fas fa-money-bill me-1"></i>৳{{ product.price }}
                         </small>
+                        <small *ngIf="product.whoRequestName" class="text-info d-block mt-1">
+                          <i class="fas fa-user me-1"></i>{{ product.whoRequestName }}
+                        </small>
                       </div>
                     </button>
                     <div *ngIf="filteredProducts.length === 0" class="dropdown-item text-muted">
@@ -65,6 +68,9 @@
                       <strong>Selected:</strong> {{ selectedProduct.name }}<br>
                       <i class="fas fa-tag me-1"></i>{{ selectedProduct.category }} |
                       <i class="fas fa-money-bill me-1"></i>৳{{ selectedProduct.price }}
+                      <span *ngIf="selectedProduct.whoRequestName" class="d-block mt-1">
+                        <i class="fas fa-user me-1"></i>Member: {{ selectedProduct.whoRequestName }}
+                      </span>
                     </small>
                   </div>
                 </div>
@@ -157,16 +163,14 @@
                 <label class="form-label">
                   <i class="fas fa-user me-2"></i>Member (Auto-selected from Product)
                 </label>
-                <div *ngIf="selectedMember" class="alert alert-info py-2 px-3">
+                <div *ngIf="memberName && memberName !== 'No member assigned'" class="alert alert-info py-2 px-3">
                   <small>
-                    <strong>{{ selectedMember.name }}</strong><br>
-                    <i class="fas fa-phone me-1"></i>{{ selectedMember.phone }} |
-                    <i class="fas fa-id-card me-1"></i>{{ selectedMember.nidCardNumber }}<br>
-                    <i class="fas fa-map-marker-alt me-1"></i>{{ selectedMember.village }}, {{ selectedMember.zila }}
+                    <strong>{{ memberName }}</strong><br>
+                    <i class="fas fa-info-circle me-1"></i>Member information comes from the selected product
                   </small>
                 </div>
-                <div *ngIf="!selectedMember" class="alert alert-warning py-2 px-3">
-                  <small><i class="fas fa-info-circle me-1"></i>Select a product to auto-populate member</small>
+                <div *ngIf="!memberName || memberName === 'No member assigned'" class="alert alert-warning py-2 px-3">
+                  <small><i class="fas fa-info-circle me-1"></i>Select a product to see member information</small>
                 </div>
               </div>
 

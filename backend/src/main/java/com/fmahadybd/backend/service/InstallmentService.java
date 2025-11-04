@@ -5,18 +5,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
-// import jakarta.transaction.Transactional;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fmahadybd.backend.dto.InstallmentCreateDTO;
 import com.fmahadybd.backend.dto.InstallmentResponseDTO;
 import com.fmahadybd.backend.dto.InstallmentUpdateDTO;
+import com.fmahadybd.backend.entity.Agent;
 import com.fmahadybd.backend.entity.Installment;
+import com.fmahadybd.backend.entity.InstallmentStatus;
 import com.fmahadybd.backend.entity.Product;
 import com.fmahadybd.backend.mapper.InstallmentMapper;
+import com.fmahadybd.backend.repository.AgentRepository;
 import com.fmahadybd.backend.repository.InstallmentRepository;
 import com.fmahadybd.backend.repository.ProductRepository;
 
@@ -29,41 +31,20 @@ public class InstallmentService {
     private final InstallmentRepository installmentRepository;
     private final FileStorageService fileStorageService;
     private final InstallmentMapper installmentMapper;
-    private final ProductService productService;
     private final ProductRepository productRepository;
+    private final AgentRepository agentRepository;
 
     private final String folder = "installment";
 
-    public Installment save(Installment installment) {
-        validateInstallment(installment);
-        calculateInstallmentAmounts(installment);
-
-        if (installment.getCreatedTime() == null) {
-            installment.setCreatedTime(LocalDateTime.now());
-        }
-
-        Long productId = installment.getProduct().getId();
-
-        try {
-            Product product = productService.getProductById(productId)
-                    .orElseThrow(() -> new RuntimeException("Product not found with ID: " + productId));
-
-            product.setIsDeliveryRequired(true);
-            productRepository.save(product);
-
-        } catch (Exception e) {
-            System.err.println("Error updating product delivery requirement: " + e.getMessage());
-        }
-
-        Installment savedInstallment = installmentRepository.save(installment);
-
-        return savedInstallment;
+    public InstallmentResponseDTO createInstallment(InstallmentCreateDTO installmentCreateDTO) {
+        Installment installment = mapToEntity(installmentCreateDTO);
+        Installment savedInstallment = save(installment);
+        return installmentMapper.toResponseDTO(savedInstallment);
     }
 
-    public Installment saveWithImages(Installment installment, MultipartFile[] images) {
-        // Ensure product requires delivery
-        setProductDeliveryRequired(installment);
-
+    public InstallmentResponseDTO createInstallmentWithImages(InstallmentCreateDTO installmentCreateDTO, MultipartFile[] images) {
+        Installment installment = mapToEntity(installmentCreateDTO);
+        
         // Save installment first
         Installment savedInstallment = save(installment);
 
@@ -74,6 +55,41 @@ public class InstallmentService {
                     .orElse(savedInstallment);
         }
 
+        return installmentMapper.toResponseDTO(savedInstallment);
+    }
+
+    private Installment mapToEntity(InstallmentCreateDTO dto) {
+        // Get product and auto-set member from product
+        Product product = productRepository.findById(dto.getProductId())
+                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + dto.getProductId()));
+
+        // Get agent
+        Agent agent = agentRepository.findById(dto.getAgentId())
+                .orElseThrow(() -> new RuntimeException("Agent not found with ID: " + dto.getAgentId()));
+
+        Installment installment = new Installment();
+        installment.setProduct(product);
+        installment.setMember(product.getWhoRequest()); // Auto-set member from product
+        installment.setTotalAmountOfProduct(dto.getTotalAmountOfProduct());
+        installment.setOtherCost(dto.getOtherCost() != null ? dto.getOtherCost() : 0.0);
+        installment.setAdvanced_paid(dto.getAdvanced_paid());
+        installment.setInstallmentMonths(dto.getInstallmentMonths());
+        installment.setInterestRate(dto.getInterestRate());
+        installment.setStatus(dto.getStatus() != null ? InstallmentStatus.valueOf(dto.getStatus()) : InstallmentStatus.PENDING);
+        installment.setGiven_product_agent(agent);
+        installment.setCreatedTime(LocalDateTime.now());
+
+        return installment;
+    }
+
+    public Installment save(Installment installment) {
+        validateInstallment(installment);
+        calculateInstallmentAmounts(installment);
+
+        // Ensure product requires delivery
+        setProductDeliveryRequired(installment);
+
+        Installment savedInstallment = installmentRepository.save(installment);
         return savedInstallment;
     }
 
@@ -131,34 +147,15 @@ public class InstallmentService {
         }
     }
 
-    private void updateFields(Installment existing, Installment updated) {
-        if (updated.getProduct() != null)
-            existing.setProduct(updated.getProduct());
-        if (updated.getMember() != null)
-            existing.setMember(updated.getMember());
-        if (updated.getTotalAmountOfProduct() != null)
-            existing.setTotalAmountOfProduct(updated.getTotalAmountOfProduct());
-        if (updated.getOtherCost() != null)
-            existing.setOtherCost(updated.getOtherCost());
-        if (updated.getAdvanced_paid() != null)
-            existing.setAdvanced_paid(updated.getAdvanced_paid());
-        if (updated.getInstallmentMonths() != null)
-            existing.setInstallmentMonths(updated.getInstallmentMonths());
-        if (updated.getInterestRate() != null)
-            existing.setInterestRate(updated.getInterestRate());
-        if (updated.getStatus() != null)
-            existing.setStatus(updated.getStatus());
-        if (updated.getGiven_product_agent() != null)
-            existing.setGiven_product_agent(updated.getGiven_product_agent());
-    }
-
     private void validateInstallment(Installment installment) {
         if (installment.getMember() == null)
-            throw new IllegalArgumentException("Member is required");
+            throw new IllegalArgumentException("Member is required - no member associated with the product");
         if (installment.getTotalAmountOfProduct() == null || installment.getTotalAmountOfProduct() < 0)
             throw new IllegalArgumentException("Valid total amount is required");
         if (installment.getInstallmentMonths() != null && installment.getInstallmentMonths() <= 0)
             throw new IllegalArgumentException("Installment months must be greater than 0");
+        if (installment.getGiven_product_agent() == null)
+            throw new IllegalArgumentException("Agent is required");
     }
 
     private void calculateInstallmentAmounts(Installment installment) {
@@ -170,12 +167,20 @@ public class InstallmentService {
         Double totalWithInterest = total + (total * interest / 100);
         installment.setNeedPaidAmount(Math.max(totalWithInterest + other - advance, 0.0));
 
+        // // Calculate monthly installment amount
+        // if (installment.getInstallmentMonths() != null && installment.getInstallmentMonths() > 0) {
+        //     Double monthlyAmount = installment.getNeedPaidAmount() / installment.getInstallmentMonths();
+        //     installment.setMonthlyInstallmentAmount(monthlyAmount);
+        // }
+
+        // installment.setTotalAmountWithInterest(totalWithInterest);
     }
 
     private void setProductDeliveryRequired(Installment installment) {
         Product product = installment.getProduct();
         if (product != null) {
             product.setIsDeliveryRequired(true);
+            productRepository.save(product);
         }
     }
 
@@ -213,5 +218,4 @@ public class InstallmentService {
         Installment updated = installmentRepository.save(existing);
         return installmentMapper.toResponseDTO(updated);
     }
-
 }

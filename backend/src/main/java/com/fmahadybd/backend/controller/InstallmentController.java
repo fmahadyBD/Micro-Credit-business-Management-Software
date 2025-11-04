@@ -1,7 +1,6 @@
 package com.fmahadybd.backend.controller;
 
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fmahadybd.backend.dto.InstallmentCreateDTO;
 import com.fmahadybd.backend.dto.InstallmentResponseDTO;
 import com.fmahadybd.backend.dto.InstallmentUpdateDTO;
 import com.fmahadybd.backend.entity.Installment;
@@ -46,9 +46,8 @@ public class InstallmentController {
                     content = @Content(schema = @Schema(implementation = InstallmentResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
-    public ResponseEntity<InstallmentResponseDTO> createInstallment(@Valid @RequestBody Installment installment) {
-        Installment savedInstallment = installmentService.save(installment);
-        InstallmentResponseDTO responseDTO = installmentMapper.toResponseDTO(savedInstallment);
+    public ResponseEntity<InstallmentResponseDTO> createInstallment(@Valid @RequestBody InstallmentCreateDTO installmentCreateDTO) {
+        InstallmentResponseDTO responseDTO = installmentService.createInstallment(installmentCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
@@ -63,9 +62,8 @@ public class InstallmentController {
             @RequestPart("installment") String installmentJson,
             @RequestPart(value = "images", required = false) MultipartFile[] images) throws IOException {
         
-        Installment installment = objectMapper.readValue(installmentJson, Installment.class);
-        Installment savedInstallment = installmentService.saveWithImages(installment, images);
-        InstallmentResponseDTO responseDTO = installmentMapper.toResponseDTO(savedInstallment);
+        InstallmentCreateDTO installmentCreateDTO = objectMapper.readValue(installmentJson, InstallmentCreateDTO.class);
+        InstallmentResponseDTO responseDTO = installmentService.createInstallmentWithImages(installmentCreateDTO, images);
         
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }

@@ -22,4 +22,5 @@ public class ProductResponseDTO {
     private List<String> imageFilePaths;
     private String soldByAgentName;
     private String whoRequestName;
+    private Long whoRequestId; // ✅ ADD THIS FIELD
 }

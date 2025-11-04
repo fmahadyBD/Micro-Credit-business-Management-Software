@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,30 +28,16 @@ public class ProductService {
     private final String folder = "products";
 
     /** Create product without images */
-    public Product saveProduct(Product product) {
+    public ProductResponseDTO createProduct(ProductRequestDTO dto) {
+        Product product = mapToEntity(dto);
         product.setDateAdded(LocalDate.now());
-        return productRepository.save(product);
+        Product saved = productRepository.save(product);
+        return ProductMapper.toResponseDTO(saved);
     }
 
     public ProductResponseDTO createProductWithImages(ProductRequestDTO dto, MultipartFile[] images) {
-        Product product = new Product();
-
-        // Map DTO fields
-        product.setName(dto.getName());
-        product.setCategory(dto.getCategory());
-        product.setDescription(dto.getDescription());
-        product.setPrice(dto.getPrice());
-        product.setCostPrice(dto.getCostPrice());
-        product.setIsDeliveryRequired(dto.getIsDeliveryRequired() != null ? dto.getIsDeliveryRequired() : false);
+        Product product = mapToEntity(dto);
         product.setDateAdded(LocalDate.now());
-
-        if (dto.getSoldByAgentId() != null) {
-            agentRepository.findById(dto.getSoldByAgentId()).ifPresent(product::setSoldByAgent);
-        }
-
-        if (dto.getWhoRequestId() != null) {
-            memberRepository.findById(dto.getWhoRequestId()).ifPresent(product::setWhoRequest);
-        }
 
         // Save images if any
         if (images != null && images.length > 0) {
@@ -64,24 +50,7 @@ public class ProductService {
         }
 
         Product saved = productRepository.save(product);
-
         return ProductMapper.toResponseDTO(saved);
-    }
-
-    /** Create product with images */
-    public Product saveWithImages(Product product, MultipartFile[] images) {
-        product.setDateAdded(LocalDate.now());
-
-        if (images != null && images.length > 0) {
-            Arrays.stream(images)
-                    .filter(image -> !image.isEmpty())
-                    .forEach(image -> {
-                        String filePath = fileStorageService.saveFile(image, 0L, folder);
-                        product.getImageFilePaths().add(filePath);
-                    });
-        }
-
-        return productRepository.save(product);
     }
 
     /** Upload additional images for existing product */
@@ -115,29 +84,48 @@ public class ProductService {
     }
 
     /** Get all products */
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductResponseDTO> getAllProducts() {
+        return productRepository.findAll()
+                .stream()
+                .map(ProductMapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
 
     /** Get product by ID */
-    public Optional<Product> getProductById(Long id) {
-        return productRepository.findById(id);
+    public ProductResponseDTO getProductById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
+        return ProductMapper.toResponseDTO(product);
     }
 
     /** Update product */
-    public Product updateProduct(Long id, Product updatedProduct) {
-        return productRepository.findById(id).map(product -> {
-            product.setName(updatedProduct.getName());
-            product.setCategory(updatedProduct.getCategory());
-            product.setDescription(updatedProduct.getDescription());
-            product.setPrice(updatedProduct.getPrice());
-            product.setCostPrice(updatedProduct.getCostPrice());
-            product.setIsDeliveryRequired(updatedProduct.getIsDeliveryRequired());
-            product.setSoldByAgent(updatedProduct.getSoldByAgent());
-            product.setWhoRequest(updatedProduct.getWhoRequest());
+    public ProductResponseDTO updateProduct(Long id, ProductRequestDTO dto) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
 
-            return productRepository.save(product);
-        }).orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
+        // Update fields from DTO
+        product.setName(dto.getName());
+        product.setCategory(dto.getCategory());
+        product.setDescription(dto.getDescription());
+        product.setPrice(dto.getPrice());
+        product.setCostPrice(dto.getCostPrice());
+        product.setIsDeliveryRequired(dto.getIsDeliveryRequired() != null ? dto.getIsDeliveryRequired() : false);
+
+        // Update relationships
+        if (dto.getSoldByAgentId() != null) {
+            agentRepository.findById(dto.getSoldByAgentId()).ifPresent(product::setSoldByAgent);
+        } else {
+            product.setSoldByAgent(null);
+        }
+
+        if (dto.getWhoRequestId() != null) {
+            memberRepository.findById(dto.getWhoRequestId()).ifPresent(product::setWhoRequest);
+        } else {
+            product.setWhoRequest(null);
+        }
+
+        Product updated = productRepository.save(product);
+        return ProductMapper.toResponseDTO(updated);
     }
 
     /** Delete product with image cleanup */
@@ -151,5 +139,26 @@ public class ProductService {
         }
 
         productRepository.deleteById(id);
+    }
+
+    /** Helper method to map DTO to Entity */
+    private Product mapToEntity(ProductRequestDTO dto) {
+        Product product = new Product();
+        product.setName(dto.getName());
+        product.setCategory(dto.getCategory());
+        product.setDescription(dto.getDescription());
+        product.setPrice(dto.getPrice());
+        product.setCostPrice(dto.getCostPrice());
+        product.setIsDeliveryRequired(dto.getIsDeliveryRequired() != null ? dto.getIsDeliveryRequired() : false);
+
+        if (dto.getSoldByAgentId() != null) {
+            agentRepository.findById(dto.getSoldByAgentId()).ifPresent(product::setSoldByAgent);
+        }
+
+        if (dto.getWhoRequestId() != null) {
+            memberRepository.findById(dto.getWhoRequestId()).ifPresent(product::setWhoRequest);
+        }
+
+        return product;
     }
 }

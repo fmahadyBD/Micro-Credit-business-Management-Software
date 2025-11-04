@@ -2,14 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
-import { AgentsService } from '../../../../services/services/agents.service';
 import { ProductsService } from '../../../../services/services/products.service';
-import { Installment } from '../../../../services/models/installment';
-import { Member } from '../../../../services/models/member';
-import { Agent } from '../../../../services/models/agent';
+import { AgentsService } from '../../../../services/services/agents.service';
+import { MembersService } from '../../../../services/services/members.service';
 import { Product } from '../../../../services/models/product';
-import { InstallmentManagementService } from '../../../../services/services';
+import { Agent } from '../../../../services/models/agent';
+import { Member } from '../../../../services/models/member';
+import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
 
 @Component({
   selector: 'app-add-installment',
@@ -19,15 +18,13 @@ import { InstallmentManagementService } from '../../../../services/services';
   styleUrls: ['./add-installment.component.css']
 })
 export class AddInstallmentComponent implements OnInit {
-  installment: Installment = {
+  installment: any = {
     totalAmountOfProduct: 0,
     otherCost: 0,
     advanced_paid: 0,
-    installmentMonths: 12,
-    interestRate: 15.0,
-    status: 'PENDING',
-    given_product_agent: {} as Agent,
-    member: {} as Member
+    installmentMonths: 1,
+    interestRate: 0,
+    status: 'PENDING'
   };
 
   selectedFiles: File[] = [];
@@ -47,6 +44,7 @@ export class AddInstallmentComponent implements OnInit {
 
   // Member (auto-populated from product)
   selectedMember: Member | null = null;
+  memberName: string = '';
 
   // Agent search
   agents: Agent[] = [];
@@ -60,7 +58,7 @@ export class AddInstallmentComponent implements OnInit {
     private http: HttpClient,
     private productsService: ProductsService,
     private agentsService: AgentsService,
-    private installmentService: InstallmentManagementService,
+    private membersService: MembersService,
     private sidebarService: SidebarTopbarService
   ) { }
 
@@ -119,15 +117,21 @@ export class AddInstallmentComponent implements OnInit {
 
   selectProduct(product: Product): void {
     this.selectedProduct = product;
-    this.productSearchTerm = `${product.name}`;
+    this.productSearchTerm = `${product.name} (${product.category})`;
     this.showProductDropdown = false;
 
-    // Auto-populate member from product
-    if (product.whoRequest) {
+    // Auto-populate member from product's whoRequest
+    if (product.whoRequest && product.whoRequest.id) {
+      // Member is already included in the product, so we can use it directly
       this.selectedMember = product.whoRequest;
+      this.memberName = `${product.whoRequest.name} (${product.whoRequest.phone})`;
+      console.log('Member auto-selected:', this.selectedMember);
+    } else {
+      this.selectedMember = null;
+      this.memberName = 'No member assigned';
     }
 
-    // Auto-fill total amount from product price
+    // Auto-fill total amount
     if (product.price) {
       this.installment.totalAmountOfProduct = product.price;
     }
@@ -135,10 +139,10 @@ export class AddInstallmentComponent implements OnInit {
 
   clearProduct(): void {
     this.selectedProduct = null;
-    this.selectedMember = null;
     this.productSearchTerm = '';
     this.filteredProducts = [];
-    this.installment.totalAmountOfProduct = 0;
+    this.selectedMember = null;
+    this.memberName = '';
   }
 
   // 🔹 Agent Search
@@ -184,7 +188,7 @@ export class AddInstallmentComponent implements OnInit {
       reader.readAsDataURL(file);
     }
 
-    event.target.value = '';
+    event.target.value = ''; // reset input
   }
 
   removeFile(file: File): void {
@@ -198,32 +202,28 @@ export class AddInstallmentComponent implements OnInit {
   // 🔹 Calculation methods
   calculateTotalWithInterest(): number {
     const total = this.installment.totalAmountOfProduct || 0;
-    const interest = this.installment.interestRate || 15;
-    return total + (total * interest / 100);
+    const otherCost = this.installment.otherCost || 0;
+    const rate = this.installment.interestRate || 0;
+    const baseAmount = total + otherCost;
+    return baseAmount + (baseAmount * rate / 100);
   }
 
   calculateMonthlyPayment(): number {
     const totalWithInterest = this.calculateTotalWithInterest();
-    const other = this.installment.otherCost || 0;
-    const advance = this.installment.advanced_paid || 0;
     const months = this.installment.installmentMonths || 1;
-
-    const remaining = totalWithInterest + other - advance;
-    return remaining > 0 ? remaining / months : 0;
+    return totalWithInterest / months;
   }
 
   calculateRemainingAmount(): number {
     const totalWithInterest = this.calculateTotalWithInterest();
-    const other = this.installment.otherCost || 0;
-    const advance = this.installment.advanced_paid || 0;
-
-    return Math.max(totalWithInterest + other - advance, 0);
+    const advanced = this.installment.advanced_paid || 0;
+    return totalWithInterest - advanced;
   }
 
   // 🔹 Submit form with images
   onSubmit(): void {
-    if (!this.selectedProduct || !this.selectedAgent || !this.selectedMember) {
-      this.error = 'Please select product, member, and agent';
+    if (!this.selectedProduct || !this.selectedAgent) {
+      this.error = 'Please select both product and agent';
       return;
     }
 
@@ -231,26 +231,19 @@ export class AddInstallmentComponent implements OnInit {
     this.error = null;
 
     const installmentData: any = {
-      product: { id: this.selectedProduct.id },
-      member: { id: this.selectedMember.id },
       totalAmountOfProduct: this.installment.totalAmountOfProduct,
-      otherCost: this.installment.otherCost,
+      otherCost: this.installment.otherCost || 0,
       advanced_paid: this.installment.advanced_paid,
       installmentMonths: this.installment.installmentMonths,
       interestRate: this.installment.interestRate,
       status: this.installment.status,
-      given_product_agent: { id: this.selectedAgent.id }
+      productId: this.selectedProduct.id,
+      memberId: this.selectedMember?.id || null,
+      deliveryAgentId: this.selectedAgent.id
     };
 
     const formData = new FormData();
-
-    // Create a Blob with the correct content type
-    const installmentBlob = new Blob(
-      [JSON.stringify(installmentData)],
-      { type: 'application/json' }
-    );
-
-    formData.append('installment', installmentBlob);
+    formData.append('installment', JSON.stringify(installmentData));
     this.selectedFiles.forEach(file => formData.append('images', file, file.name));
 
     this.http.post('http://localhost:8080/api/installments/with-images', formData).subscribe({
@@ -274,11 +267,9 @@ export class AddInstallmentComponent implements OnInit {
       totalAmountOfProduct: 0,
       otherCost: 0,
       advanced_paid: 0,
-      installmentMonths: 12,
-      interestRate: 15.0,
-      status: 'PENDING',
-      given_product_agent: {} as Agent,
-      member: {} as Member
+      installmentMonths: 1,
+      interestRate: 0,
+      status: 'PENDING'
     };
     this.selectedFiles = [];
     this.imagePreviews = [];
