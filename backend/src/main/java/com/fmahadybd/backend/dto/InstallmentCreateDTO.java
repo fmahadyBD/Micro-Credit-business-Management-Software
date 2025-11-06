@@ -15,6 +15,9 @@ public class InstallmentCreateDTO {
     @NotNull(message = "Product ID is required")
     private Long productId;
     
+    @NotNull(message = "Member ID is required")  // ADD THIS
+    private Long memberId;                       // ADD THIS
+    
     @NotNull(message = "Total amount is required")
     @Positive(message = "Total amount must be positive")
     private Double totalAmountOfProduct;

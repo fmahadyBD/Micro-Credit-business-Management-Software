@@ -11,6 +11,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Getter
 @Setter
@@ -27,8 +29,8 @@ public class Installment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
     @OneToOne(fetch = FetchType.LAZY)
-
     @JoinColumn(name = "product_id")
     @JsonIgnoreProperties({ "installment" })
     private Product product;
@@ -78,6 +80,7 @@ public class Installment {
     @ElementCollection
     @CollectionTable(name = "installment_images", joinColumns = @JoinColumn(name = "installment_id"))
     @Column(name = "image_file_path")
+    @Builder.Default
     private List<String> imageFilePaths = new ArrayList<>();
 
     @NotNull
@@ -86,16 +89,45 @@ public class Installment {
     @JsonIgnoreProperties({ "members", "installments" })
     private Agent given_product_agent;
 
+    @CreationTimestamp
     @Column(name = "created_time", nullable = false, updatable = false)
     private LocalDateTime createdTime;
+
+    @UpdateTimestamp
+    @Column(name = "updated_time")
+    private LocalDateTime updatedTime;
 
     @OneToMany(mappedBy = "installment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference("installment-payments") 
     @JsonIgnore 
+    @Builder.Default
     private List<PaymentSchedule> paymentSchedules = new ArrayList<>();
 
     @PrePersist
+    protected void onCreate() {
+        // Calculate amounts
+        calculateAmounts();
+        
+        // Ensure status is set
+        if (status == null) {
+            status = InstallmentStatus.PENDING;
+        }
+        
+        // Ensure collections are initialized
+        if (imageFilePaths == null) {
+            imageFilePaths = new ArrayList<>();
+        }
+        if (paymentSchedules == null) {
+            paymentSchedules = new ArrayList<>();
+        }
+    }
+
     @PreUpdate
+    protected void onUpdate() {
+        // Recalculate amounts when entity is updated
+        calculateAmounts();
+    }
+
     private void calculateAmounts() {
         double safeInterestRate = interestRate != null ? interestRate : 15.0;
         double safeTotal = totalAmountOfProduct != null ? totalAmountOfProduct : 0.0;
@@ -104,13 +136,6 @@ public class Installment {
 
         double totalWithInterest = safeTotal + (safeTotal * safeInterestRate / 100);
         this.needPaidAmount = Math.max(totalWithInterest + safeOtherCost - safeAdvanced, 0.0);
-
-        if (status == null)
-            status = InstallmentStatus.PENDING;
-        if (createdTime == null)
-            createdTime = LocalDateTime.now();
-        if (imageFilePaths == null)
-            imageFilePaths = new ArrayList<>();
     }
 
     @Transient

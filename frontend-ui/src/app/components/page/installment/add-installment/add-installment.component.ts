@@ -8,6 +8,7 @@ import { MembersService } from '../../../../services/services/members.service';
 import { Product } from '../../../../services/models/product';
 import { Agent } from '../../../../services/models/agent';
 import { Member } from '../../../../services/models/member';
+import { InstallmentCreateDto } from '../../../../services/models/installment-create-dto';
 import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
 
 // Extended Product interface to include member details from ProductResponseDTO
@@ -253,29 +254,48 @@ export class AddInstallmentComponent implements OnInit {
 
   // 🔹 Submit form with images
   onSubmit(): void {
-    if (!this.selectedProduct || !this.selectedAgent) {
-      this.error = 'Please select both product and agent';
+    // Validation
+    if (!this.selectedProduct) {
+      this.error = 'Please select a product';
+      return;
+    }
+
+    if (!this.selectedMember) {
+      this.error = 'Please select a member (product must have an associated member)';
+      return;
+    }
+
+    if (!this.selectedAgent) {
+      this.error = 'Please select an agent';
       return;
     }
 
     this.loading = true;
     this.error = null;
+    this.successMessage = null;
 
-    const installmentData: any = {
+    // ✅ FIXED: Using correct field names matching InstallmentCreateDTO
+    const installmentData: InstallmentCreateDto = {
       totalAmountOfProduct: this.installment.totalAmountOfProduct,
       otherCost: this.installment.otherCost || 0,
       advanced_paid: this.installment.advanced_paid,
       installmentMonths: this.installment.installmentMonths,
       interestRate: this.installment.interestRate,
       status: this.installment.status,
-      productId: this.selectedProduct.id,
-      memberId: this.selectedMember?.id || null,
-      deliveryAgentId: this.selectedAgent.id
+      productId: this.selectedProduct.id!,
+      memberId: this.selectedMember.id!,
+      agentId: this.selectedAgent.id!  // ✅ Changed from deliveryAgentId to agentId
     };
+
+    console.log('Submitting installment data:', installmentData);
 
     const formData = new FormData();
     formData.append('installment', JSON.stringify(installmentData));
-    this.selectedFiles.forEach(file => formData.append('images', file, file.name));
+    
+    // Add images if any
+    this.selectedFiles.forEach(file => {
+      formData.append('images', file, file.name);
+    });
 
     this.http.post('http://localhost:8080/api/installments/with-images', formData).subscribe({
       next: (res: any) => {
@@ -283,12 +303,17 @@ export class AddInstallmentComponent implements OnInit {
         this.successMessage = 'Installment created successfully!';
         console.log('Created Installment:', res);
         this.resetForm();
-        setTimeout(() => window.dispatchEvent(new CustomEvent('installmentAdded')), 1500);
+        
+        // Notify parent component or refresh list
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('installmentAdded'));
+        }, 1500);
       },
       error: (err) => {
         this.loading = false;
         console.error('Error creating installment:', err);
-        this.error = err.error?.message || 'Failed to create installment';
+        console.error('Error details:', err.error);
+        this.error = err.error?.message || 'Failed to create installment. Please check the console for details.';
       }
     });
   }
@@ -306,6 +331,8 @@ export class AddInstallmentComponent implements OnInit {
     this.imagePreviews = [];
     this.clearProduct();
     this.clearAgent();
+    this.successMessage = null;
+    this.error = null;
   }
 
   cancel(): void {

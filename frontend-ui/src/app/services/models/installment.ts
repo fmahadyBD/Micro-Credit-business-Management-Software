@@ -21,4 +21,5 @@ export interface Installment {
   status: 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'OVERDUE' | 'CANCELLED' | 'DEFAULTED';
   totalAmountOfProduct: number;
   totalAmountWithInterest?: number;
+  updatedTime?: string;
 }

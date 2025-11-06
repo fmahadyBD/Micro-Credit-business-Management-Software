@@ -3,7 +3,6 @@ import { Subscription } from 'rxjs';
 import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
 import { CommonModule } from '@angular/common';
 
-
 @Component({
   selector: 'app-side-bar',
   standalone: true,
@@ -19,7 +18,7 @@ export class SideBarComponent implements OnInit, OnDestroy {
     | 'all-members' | 'add-member'
     | 'all-agents' | 'add-agent'
     | 'all-products' | 'add-product'
-    | 'all-installments' | 'add-installment'
+    | 'all-installments' | 'installment-management' | 'add-installment'
     | 'payment-schedules' | 'record-payment'
     | 'all-shareholders' | 'add-shareholder'
   >();
@@ -69,7 +68,7 @@ export class SideBarComponent implements OnInit, OnDestroy {
       | 'all-members' | 'add-member'
       | 'all-agents' | 'add-agent'
       | 'all-products' | 'add-product'
-      | 'all-installments' | 'add-installment'
+      | 'all-installments' | 'installment-management' | 'add-installment'
       | 'payment-schedules' | 'record-payment'
       | 'all-shareholders' | 'add-shareholder'
   ) {

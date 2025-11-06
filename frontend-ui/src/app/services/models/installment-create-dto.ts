@@ -7,6 +7,7 @@ export interface InstallmentCreateDto {
   agentId: number;
   installmentMonths: number;
   interestRate: number;
+  memberId: number;
   otherCost?: number;
   productId: number;
   status?: string;

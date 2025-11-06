@@ -27,7 +27,7 @@ public class InstallmentMapper {
                 .status(installment.getStatus())
                 .imageFilePaths(installment.getImageFilePaths())
                 .given_product_agent(installment.getGiven_product_agent())
-                .createdTime(installment.getCreatedTime())
+                // .createdTime(installment.getCreatedTime())
                 .paymentSchedules(installment.getPaymentSchedules())
                 .monthlyInstallmentAmount(installment.getMonthlyInstallmentAmount())
                 .totalAmountWithInterest(installment.getTotalAmountWithInterest())  // ✅ FIXED!

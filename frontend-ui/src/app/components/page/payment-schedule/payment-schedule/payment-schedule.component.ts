@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   PaymentScheduleControllerService,
@@ -11,6 +12,16 @@ import { PaymentScheduleRequestDto } from '../../../../services/models/payment-s
 import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
 import { InstallmentBalance } from '../../../../service/models/InstallmentBalance';
 
+interface PaymentHistory {
+  id: number;
+  paidAmount: number;
+  remainingAmount: number;
+  paymentDate: string;
+  status: string;
+  notes: string;
+  agentName: string;
+}
+
 @Component({
   selector: 'app-payment-schedule',
   standalone: true,
@@ -18,12 +29,12 @@ import { InstallmentBalance } from '../../../../service/models/InstallmentBalanc
   templateUrl: './payment-schedule.component.html',
   styleUrls: ['./payment-schedule.component.css']
 })
-export class PaymentScheduleComponent implements OnInit {
-
+export class PaymentScheduleComponent implements OnInit, OnDestroy {
   // Search properties
   searchQuery = '';
   searchResults: InstallmentResponseDto[] = [];
   selectedInstallment: InstallmentResponseDto | null = null;
+  private searchSubject = new Subject<string>();
 
   // Payment schedule properties
   paymentAmount = 0;
@@ -31,6 +42,14 @@ export class PaymentScheduleComponent implements OnInit {
 
   // Balance data
   balanceData: InstallmentBalance | null = null;
+
+  // Payment history
+  paymentHistory: PaymentHistory[] = [];
+  showPaymentHistory = false;
+
+  // Warning flags
+  duplicatePaymentWarning = false;
+  duplicatePaymentMonth = '';
 
   // UI state
   isLoading = false;
@@ -45,37 +64,58 @@ export class PaymentScheduleComponent implements OnInit {
     private paymentService: PaymentScheduleControllerService,
     private sidebarService: SidebarTopbarService
   ) {
-    // Subscribe to sidebar state with automatic cleanup
     this.sidebarService.isCollapsed$
       .pipe(takeUntilDestroyed())
       .subscribe(collapsed => {
         this.isSidebarCollapsed = collapsed;
       });
+
+    // Setup auto-search with debounce
+    this.searchSubject.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      takeUntilDestroyed()
+    ).subscribe(searchTerm => {
+      if (searchTerm.trim().length >= 2) {
+        this.performSearch(searchTerm);
+      } else if (searchTerm.trim().length === 0) {
+        this.searchResults = [];
+      }
+    });
   }
 
   ngOnInit(): void {
     // Initialization logic if needed
   }
 
-  // Search installments by product name, member name, or phone
-  onSearch(): void {
-    if (!this.searchQuery.trim()) {
-      this.errorMessage = 'Please enter a search term';
-      return;
-    }
+  ngOnDestroy(): void {
+    this.searchSubject.complete();
+  }
 
+  // Auto-search trigger
+  onSearchInput(): void {
+    this.searchSubject.next(this.searchQuery);
+  }
+
+  // Manual search
+  onSearch(): void {
+    if (this.searchQuery.trim().length >= 2) {
+      this.performSearch(this.searchQuery);
+    }
+  }
+
+  // Perform search operation
+  private performSearch(searchTerm: string): void {
     this.isSearching = true;
     this.errorMessage = '';
     this.successMessage = '';
-    this.searchResults = [];
 
     this.installmentService.searchInstallment({
-      keyword: this.searchQuery
+      keyword: searchTerm
     } as any)
       .subscribe({
         next: (installments) => {
           this.isSearching = false;
-          // Handle single result or array
           if (Array.isArray(installments)) {
             this.searchResults = installments;
           } else {
@@ -100,17 +140,19 @@ export class PaymentScheduleComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
     this.balanceData = null;
+    this.paymentHistory = [];
+    this.showPaymentHistory = false;
+    this.duplicatePaymentWarning = false;
 
-    // Set default payment amount to monthly installment amount
     if (installment.monthlyInstallmentAmount) {
       this.paymentAmount = installment.monthlyInstallmentAmount;
     }
 
-    // Load balance data immediately
     this.loadBalanceData();
+    this.loadPaymentHistory();
   }
 
-  // Load balance data for selected installment
+  // Load balance data
   private loadBalanceData(): void {
     if (!this.selectedInstallment?.id) return;
 
@@ -119,7 +161,7 @@ export class PaymentScheduleComponent implements OnInit {
     this.paymentService.getRemainingBalance({
       installmentId: this.selectedInstallment.id
     }).subscribe({
-      next: (response: any) => {  // Change back to 'any'
+      next: (response: any) => {
         this.balanceData = response;
         this.isLoading = false;
       },
@@ -129,6 +171,60 @@ export class PaymentScheduleComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  // Load payment history
+  private loadPaymentHistory(): void {
+    if (!this.selectedInstallment?.id) return;
+
+    this.paymentService.getPaymentsByInstallment({
+      installmentId: this.selectedInstallment.id
+    }).subscribe({
+      next: (response: any) => {
+        if (Array.isArray(response)) {
+          this.paymentHistory = response.map((payment: any) => ({
+            id: payment.id,
+            paidAmount: payment.paidAmount,
+            remainingAmount: payment.remainingAmount,
+            paymentDate: payment.paymentDate,
+            status: payment.status,
+            notes: payment.notes,
+            agentName: payment.agentName
+          }));
+        }
+        this.checkDuplicatePaymentWarning();
+      },
+      error: (error) => {
+        console.error('Error loading payment history:', error);
+      }
+    });
+  }
+
+  // Check for duplicate payment in same month
+  private checkDuplicatePaymentWarning(): void {
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+
+    const paymentThisMonth = this.paymentHistory.find(payment => {
+      const paymentDate = new Date(payment.paymentDate);
+      return paymentDate.getMonth() === currentMonth && 
+             paymentDate.getFullYear() === currentYear;
+    });
+
+    if (paymentThisMonth) {
+      this.duplicatePaymentWarning = true;
+      this.duplicatePaymentMonth = new Date(paymentThisMonth.paymentDate).toLocaleDateString('en-US', { 
+        month: 'long', 
+        year: 'numeric' 
+      });
+    } else {
+      this.duplicatePaymentWarning = false;
+    }
+  }
+
+  // Toggle payment history visibility
+  togglePaymentHistory(): void {
+    this.showPaymentHistory = !this.showPaymentHistory;
   }
 
   // Submit payment
@@ -145,7 +241,7 @@ export class PaymentScheduleComponent implements OnInit {
 
     const remainingAmount = this.getRemainingAmount();
     if (this.paymentAmount > remainingAmount) {
-      this.errorMessage = `Payment amount cannot exceed remaining amount of ${this.formatCurrency(remainingAmount)}`;
+      this.errorMessage = `Payment amount cannot exceed remaining amount of ${this.formatCurrency(remainingAmount)} ৳`;
       return;
     }
 
@@ -164,13 +260,11 @@ export class PaymentScheduleComponent implements OnInit {
       .subscribe({
         next: () => {
           this.isSubmitting = false;
-          this.successMessage = `Payment of ${this.formatCurrency(this.paymentAmount)} submitted successfully!`;
+          this.successMessage = `Payment of ${this.formatCurrency(this.paymentAmount)} ৳ submitted successfully!`;
 
-          // Reset form
           this.paymentAmount = this.selectedInstallment?.monthlyInstallmentAmount || 0;
           this.notes = '';
 
-          // Reload installment and balance data
           this.reloadInstallmentData();
         },
         error: (error) => {
@@ -189,11 +283,7 @@ export class PaymentScheduleComponent implements OnInit {
   // Get total paid amount
   getTotalPaidAmount(): number {
     if (!this.selectedInstallment) return 0;
-
-    if (this.balanceData) {
-      return this.balanceData.totalPaid;
-    }
-    return this.selectedInstallment.advanced_paid || 0;
+    return this.balanceData?.totalPaid || this.selectedInstallment.advanced_paid || 0;
   }
 
   // Reload installment data after payment
@@ -204,8 +294,8 @@ export class PaymentScheduleComponent implements OnInit {
       .subscribe({
         next: (updatedInstallment) => {
           this.selectedInstallment = updatedInstallment;
-          // Reload balance after getting updated installment
           this.loadBalanceData();
+          this.loadPaymentHistory();
         },
         error: (error) => {
           console.error('Error reloading installment:', error);
@@ -223,6 +313,9 @@ export class PaymentScheduleComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
     this.balanceData = null;
+    this.paymentHistory = [];
+    this.showPaymentHistory = false;
+    this.duplicatePaymentWarning = false;
   }
 
   // Format currency
@@ -231,17 +324,35 @@ export class PaymentScheduleComponent implements OnInit {
     return amount.toFixed(2);
   }
 
+  // Format date
+  formatDate(date: string): string {
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
   // Get status badge class
   getStatusClass(status: string | undefined): string {
     switch (status) {
       case 'ACTIVE': return 'badge bg-success';
-      case 'PENDING': return 'badge bg-warning';
+      case 'PENDING': return 'badge bg-warning text-dark';
       case 'COMPLETED': return 'badge bg-info';
+      case 'PAID': return 'badge bg-primary';
       case 'OVERDUE': return 'badge bg-danger';
       case 'CANCELLED': return 'badge bg-secondary';
       case 'DEFAULTED': return 'badge bg-dark';
       default: return 'badge bg-secondary';
     }
+  }
+
+  // Get progress percentage
+  getProgressPercentage(): number {
+    if (!this.selectedInstallment) return 0;
+    const total = this.selectedInstallment.totalAmountWithInterest || 0;
+    const paid = this.getTotalPaidAmount();
+    return total > 0 ? (paid / total) * 100 : 0;
   }
 
   // Alias properties for template compatibility

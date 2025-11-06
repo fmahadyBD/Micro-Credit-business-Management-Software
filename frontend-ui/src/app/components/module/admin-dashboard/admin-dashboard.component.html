@@ -61,6 +61,7 @@
   <app-add-product *ngIf="currentView === 'add-product'"></app-add-product>
 
   <!-- 💳 Installments -->
+  <app-installment-management *ngIf="currentView === 'installment-management'"></app-installment-management>
   <app-add-installment *ngIf="currentView === 'add-installment'"></app-add-installment>
 
   <!-- 💰 Payment Schedules -->
@@ -81,4 +82,8 @@
     *ngIf="currentView === 'edit-shareholder' && selectedShareholderId !== null"
     [shareholderId]="selectedShareholderId!"
   ></app-edit-shareholder>
+
+
+
+  
 </main>
