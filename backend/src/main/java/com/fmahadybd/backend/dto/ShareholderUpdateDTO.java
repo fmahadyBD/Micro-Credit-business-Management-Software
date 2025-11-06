@@ -15,7 +15,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Schema(description = "Shareholder update DTO")
 public class ShareholderUpdateDTO {
-    
+
+
     @Schema(description = "Shareholder full name", example = "John Doe")
     private String name;
     

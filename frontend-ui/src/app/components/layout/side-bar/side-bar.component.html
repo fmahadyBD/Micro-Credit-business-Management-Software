@@ -143,16 +143,19 @@
         </span>
       </a>
       <ul class="submenu" [class.show]="activeSubmenu === 9">
+
+         <li>
+          <a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'add-shareholder')">
+            Add Shareholder
+          </a>
+        </li>
+        
         <li>
           <a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'all-shareholders')">
             All Shareholders
           </a>
         </li>
-        <li>
-          <a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'add-shareholder')">
-            Add Shareholder
-          </a>
-        </li>
+       
       </ul>
     </li>
 

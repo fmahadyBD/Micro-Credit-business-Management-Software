@@ -30,6 +30,7 @@ import { PaymentScheduleComponent } from '../../page/payment-schedule/payment-sc
 import { AllShareholdersComponent } from '../../page/shareholders/all-shareholders/all-shareholders.component';
 import { EditShareholderComponent } from '../../page/shareholders/edit-shareholder/edit-shareholder.component';
 import { ShareholderDetailsComponent } from '../../page/shareholders/shareholder-details/shareholder-details.component';
+import { AddShareholderComponent } from '../../page/shareholders/add-shareholder/add-shareholder.component';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -66,7 +67,8 @@ import { ShareholderDetailsComponent } from '../../page/shareholders/shareholder
     // 👔 Shareholders
     AllShareholdersComponent,
     ShareholderDetailsComponent,
-    EditShareholderComponent
+    EditShareholderComponent,
+    AddShareholderComponent
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
@@ -85,14 +87,14 @@ export class AdminDashboardComponent implements OnInit {
     | 'agent-details' | 'edit-agent'
     | 'add-installment' | 'all-installments'
     | 'payment-schedules' | 'record-payment' 
-    | 'all-shareholders' | 'shareholder-details' | 'edit-shareholder'
+    | 'all-shareholders' | 'shareholder-details' | 'edit-shareholder'    | 'add-shareholder'
     = 'dashboard';
 
   selectedUserId: number | null = null;
   selectedMemberId: number | null = null;
   selectedAgentId: number | null = null;
   selectedProductId: number | null = null;
-  selectedShareholderId: number | null = null; // ✅ ADD THIS LINE
+  selectedShareholderId: number | null = null;
 
   constructor(private sidebarService: SidebarTopbarService) { }
 
@@ -193,9 +195,9 @@ export class AdminDashboardComponent implements OnInit {
       this.currentView = 'edit-shareholder';
     });
 
-    // window.addEventListener('addShareholder', () => {
-    //   this.currentView = 'add-shareholder'; // You'll need to create this component
-    // });
+    window.addEventListener('addShareholder', () => {
+      this.currentView = 'add-shareholder'; 
+    });
 
     window.addEventListener('backToAllShareholders', () => {
       this.selectedShareholderId = null;

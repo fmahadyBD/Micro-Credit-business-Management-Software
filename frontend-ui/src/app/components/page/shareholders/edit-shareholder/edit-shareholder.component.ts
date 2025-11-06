@@ -15,6 +15,7 @@ import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service
 })
 export class EditShareholderComponent implements OnInit {
   @Input() shareholderId!: number;
+  
   shareholder: ShareholderUpdateDto = {};
   loading: boolean = true;
   saving: boolean = false;
@@ -41,7 +42,24 @@ export class EditShareholderComponent implements OnInit {
     this.shareholdersService.getShareholderById({ id: this.shareholderId }).subscribe({
       next: (data) => {
         const shareholder = data as ShareholderDto;
-        this.shareholder = { ...shareholder };
+        
+        // Only map the fields that exist in ShareholderUpdateDto
+        this.shareholder = {
+          name: shareholder.name,
+          phone: shareholder.phone,
+          nidCard: shareholder.nidCard,
+          nominee: shareholder.nominee,
+          zila: shareholder.zila,
+          house: shareholder.house,
+          investment: shareholder.investment,
+          totalShare: shareholder.totalShare,
+          totalEarning: shareholder.totalEarning,
+          currentBalance: shareholder.currentBalance,
+          role: shareholder.role,
+          status: shareholder.status,
+          joinDate: shareholder.joinDate
+        };
+        
         this.loading = false;
       },
       error: (err) => {
@@ -57,9 +75,26 @@ export class EditShareholderComponent implements OnInit {
     this.error = null;
     this.successMessage = null;
 
+    // Create a clean update object without id or roi
+    const updateData: ShareholderUpdateDto = {
+      name: this.shareholder.name,
+      phone: this.shareholder.phone,
+      nidCard: this.shareholder.nidCard,
+      nominee: this.shareholder.nominee,
+      zila: this.shareholder.zila,
+      house: this.shareholder.house,
+      investment: this.shareholder.investment,
+      totalShare: this.shareholder.totalShare,
+      totalEarning: this.shareholder.totalEarning,
+      currentBalance: this.shareholder.currentBalance,
+      role: this.shareholder.role,
+      status: this.shareholder.status,
+      joinDate: this.shareholder.joinDate
+    };
+
     this.shareholdersService.updateShareholder({
       id: this.shareholderId,
-      body: this.shareholder
+      body: updateData
     }).subscribe({
       next: () => {
         this.successMessage = 'Shareholder updated successfully!';
