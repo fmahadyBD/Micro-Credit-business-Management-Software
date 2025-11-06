@@ -63,8 +63,19 @@
   <!-- 💳 Installments -->
   <app-add-installment *ngIf="currentView === 'add-installment'"></app-add-installment>
 
-  <!-- ✅ NEW: 💰 Payment Schedules -->
+  <!-- 💰 Payment Schedules -->
   <app-payment-schedule 
     *ngIf="currentView === 'payment-schedules' || currentView === 'record-payment'">
   </app-payment-schedule>
+
+  <!-- 👔 Shareholders -->
+  <app-all-shareholders *ngIf="currentView === 'all-shareholders'"></app-all-shareholders>
+  <app-shareholder-details
+    *ngIf="currentView === 'shareholder-details' && selectedShareholderId !== null"
+    [shareholderId]="selectedShareholderId!"
+  ></app-shareholder-details>
+  <app-edit-shareholder
+    *ngIf="currentView === 'edit-shareholder' && selectedShareholderId !== null"
+    [shareholderId]="selectedShareholderId!"
+  ></app-edit-shareholder>
 </main>

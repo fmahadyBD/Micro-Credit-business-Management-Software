@@ -1,0 +1,107 @@
+<main class="main-content" [class.collapsed]="isSidebarCollapsed">
+  <div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="fas fa-user-tie me-2"></i>All Shareholders</h4>
+        <button class="btn btn-light text-primary" (click)="addShareholder()">
+          <i class="fas fa-plus me-1"></i> Add Shareholder
+        </button>
+      </div>
+
+      <div class="card-body">
+        <!-- Loading State -->
+        <div *ngIf="loading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-3">Loading shareholders...</p>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="error && !loading" class="alert alert-danger">
+          <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+        </div>
+
+        <!-- Success Message -->
+        <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show">
+          <i class="fas fa-check-circle me-2"></i>{{ successMessage }}
+          <button type="button" class="btn-close" (click)="successMessage = null"></button>
+        </div>
+
+        <!-- Shareholders Table -->
+        <div *ngIf="!loading && shareholders.length > 0" class="table-responsive">
+          <table class="table table-hover table-striped">
+            <thead class="table-primary">
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Investment</th>
+                <th>Shares</th>
+                <th>Earnings</th>
+                <th>ROI</th>
+                <th>Status</th>
+                <th>Join Date</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let shareholder of shareholders">
+                <td>{{ shareholder.id }}</td>
+                <td>
+                  <strong>{{ shareholder.name }}</strong>
+                  <div *ngIf="shareholder.role" class="small text-muted">{{ shareholder.role }}</div>
+                </td>
+                <td>{{ shareholder.phone || 'N/A' }}</td>
+                <td>{{ formatCurrency(shareholder.investment) }}</td>
+                <td>{{ shareholder.totalShare || 0 }}</td>
+                <td>{{ formatCurrency(shareholder.totalEarning) }}</td>
+                <td [class]="getROIClass(shareholder.roi)">
+                  {{ shareholder.roi ? shareholder.roi.toFixed(2) + '%' : '0%' }}
+                </td>
+                <td>
+                  <span [class]="getStatusClass(shareholder.status)">
+                    {{ shareholder.status }}
+                  </span>
+                </td>
+                <td>{{ formatDate(shareholder.joinDate) }}</td>
+                <td class="text-center">
+                  <button 
+                    class="btn btn-sm btn-info text-white me-1"
+                    (click)="viewDetails(shareholder.id!)"
+                    title="View Details"
+                  >
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button 
+                    class="btn btn-sm btn-warning text-white me-1"
+                    (click)="editShareholder(shareholder.id!)"
+                    title="Edit Shareholder"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button 
+                    class="btn btn-sm btn-danger"
+                    (click)="deleteShareholder(shareholder.id!)"
+                    title="Delete Shareholder"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!loading && shareholders.length === 0" class="text-center py-5">
+          <i class="fas fa-user-tie fa-3x text-muted mb-3"></i>
+          <p class="text-muted">No shareholders found</p>
+          <button class="btn btn-primary" (click)="addShareholder()">
+            <i class="fas fa-plus me-1"></i> Add First Shareholder
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

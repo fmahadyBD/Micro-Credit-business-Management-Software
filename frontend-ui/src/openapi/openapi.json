@@ -1,8 +1,12 @@
 {
     "openapi": "3.0.1",
     "info": {
-        "title": "Installment Management API",
-        "description": "API for managing installments with file uploads",
+        "title": "Shareholder Management API",
+        "description": "API for managing shareholders, installments, and financial operations",
+        "contact": {
+            "name": "API Support",
+            "email": "support@fmahadybd.com"
+        },
         "version": "1.0"
     },
     "servers": [
@@ -12,6 +16,10 @@
         }
     ],
     "tags": [
+        {
+            "name": "Shareholders",
+            "description": "Shareholder management APIs"
+        },
         {
             "name": "Installment Management",
             "description": "APIs for managing installments"
@@ -126,8 +134,9 @@
         "/api/shareholders/{id}": {
             "get": {
                 "tags": [
-                    "shareholder-controller"
+                    "Shareholders"
                 ],
+                "summary": "Get shareholder by ID",
                 "operationId": "getShareholderById",
                 "parameters": [
                     {
@@ -142,11 +151,21 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Shareholder found",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/ShareholderDTO"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Shareholder not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ShareholderDTO"
                                 }
                             }
                         }
@@ -155,8 +174,9 @@
             },
             "put": {
                 "tags": [
-                    "shareholder-controller"
+                    "Shareholders"
                 ],
+                "summary": "Update shareholder",
                 "operationId": "updateShareholder",
                 "parameters": [
                     {
@@ -173,7 +193,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Shareholder"
+                                "$ref": "#/components/schemas/ShareholderUpdateDTO"
                             }
                         }
                     },
@@ -194,8 +214,9 @@
             },
             "delete": {
                 "tags": [
-                    "shareholder-controller"
+                    "Shareholders"
                 ],
+                "summary": "Delete shareholder",
                 "operationId": "deleteShareholder",
                 "parameters": [
                     {
@@ -274,7 +295,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Product"
+                                "$ref": "#/components/schemas/ProductRequestDTO"
                             }
                         }
                     },
@@ -1189,16 +1210,21 @@
         "/api/shareholders": {
             "get": {
                 "tags": [
-                    "shareholder-controller"
+                    "Shareholders"
                 ],
+                "summary": "Get all shareholders",
+                "description": "Retrieve a list of all shareholders",
                 "operationId": "getAllShareholders",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "List of shareholders",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ShareholderDTO"
+                                    }
                                 }
                             }
                         }
@@ -1207,14 +1233,15 @@
             },
             "post": {
                 "tags": [
-                    "shareholder-controller"
+                    "Shareholders"
                 ],
+                "summary": "Create a new shareholder",
                 "operationId": "createShareholder",
                 "requestBody": {
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Shareholder"
+                                "$ref": "#/components/schemas/ShareholderCreateDTO"
                             }
                         }
                     },
@@ -1300,7 +1327,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/Product"
+                                        "$ref": "#/components/schemas/ProductResponseDTO"
                                     }
                                 }
                             }
@@ -1318,7 +1345,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Product"
+                                "$ref": "#/components/schemas/ProductRequestDTO"
                             }
                         }
                     },
@@ -1395,6 +1422,47 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "tags": [
+                    "products"
+                ],
+                "summary": "Delete product image",
+                "operationId": "deleteProductImage",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "filePath",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/products/with-images": {
@@ -1402,6 +1470,7 @@
                 "tags": [
                     "products"
                 ],
+                "summary": "Create product with images",
                 "operationId": "createProductWithImages",
                 "requestBody": {
                     "content": {
@@ -1590,15 +1659,15 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Installment"
+                                "$ref": "#/components/schemas/InstallmentCreateDTO"
                             }
                         }
                     },
                     "required": true
                 },
                 "responses": {
-                    "201": {
-                        "description": "Installment created successfully",
+                    "400": {
+                        "description": "Invalid input",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1607,8 +1676,8 @@
                             }
                         }
                     },
-                    "400": {
-                        "description": "Invalid input",
+                    "201": {
+                        "description": "Installment created successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1760,172 +1829,6 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/InstallmentResponseDTO"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/earnings/{shareholderId}/add-historical": {
-            "post": {
-                "tags": [
-                    "shareholder-earning-controller"
-                ],
-                "operationId": "addHistoricalEarning",
-                "parameters": [
-                    {
-                        "name": "shareholderId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    },
-                    {
-                        "name": "month",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "monthlyEarning",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "number",
-                            "format": "double"
-                        }
-                    },
-                    {
-                        "name": "description",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/earnings/recalculate": {
-            "post": {
-                "tags": [
-                    "shareholder-earning-controller"
-                ],
-                "operationId": "recalculateMonthEarnings",
-                "parameters": [
-                    {
-                        "name": "month",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "totalBusinessProfit",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "number",
-                            "format": "double"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/earnings/calculate/{shareholderId}": {
-            "post": {
-                "tags": [
-                    "shareholder-earning-controller"
-                ],
-                "operationId": "calculateMonthlyEarnings",
-                "parameters": [
-                    {
-                        "name": "shareholderId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    },
-                    {
-                        "name": "totalBusinessProfit",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "number",
-                            "format": "double"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/earnings/calculate-all": {
-            "post": {
-                "tags": [
-                    "shareholder-earning-controller"
-                ],
-                "operationId": "calculateAllShareholdersEarnings",
-                "parameters": [
-                    {
-                        "name": "totalBusinessProfit",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "number",
-                            "format": "double"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
                                 }
                             }
                         }
@@ -2453,8 +2356,9 @@
         "/api/shareholders/{id}/details": {
             "get": {
                 "tags": [
-                    "shareholder-controller"
+                    "Shareholders"
                 ],
+                "summary": "Get shareholder details",
                 "operationId": "getShareholderDetails",
                 "parameters": [
                     {
@@ -2469,11 +2373,31 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Shareholder details fetched successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/ShareholderDetailsDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ShareholderDetailsDTO"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Shareholder not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ShareholderDetailsDTO"
                                 }
                             }
                         }
@@ -2484,8 +2408,9 @@
         "/api/shareholders/{id}/dashboard": {
             "get": {
                 "tags": [
-                    "shareholder-controller"
+                    "Shareholders"
                 ],
+                "summary": "Get shareholder dashboard",
                 "operationId": "getShareholderDashboard",
                 "parameters": [
                     {
@@ -2500,6 +2425,27 @@
                 ],
                 "responses": {
                     "200": {
+                        "description": "Shareholder dashboard data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ShareholderDashboardDTO"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/shareholders/statistics": {
+            "get": {
+                "tags": [
+                    "Shareholders"
+                ],
+                "summary": "Get shareholder statistics",
+                "operationId": "getShareholderStatistics",
+                "responses": {
+                    "200": {
                         "description": "OK",
                         "content": {
                             "application/json": {
@@ -2512,12 +2458,13 @@
                 }
             }
         },
-        "/api/shareholders/statistics": {
+        "/api/shareholders/inactive": {
             "get": {
                 "tags": [
-                    "shareholder-controller"
+                    "Shareholders"
                 ],
-                "operationId": "getShareholderStatistics",
+                "summary": "Get inactive shareholders",
+                "operationId": "getInactiveShareholders",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2535,8 +2482,9 @@
         "/api/shareholders/active": {
             "get": {
                 "tags": [
-                    "shareholder-controller"
+                    "Shareholders"
                 ],
+                "summary": "Get active shareholders",
                 "operationId": "getActiveShareholders",
                 "responses": {
                     "200": {
@@ -2954,139 +2902,6 @@
                 }
             }
         },
-        "/api/earnings/{shareholderId}": {
-            "get": {
-                "tags": [
-                    "shareholder-earning-controller"
-                ],
-                "operationId": "getShareholderEarnings",
-                "parameters": [
-                    {
-                        "name": "shareholderId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/earnings/{shareholderId}/summary": {
-            "get": {
-                "tags": [
-                    "shareholder-earning-controller"
-                ],
-                "operationId": "getEarningSummary",
-                "parameters": [
-                    {
-                        "name": "shareholderId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/earnings/{shareholderId}/last-12-months": {
-            "get": {
-                "tags": [
-                    "shareholder-earning-controller"
-                ],
-                "operationId": "getLast12MonthsEarnings",
-                "parameters": [
-                    {
-                        "name": "shareholderId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/earnings/last-month": {
-            "get": {
-                "tags": [
-                    "shareholder-earning-controller"
-                ],
-                "operationId": "getLastMonthEarnings",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/earnings/dashboard": {
-            "get": {
-                "tags": [
-                    "shareholder-earning-controller"
-                ],
-                "operationId": "getDashboardSummary",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/agents/status/{status}": {
             "get": {
                 "tags": [
@@ -3194,56 +3009,163 @@
                     }
                 }
             },
-            "Shareholder": {
+            "ShareholderUpdateDTO": {
                 "type": "object",
                 "properties": {
-                    "id": {
-                        "type": "integer",
-                        "format": "int64"
-                    },
                     "name": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Shareholder full name",
+                        "example": "John Doe"
                     },
                     "phone": {
-                        "type": "string"
+                        "pattern": "^\\+?[0-9]{10,15}$",
+                        "type": "string",
+                        "description": "Phone number",
+                        "example": "+1234567890"
                     },
                     "nidCard": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "National ID card number",
+                        "example": "1234567890123"
                     },
                     "nominee": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Nominee name",
+                        "example": "Jane Doe"
                     },
                     "zila": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "District",
+                        "example": "Dhaka"
                     },
                     "house": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "House address",
+                        "example": "123 Main Street"
                     },
                     "investment": {
+                        "minimum": 0,
                         "type": "number",
-                        "format": "double"
+                        "description": "Total investment amount",
+                        "format": "double",
+                        "example": 100000.0
                     },
                     "totalShare": {
+                        "minimum": 0,
                         "type": "integer",
-                        "format": "int32"
+                        "description": "Total number of shares",
+                        "format": "int32",
+                        "example": 100
                     },
                     "totalEarning": {
+                        "minimum": 0,
                         "type": "number",
-                        "format": "double"
+                        "description": "Total earnings",
+                        "format": "double",
+                        "example": 15000.0
                     },
                     "currentBalance": {
+                        "minimum": 0,
                         "type": "number",
-                        "format": "double"
+                        "description": "Current balance",
+                        "format": "double",
+                        "example": 5000.0
                     },
                     "role": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Role in organization",
+                        "example": "Investor"
                     },
                     "status": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Status",
+                        "example": "Active",
+                        "enum": [
+                            "Active",
+                            "Inactive"
+                        ]
                     },
                     "joinDate": {
                         "type": "string",
-                        "format": "date"
+                        "description": "Join date",
+                        "format": "date",
+                        "example": "2023-01-15"
+                    }
+                },
+                "description": "Shareholder update DTO"
+            },
+            "ProductRequestDTO": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "costPrice": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "isDeliveryRequired": {
+                        "type": "boolean"
+                    },
+                    "soldByAgentId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "whoRequestId": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "InstallmentUpdateDTO": {
+                "type": "object",
+                "properties": {
+                    "totalAmountOfProduct": {
+                        "minimum": 0.01,
+                        "exclusiveMinimum": false,
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "otherCost": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "advanced_paid": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "installmentMonths": {
+                        "maximum": 60,
+                        "minimum": 1,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "interestRate": {
+                        "maximum": 100.0,
+                        "exclusiveMaximum": false,
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "ACTIVE",
+                            "COMPLETED",
+                            "OVERDUE",
+                            "CANCELLED",
+                            "DEFAULTED"
+                        ]
                     }
                 }
             },
@@ -3377,182 +3299,6 @@
                     }
                 }
             },
-            "Member": {
-                "required": [
-                    "name",
-                    "nidCardNumber",
-                    "nomineeName",
-                    "nomineeNidCardNumber",
-                    "nomineePhone",
-                    "phone",
-                    "village",
-                    "zila"
-                ],
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    "name": {
-                        "maxLength": 100,
-                        "minLength": 2,
-                        "type": "string"
-                    },
-                    "phone": {
-                        "maxLength": 15,
-                        "minLength": 10,
-                        "type": "string"
-                    },
-                    "zila": {
-                        "type": "string"
-                    },
-                    "village": {
-                        "type": "string"
-                    },
-                    "nidCardNumber": {
-                        "type": "string"
-                    },
-                    "nidCardImagePath": {
-                        "type": "string"
-                    },
-                    "photoPath": {
-                        "type": "string"
-                    },
-                    "nomineeName": {
-                        "type": "string"
-                    },
-                    "nomineePhone": {
-                        "type": "string"
-                    },
-                    "nomineeNidCardNumber": {
-                        "type": "string"
-                    },
-                    "nomineeNidCardImagePath": {
-                        "type": "string"
-                    },
-                    "joinDate": {
-                        "type": "string",
-                        "format": "date"
-                    },
-                    "status": {
-                        "type": "string",
-                        "enum": [
-                            "ACTIVE",
-                            "INACTIVE",
-                            "SUSPENDED"
-                        ]
-                    },
-                    "agents": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Agent"
-                        }
-                    },
-                    "installments": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Installment"
-                        }
-                    }
-                },
-                "description": "Member information"
-            },
-            "Product": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "category": {
-                        "type": "string"
-                    },
-                    "description": {
-                        "type": "string"
-                    },
-                    "price": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "costPrice": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "totalPrice": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "isDeliveryRequired": {
-                        "type": "boolean"
-                    },
-                    "dateAdded": {
-                        "type": "string",
-                        "format": "date"
-                    },
-                    "soldByAgent": {
-                        "$ref": "#/components/schemas/Agent"
-                    },
-                    "whoRequest": {
-                        "$ref": "#/components/schemas/Member"
-                    },
-                    "installment": {
-                        "$ref": "#/components/schemas/Installment"
-                    },
-                    "imageFilePaths": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "description": "Product details"
-            },
-            "InstallmentUpdateDTO": {
-                "type": "object",
-                "properties": {
-                    "totalAmountOfProduct": {
-                        "minimum": 0.01,
-                        "exclusiveMinimum": false,
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "otherCost": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "advanced_paid": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "installmentMonths": {
-                        "maximum": 60,
-                        "minimum": 1,
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "interestRate": {
-                        "maximum": 100.0,
-                        "exclusiveMaximum": false,
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "status": {
-                        "type": "string",
-                        "enum": [
-                            "PENDING",
-                            "ACTIVE",
-                            "COMPLETED",
-                            "OVERDUE",
-                            "CANCELLED",
-                            "DEFAULTED"
-                        ]
-                    }
-                }
-            },
             "InstallmentResponseDTO": {
                 "required": [
                     "advanced_paid",
@@ -3664,6 +3410,87 @@
                 },
                 "description": "Installment response with all details"
             },
+            "Member": {
+                "required": [
+                    "name",
+                    "nidCardNumber",
+                    "nomineeName",
+                    "nomineeNidCardNumber",
+                    "nomineePhone",
+                    "phone",
+                    "village",
+                    "zila"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "maxLength": 100,
+                        "minLength": 2,
+                        "type": "string"
+                    },
+                    "phone": {
+                        "maxLength": 15,
+                        "minLength": 10,
+                        "type": "string"
+                    },
+                    "zila": {
+                        "type": "string"
+                    },
+                    "village": {
+                        "type": "string"
+                    },
+                    "nidCardNumber": {
+                        "type": "string"
+                    },
+                    "nidCardImagePath": {
+                        "type": "string"
+                    },
+                    "photoPath": {
+                        "type": "string"
+                    },
+                    "nomineeName": {
+                        "type": "string"
+                    },
+                    "nomineePhone": {
+                        "type": "string"
+                    },
+                    "nomineeNidCardNumber": {
+                        "type": "string"
+                    },
+                    "nomineeNidCardImagePath": {
+                        "type": "string"
+                    },
+                    "joinDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "ACTIVE",
+                            "INACTIVE",
+                            "SUSPENDED"
+                        ]
+                    },
+                    "agents": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Agent"
+                        }
+                    },
+                    "installments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Installment"
+                        }
+                    }
+                },
+                "description": "Member information"
+            },
             "PaymentSchedule": {
                 "required": [
                     "collectingAgent",
@@ -3727,6 +3554,126 @@
                 },
                 "description": "Payment schedules"
             },
+            "Product": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "costPrice": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "totalPrice": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "isDeliveryRequired": {
+                        "type": "boolean"
+                    },
+                    "dateAdded": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "soldByAgent": {
+                        "$ref": "#/components/schemas/Agent"
+                    },
+                    "whoRequest": {
+                        "$ref": "#/components/schemas/Member"
+                    },
+                    "installment": {
+                        "$ref": "#/components/schemas/Installment"
+                    },
+                    "imageFilePaths": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "description": "Product details"
+            },
+            "ShareholderCreateDTO": {
+                "required": [
+                    "name"
+                ],
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Shareholder full name",
+                        "example": "John Doe"
+                    },
+                    "phone": {
+                        "pattern": "^\\+?[0-9]{10,15}$",
+                        "type": "string",
+                        "description": "Phone number",
+                        "example": "+1234567890"
+                    },
+                    "nidCard": {
+                        "type": "string",
+                        "description": "National ID card number",
+                        "example": "1234567890123"
+                    },
+                    "nominee": {
+                        "type": "string",
+                        "description": "Nominee name",
+                        "example": "Jane Doe"
+                    },
+                    "zila": {
+                        "type": "string",
+                        "description": "District",
+                        "example": "Dhaka"
+                    },
+                    "house": {
+                        "type": "string",
+                        "description": "House address",
+                        "example": "123 Main Street"
+                    },
+                    "investment": {
+                        "minimum": 0,
+                        "type": "number",
+                        "description": "Total investment amount",
+                        "format": "double",
+                        "example": 100000.0
+                    },
+                    "role": {
+                        "type": "string",
+                        "description": "Role in organization",
+                        "example": "Investor"
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Status",
+                        "example": "Active",
+                        "enum": [
+                            "Active",
+                            "Inactive"
+                        ]
+                    },
+                    "joinDate": {
+                        "type": "string",
+                        "description": "Join date",
+                        "format": "date",
+                        "example": "2023-01-15"
+                    }
+                },
+                "description": "Shareholder creation DTO"
+            },
             "RequestProduct": {
                 "type": "object",
                 "properties": {
@@ -3788,6 +3735,54 @@
                     }
                 }
             },
+            "InstallmentCreateDTO": {
+                "required": [
+                    "advanced_paid",
+                    "agentId",
+                    "installmentMonths",
+                    "interestRate",
+                    "productId",
+                    "totalAmountOfProduct"
+                ],
+                "type": "object",
+                "properties": {
+                    "productId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalAmountOfProduct": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "otherCost": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "advanced_paid": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "installmentMonths": {
+                        "maximum": 60,
+                        "minimum": 1,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "interestRate": {
+                        "maximum": 100.0,
+                        "exclusiveMaximum": false,
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "agentId": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
             "DeletedUser": {
                 "type": "object",
                 "properties": {
@@ -3818,6 +3813,252 @@
                     "deletedAt": {
                         "type": "string",
                         "format": "date-time"
+                    }
+                }
+            },
+            "ShareholderDTO": {
+                "required": [
+                    "name"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "description": "Shareholder ID",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Shareholder full name",
+                        "example": "John Doe"
+                    },
+                    "phone": {
+                        "pattern": "^\\+?[0-9]{10,15}$",
+                        "type": "string",
+                        "description": "Phone number",
+                        "example": "+1234567890"
+                    },
+                    "nidCard": {
+                        "type": "string",
+                        "description": "National ID card number",
+                        "example": "1234567890123"
+                    },
+                    "nominee": {
+                        "type": "string",
+                        "description": "Nominee name",
+                        "example": "Jane Doe"
+                    },
+                    "zila": {
+                        "type": "string",
+                        "description": "District",
+                        "example": "Dhaka"
+                    },
+                    "house": {
+                        "type": "string",
+                        "description": "House address",
+                        "example": "123 Main Street"
+                    },
+                    "investment": {
+                        "minimum": 0,
+                        "type": "number",
+                        "description": "Total investment amount",
+                        "format": "double",
+                        "example": 100000.0
+                    },
+                    "totalShare": {
+                        "minimum": 0,
+                        "type": "integer",
+                        "description": "Total number of shares",
+                        "format": "int32",
+                        "example": 100
+                    },
+                    "totalEarning": {
+                        "minimum": 0,
+                        "type": "number",
+                        "description": "Total earnings",
+                        "format": "double",
+                        "example": 15000.0
+                    },
+                    "currentBalance": {
+                        "minimum": 0,
+                        "type": "number",
+                        "description": "Current balance",
+                        "format": "double",
+                        "example": 5000.0
+                    },
+                    "role": {
+                        "type": "string",
+                        "description": "Role in organization",
+                        "example": "Investor"
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Status",
+                        "example": "Active",
+                        "enum": [
+                            "Active",
+                            "Inactive"
+                        ]
+                    },
+                    "joinDate": {
+                        "type": "string",
+                        "description": "Join date",
+                        "format": "date",
+                        "example": "2023-01-15"
+                    },
+                    "roi": {
+                        "type": "number",
+                        "description": "Return on Investment percentage",
+                        "format": "double"
+                    },
+                    "totalValue": {
+                        "type": "number",
+                        "description": "Total value (investment + earnings)",
+                        "format": "double"
+                    }
+                },
+                "description": "Shareholder Data Transfer Object"
+            },
+            "ShareholderDetailsDTO": {
+                "type": "object",
+                "properties": {
+                    "shareholder": {
+                        "$ref": "#/components/schemas/ShareholderDTO"
+                    },
+                    "totalShares": {
+                        "type": "integer",
+                        "description": "Total shares",
+                        "format": "int32"
+                    },
+                    "totalEarnings": {
+                        "type": "number",
+                        "description": "Total earnings",
+                        "format": "double"
+                    },
+                    "currentBalance": {
+                        "type": "number",
+                        "description": "Current balance",
+                        "format": "double"
+                    },
+                    "activeSince": {
+                        "type": "string",
+                        "description": "Active since date",
+                        "format": "date"
+                    },
+                    "investment": {
+                        "type": "number",
+                        "description": "Investment amount",
+                        "format": "double"
+                    },
+                    "totalValue": {
+                        "type": "number",
+                        "description": "Total value",
+                        "format": "double"
+                    }
+                },
+                "description": "Shareholder details DTO"
+            },
+            "DashboardMetricsDTO": {
+                "type": "object",
+                "properties": {
+                    "roiPercentage": {
+                        "type": "number",
+                        "description": "ROI percentage",
+                        "format": "double"
+                    },
+                    "monthlyAverageEarning": {
+                        "type": "number",
+                        "description": "Monthly average earning",
+                        "format": "double"
+                    },
+                    "monthsActive": {
+                        "type": "integer",
+                        "description": "Months active",
+                        "format": "int64"
+                    },
+                    "totalValue": {
+                        "type": "number",
+                        "description": "Total value",
+                        "format": "double"
+                    }
+                },
+                "description": "Dashboard metrics DTO"
+            },
+            "ShareholderDashboardDTO": {
+                "type": "object",
+                "properties": {
+                    "basicInfo": {
+                        "$ref": "#/components/schemas/ShareholderDTO"
+                    },
+                    "performanceMetrics": {
+                        "$ref": "#/components/schemas/DashboardMetricsDTO"
+                    }
+                },
+                "description": "Shareholder dashboard DTO"
+            },
+            "ProductResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "costPrice": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "totalPrice": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "isDeliveryRequired": {
+                        "type": "boolean"
+                    },
+                    "dateAdded": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "imageFilePaths": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "soldByAgentName": {
+                        "type": "string"
+                    },
+                    "whoRequestId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "whoRequestName": {
+                        "type": "string"
+                    },
+                    "whoRequestPhone": {
+                        "type": "string"
+                    },
+                    "whoRequestNidCardNumber": {
+                        "type": "string"
+                    },
+                    "whoRequestVillage": {
+                        "type": "string"
+                    },
+                    "whoRequestZila": {
+                        "type": "string"
                     }
                 }
             },

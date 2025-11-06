@@ -21,6 +21,7 @@ export class SideBarComponent implements OnInit, OnDestroy {
     | 'all-products' | 'add-product'
     | 'all-installments' | 'add-installment'
     | 'payment-schedules' | 'record-payment'
+    | 'all-shareholders' | 'add-shareholder'
   >();
 
   sidebarOpen = false;
@@ -70,6 +71,7 @@ export class SideBarComponent implements OnInit, OnDestroy {
       | 'all-products' | 'add-product'
       | 'all-installments' | 'add-installment'
       | 'payment-schedules' | 'record-payment'
+      | 'all-shareholders' | 'add-shareholder'
   ) {
     event.preventDefault();
     event.stopPropagation();

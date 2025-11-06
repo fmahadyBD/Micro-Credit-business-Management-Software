@@ -27,9 +27,9 @@ import { AllProductsComponent } from '../../page/product/all-products/all-produc
 import { AddProductComponent } from '../../page/product/add-product/add-product.component';
 import { AddInstallmentComponent } from '../../page/installment/add-installment/add-installment.component';
 import { PaymentScheduleComponent } from '../../page/payment-schedule/payment-schedule/payment-schedule.component';
-
-// ✅ NEW: Import Payment Schedule Component
-
+import { AllShareholdersComponent } from '../../page/shareholders/all-shareholders/all-shareholders.component';
+import { EditShareholderComponent } from '../../page/shareholders/edit-shareholder/edit-shareholder.component';
+import { ShareholderDetailsComponent } from '../../page/shareholders/shareholder-details/shareholder-details.component';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -61,8 +61,12 @@ import { PaymentScheduleComponent } from '../../page/payment-schedule/payment-sc
     AddProductComponent,
     // 💳 Installments
     AddInstallmentComponent,
-    // 💰 NEW: Payment Schedules
-    PaymentScheduleComponent
+    // 💰 Payment Schedules
+    PaymentScheduleComponent,
+    // 👔 Shareholders
+    AllShareholdersComponent,
+    ShareholderDetailsComponent,
+    EditShareholderComponent
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
@@ -80,13 +84,15 @@ export class AdminDashboardComponent implements OnInit {
     | 'all-products' | 'add-product'
     | 'agent-details' | 'edit-agent'
     | 'add-installment' | 'all-installments'
-    | 'payment-schedules' | 'record-payment' // ✅ NEW: Added payment views
+    | 'payment-schedules' | 'record-payment' 
+    | 'all-shareholders' | 'shareholder-details' | 'edit-shareholder'
     = 'dashboard';
 
   selectedUserId: number | null = null;
   selectedMemberId: number | null = null;
   selectedAgentId: number | null = null;
   selectedProductId: number | null = null;
+  selectedShareholderId: number | null = null; // ✅ ADD THIS LINE
 
   constructor(private sidebarService: SidebarTopbarService) { }
 
@@ -167,13 +173,33 @@ export class AdminDashboardComponent implements OnInit {
       this.currentView = 'add-installment';
     });
 
-    // ✅ NEW: Payment Schedule events (optional - if you need custom events)
+    // 💰 Payment Schedule events
     window.addEventListener('viewPaymentSchedules', () => {
       this.currentView = 'payment-schedules';
     });
 
     window.addEventListener('recordPayment', () => {
       this.currentView = 'record-payment';
+    });
+
+    // 👔 Shareholder events
+    window.addEventListener('viewShareholderDetails', (e: any) => {
+      this.selectedShareholderId = e.detail;
+      this.currentView = 'shareholder-details';
+    });
+
+    window.addEventListener('editShareholder', (e: any) => {
+      this.selectedShareholderId = e.detail;
+      this.currentView = 'edit-shareholder';
+    });
+
+    // window.addEventListener('addShareholder', () => {
+    //   this.currentView = 'add-shareholder'; // You'll need to create this component
+    // });
+
+    window.addEventListener('backToAllShareholders', () => {
+      this.selectedShareholderId = null;
+      this.currentView = 'all-shareholders';
     });
   }
 }

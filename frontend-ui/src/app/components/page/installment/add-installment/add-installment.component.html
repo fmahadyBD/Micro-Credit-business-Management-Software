@@ -52,8 +52,10 @@
                         <small class="text-success ms-2">
                           <i class="fas fa-money-bill me-1"></i>৳{{ product.price }}
                         </small>
-                        <small *ngIf="product.whoRequestName" class="text-info d-block mt-1">
-                          <i class="fas fa-user me-1"></i>{{ product.whoRequestName }}
+                        <!-- Show member from DTO fields OR nested object -->
+                        <small *ngIf="product.whoRequestName || product.whoRequest?.name" class="text-info d-block mt-1">
+                          <i class="fas fa-user me-1"></i>{{ product.whoRequestName || product.whoRequest?.name }} 
+                          ({{ product.whoRequestPhone || product.whoRequest?.phone }})
                         </small>
                       </div>
                     </button>
@@ -68,8 +70,10 @@
                       <strong>Selected:</strong> {{ selectedProduct.name }}<br>
                       <i class="fas fa-tag me-1"></i>{{ selectedProduct.category }} |
                       <i class="fas fa-money-bill me-1"></i>৳{{ selectedProduct.price }}
-                      <span *ngIf="selectedProduct.whoRequestName" class="d-block mt-1">
-                        <i class="fas fa-user me-1"></i>Member: {{ selectedProduct.whoRequestName }}
+                      <span *ngIf="selectedProduct.whoRequestName || selectedProduct.whoRequest?.name" class="d-block mt-1">
+                        <i class="fas fa-user me-1"></i>Member: 
+                        {{ selectedProduct.whoRequestName || selectedProduct.whoRequest?.name }} 
+                        ({{ selectedProduct.whoRequestPhone || selectedProduct.whoRequest?.phone }})
                       </span>
                     </small>
                   </div>
@@ -163,12 +167,26 @@
                 <label class="form-label">
                   <i class="fas fa-user me-2"></i>Member (Auto-selected from Product)
                 </label>
-                <div *ngIf="memberName && memberName !== 'No member assigned'" class="alert alert-info py-2 px-3">
+                
+                <!-- Show detailed member info when available -->
+                <div *ngIf="selectedMember && memberName && memberName !== 'No member assigned'" class="alert alert-info py-2 px-3">
                   <small>
-                    <strong>{{ memberName }}</strong><br>
-                    <i class="fas fa-info-circle me-1"></i>Member information comes from the selected product
+                    <div class="fw-bold">{{ selectedMember.name }}</div>
+                    <div class="mt-1">
+                      <i class="fas fa-phone me-1"></i>{{ selectedMember.phone }}
+                    </div>
+                    <div class="mt-1" *ngIf="selectedMember.nidCardNumber">
+                      <i class="fas fa-id-card me-1"></i>NID: {{ selectedMember.nidCardNumber }}
+                    </div>
+                    <div class="mt-1" *ngIf="selectedMember.village && selectedMember.zila">
+                      <i class="fas fa-map-marker-alt me-1"></i>{{ selectedMember.village }}, {{ selectedMember.zila }}
+                    </div>
+                    <div class="mt-2 text-muted">
+                      <i class="fas fa-info-circle me-1"></i>Auto-selected from product
+                    </div>
                   </small>
                 </div>
+                
                 <div *ngIf="!memberName || memberName === 'No member assigned'" class="alert alert-warning py-2 px-3">
                   <small><i class="fas fa-info-circle me-1"></i>Select a product to see member information</small>
                 </div>

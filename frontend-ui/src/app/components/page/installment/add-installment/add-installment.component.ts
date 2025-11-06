@@ -10,6 +10,16 @@ import { Agent } from '../../../../services/models/agent';
 import { Member } from '../../../../services/models/member';
 import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
 
+// Extended Product interface to include member details from ProductResponseDTO
+interface ProductWithMemberDetails extends Product {
+  whoRequestId?: number;
+  whoRequestName?: string;
+  whoRequestPhone?: string;
+  whoRequestNidCardNumber?: string;
+  whoRequestVillage?: string;
+  whoRequestZila?: string;
+}
+
 @Component({
   selector: 'app-add-installment',
   standalone: true,
@@ -35,10 +45,10 @@ export class AddInstallmentComponent implements OnInit {
   isSidebarCollapsed = false;
 
   // Product search
-  products: Product[] = [];
-  filteredProducts: Product[] = [];
+  products: ProductWithMemberDetails[] = [];
+  filteredProducts: ProductWithMemberDetails[] = [];
   productSearchTerm: string = '';
-  selectedProduct: Product | null = null;
+  selectedProduct: ProductWithMemberDetails | null = null;
   showProductDropdown: boolean = false;
   loadingProducts: boolean = false;
 
@@ -74,8 +84,9 @@ export class AddInstallmentComponent implements OnInit {
   loadProducts(): void {
     this.loadingProducts = true;
     this.productsService.getAllProducts().subscribe({
-      next: (data) => {
+      next: (data: any) => {
         this.products = data;
+        console.log('Loaded products:', this.products);
         this.loadingProducts = false;
       },
       error: (err) => {
@@ -115,20 +126,40 @@ export class AddInstallmentComponent implements OnInit {
     this.showProductDropdown = this.filteredProducts.length > 0;
   }
 
-  selectProduct(product: Product): void {
+  selectProduct(product: ProductWithMemberDetails): void {
     this.selectedProduct = product;
     this.productSearchTerm = `${product.name} (${product.category})`;
     this.showProductDropdown = false;
 
-    // Auto-populate member from product's whoRequest
-    if (product.whoRequest && product.whoRequest.id) {
-      // Member is already included in the product, so we can use it directly
+    console.log('Selected product:', product);
+
+    // Try to get member from ProductResponseDTO fields first
+    if (product.whoRequestId && product.whoRequestName) {
+      // Create member object from ProductResponseDTO fields
+      this.selectedMember = {
+        id: product.whoRequestId,
+        name: product.whoRequestName,
+        phone: product.whoRequestPhone || '',
+        nidCardNumber: product.whoRequestNidCardNumber || '',
+        village: product.whoRequestVillage || '',
+        zila: product.whoRequestZila || '',
+        nomineeName: '',
+        nomineeNidCardNumber: '',
+        nomineePhone: ''
+      };
+      this.memberName = `${product.whoRequestName} (${product.whoRequestPhone})`;
+      console.log('Member auto-selected from DTO:', this.selectedMember);
+    }
+    // Fallback: Check if whoRequest object exists
+    else if (product.whoRequest && product.whoRequest.id) {
       this.selectedMember = product.whoRequest;
       this.memberName = `${product.whoRequest.name} (${product.whoRequest.phone})`;
-      console.log('Member auto-selected:', this.selectedMember);
-    } else {
+      console.log('Member auto-selected from nested object:', this.selectedMember);
+    } 
+    else {
       this.selectedMember = null;
       this.memberName = 'No member assigned';
+      console.log('No member assigned to this product');
     }
 
     // Auto-fill total amount

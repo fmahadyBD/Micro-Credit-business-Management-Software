@@ -15,7 +15,7 @@ public class ProductMapper {
             return null;
         }
 
-        return ProductResponseDTO.builder()
+        ProductResponseDTO.ProductResponseDTOBuilder builder = ProductResponseDTO.builder()
                 .id(product.getId())
                 .name(product.getName())
                 .category(product.getCategory())
@@ -26,10 +26,20 @@ public class ProductMapper {
                 .isDeliveryRequired(product.getIsDeliveryRequired())
                 .dateAdded(product.getDateAdded())
                 .imageFilePaths(product.getImageFilePaths())
-                .soldByAgentName(product.getSoldByAgent() != null ? product.getSoldByAgent().getName() : null)
-                .whoRequestName(product.getWhoRequest() != null ? product.getWhoRequest().getName() : null)
-                .whoRequestId(product.getWhoRequest() != null ? product.getWhoRequest().getId() : null) // ✅ ADD THIS
-                .build();
+                .soldByAgentName(product.getSoldByAgent() != null ? product.getSoldByAgent().getName() : null);
+
+        // Add full member information if whoRequest exists
+        if (product.getWhoRequest() != null) {
+            builder
+                .whoRequestId(product.getWhoRequest().getId())
+                .whoRequestName(product.getWhoRequest().getName())
+                .whoRequestPhone(product.getWhoRequest().getPhone())
+                .whoRequestNidCardNumber(product.getWhoRequest().getNidCardNumber())
+                .whoRequestVillage(product.getWhoRequest().getVillage())
+                .whoRequestZila(product.getWhoRequest().getZila());
+        }
+
+        return builder.build();
     }
 
     // Optional: If you need to convert RequestDTO to Entity

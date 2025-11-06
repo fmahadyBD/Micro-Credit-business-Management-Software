@@ -8,11 +8,11 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { Installment } from '../../models/installment';
+import { InstallmentCreateDto } from '../../models/installment-create-dto';
 import { InstallmentResponseDto } from '../../models/installment-response-dto';
 
 export interface CreateInstallment$Params {
-      body: Installment
+      body: InstallmentCreateDto
 }
 
 export function createInstallment(http: HttpClient, rootUrl: string, params: CreateInstallment$Params, context?: HttpContext): Observable<StrictHttpResponse<InstallmentResponseDto>> {

@@ -8,11 +8,11 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { Product } from '../../models/product';
+import { ProductRequestDto } from '../../models/product-request-dto';
 
 export interface UpdateProduct$Params {
   id: number;
-      body: Product
+      body: ProductRequestDto
 }
 
 export function updateProduct(http: HttpClient, rootUrl: string, params: UpdateProduct$Params, context?: HttpContext): Observable<StrictHttpResponse<{

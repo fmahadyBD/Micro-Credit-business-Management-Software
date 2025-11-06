@@ -21,6 +21,12 @@ public class ProductResponseDTO {
     private LocalDate dateAdded;
     private List<String> imageFilePaths;
     private String soldByAgentName;
+    
+    // Member information
+    private Long whoRequestId;
     private String whoRequestName;
-    private Long whoRequestId; // ✅ ADD THIS FIELD
+    private String whoRequestPhone;
+    private String whoRequestNidCardNumber;
+    private String whoRequestVillage;
+    private String whoRequestZila;
 }
