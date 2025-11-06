@@ -2,11 +2,15 @@ package com.fmahadybd.backend.service;
 
 import com.fmahadybd.backend.dto.ProductRequestDTO;
 import com.fmahadybd.backend.dto.ProductResponseDTO;
+import com.fmahadybd.backend.entity.MainBalance;
 import com.fmahadybd.backend.entity.Product;
 import com.fmahadybd.backend.mapper.ProductMapper;
 import com.fmahadybd.backend.repository.AgentRepository;
+import com.fmahadybd.backend.repository.MainBalanceRepository;
 import com.fmahadybd.backend.repository.MemberRepository;
 import com.fmahadybd.backend.repository.ProductRepository;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,15 +28,44 @@ public class ProductService {
     private final FileStorageService fileStorageService;
     private final AgentRepository agentRepository;
     private final MemberRepository memberRepository;
+    private final MainBalanceRepository mainBalanceRepository;
 
     private final String folder = "products";
 
     /** Create product without images */
+    @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("Product data cannot be null");
+        }
+
         Product product = mapToEntity(dto);
         product.setDateAdded(LocalDate.now());
-        Product saved = productRepository.save(product);
-        return ProductMapper.toResponseDTO(saved);
+
+        MainBalance mb = getMainBalance();
+        double balance = mb.getTotalBalance();
+
+        double requested_amount = dto.getCostPrice() + dto.getPrice();
+
+        // Check available balance before creating product
+        if (requested_amount > balance) {
+            throw new RuntimeException("Insufficient main balance to create product. Available: "
+                    + balance + ", Required: " + dto.getCostPrice() + dto.getPrice());
+        }
+
+        // Deduct cost from main balance
+        mb.setTotalBalance(balance - requested_amount);
+        mb.setTotalProductCost(mb.getTotalProductCost() + requested_amount);
+        mainBalanceRepository.save(mb);
+
+        // Save product
+        Product savedProduct = productRepository.save(product);
+
+        // log.info("Product '{}' created successfully. Deducted cost: {}. Remaining
+        // balance: {}",
+        // savedProduct.getName(), dto.getCostPrice(), mb.getTotalBalance());
+
+        return ProductMapper.toResponseDTO(savedProduct);
     }
 
     public ProductResponseDTO createProductWithImages(ProductRequestDTO dto, MultipartFile[] images) {
@@ -48,6 +81,25 @@ public class ProductService {
                         product.getImageFilePaths().add(filePath);
                     });
         }
+
+        // Product product = mapToEntity(dto);
+        product.setDateAdded(LocalDate.now());
+
+        MainBalance mb = getMainBalance();
+        double balance = mb.getTotalBalance();
+
+        double requested_amount = dto.getCostPrice() + dto.getPrice();
+
+        // Check available balance before creating product
+        if (requested_amount > balance) {
+            throw new RuntimeException("Insufficient main balance to create product. Available: "
+                    + balance + ", Required: " + dto.getCostPrice() + dto.getPrice());
+        }
+
+        // Deduct cost from main balance
+        mb.setTotalBalance(balance - requested_amount);
+        mb.setTotalProductCost(mb.getTotalProductCost() + requested_amount);
+        mainBalanceRepository.save(mb);
 
         Product saved = productRepository.save(product);
         return ProductMapper.toResponseDTO(saved);
@@ -98,12 +150,15 @@ public class ProductService {
         return ProductMapper.toResponseDTO(product);
     }
 
-    /** Update product */
+    @Transactional
     public ProductResponseDTO updateProduct(Long id, ProductRequestDTO dto) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
 
-        // Update fields from DTO
+        // Store old cost for balance adjustment
+        double oldCostPrice = product.getCostPrice() + product.getPrice();
+
+        // Update product fields
         product.setName(dto.getName());
         product.setCategory(dto.getCategory());
         product.setDescription(dto.getDescription());
@@ -124,7 +179,29 @@ public class ProductService {
             product.setWhoRequest(null);
         }
 
+        // Adjust main balance
+        MainBalance mb = getMainBalance();
+        double balance = mb.getTotalBalance();
+
+        // Refund old cost first
+        balance += oldCostPrice;
+        double total_product_cost = mb.getTotalProductCost() + oldCostPrice;
+
+        // Check if new cost can be covered
+        if (dto.getCostPrice() > balance) {
+            throw new RuntimeException("Insufficient main balance to update product. Available: "
+                    + balance + ", Required: " + dto.getCostPrice() + dto.getPrice());
+        }
+
+        // Deduct new cost
+
+        mb.setTotalProductCost(total_product_cost + dto.getCostPrice());
+        mb.setTotalBalance(balance - dto.getCostPrice());
+        mainBalanceRepository.save(mb);
+
+        // Save updated product
         Product updated = productRepository.save(product);
+
         return ProductMapper.toResponseDTO(updated);
     }
 
@@ -160,5 +237,18 @@ public class ProductService {
         }
 
         return product;
+    }
+
+    private MainBalance getMainBalance() {
+        return mainBalanceRepository.findAll().stream().findFirst()
+                .orElseGet(() -> mainBalanceRepository.save(
+                        MainBalance.builder()
+                                .totalBalance(0.0)
+                                .totalInvestment(0.0)
+                                .totalWithdrawal(0.0)
+                                .totalProductCost(0.0)
+                                .totalMaintenanceCost(0.0)
+                                .totalInstallmentReturn(0.0)
+                                .build()));
     }
 }

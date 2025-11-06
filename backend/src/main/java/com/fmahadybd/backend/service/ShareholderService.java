@@ -1,19 +1,27 @@
 // ShareholderService.java (updated)
 package com.fmahadybd.backend.service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.fmahadybd.backend.dto.*;
-import com.fmahadybd.backend.entity.Shareholder;
-import com.fmahadybd.backend.mapper.ShareholderMapper;
-import com.fmahadybd.backend.repository.ShareholderRepository;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fmahadybd.backend.dto.ShareholderCreateDTO;
+import com.fmahadybd.backend.dto.ShareholderDTO;
+import com.fmahadybd.backend.dto.ShareholderDashboardDTO;
+import com.fmahadybd.backend.dto.ShareholderDetailsDTO;
+import com.fmahadybd.backend.dto.ShareholderUpdateDTO;
+import com.fmahadybd.backend.dto.StatisticsDTO;
+import com.fmahadybd.backend.entity.MainBalance;
+import com.fmahadybd.backend.entity.Shareholder;
+import com.fmahadybd.backend.mapper.ShareholderMapper;
+import com.fmahadybd.backend.repository.MainBalanceRepository;
+import com.fmahadybd.backend.repository.ShareholderRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -22,25 +30,34 @@ public class ShareholderService {
 
     private final ShareholderRepository shareholderRepository;
     private final ShareholderMapper shareholderMapper;
+    private final MainBalanceService mainBalanceService;
+    private final MainBalanceRepository mainBalanceRepository;
 
     @Transactional
     public ShareholderDTO saveShareholder(ShareholderCreateDTO shareholderDTO) {
-        log.info("Saving shareholder: {}", shareholderDTO.getName());
-
-        // Validate DTO
         if (shareholderDTO == null) {
             throw new IllegalArgumentException("Shareholder data cannot be null");
         }
 
+        log.info("Saving shareholder: {}", shareholderDTO.getName());
+
         // Convert DTO to entity
         Shareholder shareholder = shareholderMapper.toEntity(shareholderDTO);
-        
-        // Save entity
-        Shareholder saved = shareholderRepository.save(shareholder);
-        log.info("Successfully saved shareholder with id: {}", saved.getId());
-        
-        // Convert back to DTO for response
-        return shareholderMapper.toDTO(saved);
+
+        // Save shareholder
+        Shareholder savedShareholder = shareholderRepository.save(shareholder);
+        log.info("Successfully saved shareholder with id: {}", savedShareholder.getId());
+
+        // Update MainBalance totals
+        MainBalance mb = getMainBalance();
+        double investment = savedShareholder.getInvestment();
+
+        mb.setTotalInvestment(mb.getTotalInvestment() + investment);
+        mb.setTotalBalance(mb.getTotalBalance() + investment);
+        mainBalanceRepository.save(mb);
+
+        // Return DTO
+        return shareholderMapper.toDTO(savedShareholder);
     }
 
     public List<ShareholderDTO> getAllShareholders() {
@@ -73,15 +90,29 @@ public class ShareholderService {
             throw new IllegalArgumentException("Shareholder details cannot be null");
         }
 
-        return shareholderRepository.findById(id)
-                .map(existing -> {
-                    // Update entity with DTO data
-                    Shareholder updatedEntity = shareholderMapper.toEntity(shareholderDTO, existing);
-                    Shareholder saved = shareholderRepository.save(updatedEntity);
-                    log.info("Successfully updated shareholder with id: {}", id);
-                    return shareholderMapper.toDTO(saved);
-                })
+        // Fetch existing shareholder
+        Shareholder shareholder = shareholderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Shareholder not found with id: " + id));
+
+        MainBalance mb = getMainBalance();
+        double oldInvestment = shareholder.getInvestment();
+        double newInvestment = shareholderDTO.getInvestment();
+
+        // Calculate the difference
+        double difference = newInvestment - oldInvestment;
+
+        // Update MainBalance totals based on change
+        mb.setTotalInvestment(mb.getTotalInvestment() + difference);
+        mb.setTotalBalance(mb.getTotalBalance() + difference);
+        mainBalanceRepository.save(mb);
+
+        // Update shareholder entity
+        Shareholder updatedEntity = shareholderMapper.toEntity(shareholderDTO, shareholder);
+        Shareholder savedShareholder = shareholderRepository.save(updatedEntity);
+
+        log.info("Successfully updated shareholder with id: {}", id);
+
+        return shareholderMapper.toDTO(savedShareholder);
     }
 
     @Transactional
@@ -183,4 +214,18 @@ public class ShareholderService {
                         .sum())
                 .build();
     }
+
+    private MainBalance getMainBalance() {
+        return mainBalanceRepository.findAll().stream().findFirst()
+                .orElseGet(() -> mainBalanceRepository.save(
+                        MainBalance.builder()
+                                .totalBalance(0.0)
+                                .totalInvestment(0.0)
+                                .totalWithdrawal(0.0)
+                                .totalProductCost(0.0)
+                                .totalMaintenanceCost(0.0)
+                                .totalInstallmentReturn(0.0)
+                                .build()));
+    }
+
 }

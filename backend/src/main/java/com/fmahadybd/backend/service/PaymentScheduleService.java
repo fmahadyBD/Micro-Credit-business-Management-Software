@@ -21,6 +21,7 @@ public class PaymentScheduleService {
         private final PaymentScheduleRepository paymentScheduleRepository;
         private final InstallmentRepository installmentRepository;
         private final AgentRepository agentRepository;
+        private final MainBalanceRepository mainBalanceRepository;
 
         public Double perMonth(long id) {
                 Installment installment = installmentRepository.findById(id)
@@ -45,17 +46,9 @@ public class PaymentScheduleService {
                                 .mapToDouble(PaymentSchedule::getPaidAmount)
                                 .sum();
 
-                System.out.println("Total Pid: " + totalPaid);
-
                 double previousRemaining = Math.max(installment.getNeedPaidAmount() - totalPaid, 0.0);
 
-                System.out.println("Remaing Balance: " + previousRemaining);
 
-                // Validate payment amount
-                // if (request.getAmount() >= previousRemaining) {
-                // throw new IllegalArgumentException("Payment amount (" + request.getAmount()
-                // + ") exceeds remaining amount (" + previousRemaining + ")");
-                // }
 
                 // Create payment schedule
                 PaymentSchedule schedule = PaymentSchedule.builder()
@@ -84,6 +77,11 @@ public class PaymentScheduleService {
                 }
 
                 PaymentSchedule savedSchedule = paymentScheduleRepository.save(schedule);
+
+                MainBalance mb = getMainBalance();
+
+                mb.setTotalBalance(mb.getTotalBalance() + request.getAmount());
+                mainBalanceRepository.save(mb);
 
                 return mapToResponseDTO(savedSchedule, previousRemaining);
         }
@@ -213,4 +211,18 @@ public class PaymentScheduleService {
                                 .totalPaymentsMade(totalPayments)
                                 .build();
         }
+
+        private MainBalance getMainBalance() {
+                return mainBalanceRepository.findAll().stream().findFirst()
+                                .orElseGet(() -> mainBalanceRepository.save(
+                                                MainBalance.builder()
+                                                                .totalBalance(0.0)
+                                                                .totalInvestment(0.0)
+                                                                .totalWithdrawal(0.0)
+                                                                .totalProductCost(0.0)
+                                                                .totalMaintenanceCost(0.0)
+                                                                .totalInstallmentReturn(0.0)
+                                                                .build()));
+        }
+
 }

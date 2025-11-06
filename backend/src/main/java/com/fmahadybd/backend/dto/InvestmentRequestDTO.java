@@ -1,0 +1,22 @@
+package com.fmahadybd.backend.dto;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class InvestmentRequestDTO {
+    @NotNull(message = "Amount is required")
+    @Positive(message = "Amount must be positive")
+    private Double amount;
+
+    @NotNull(message = "Shareholder ID is required")
+    @Positive(message = "Shareholder ID must be valid")
+    private Long shareholderId;
+}
