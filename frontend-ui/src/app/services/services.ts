@@ -9,6 +9,6 @@ export { MembersService } from './services/members.service';
 export { InstallmentManagementService } from './services/installment-management.service';
 export { AgentsService } from './services/agents.service';
 export { WithdrawalControllerService } from './services/withdrawal-controller.service';
-export { ShareTransactionControllerService } from './services/share-transaction-controller.service';
 export { RequestProductControllerService } from './services/request-product-controller.service';
 export { PaymentScheduleControllerService } from './services/payment-schedule-controller.service';
+export { MainBalanceManagementService } from './services/main-balance-management.service';

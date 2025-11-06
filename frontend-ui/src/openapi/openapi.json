@@ -23,6 +23,10 @@
         {
             "name": "Installment Management",
             "description": "APIs for managing installments"
+        },
+        {
+            "name": "Main Balance Management",
+            "description": "APIs for managing the main balance of microcredit system"
         }
     ],
     "paths": {
@@ -1015,198 +1019,6 @@
                 }
             }
         },
-        "/api/transactions/{transactionId}/complete": {
-            "post": {
-                "tags": [
-                    "share-transaction-controller"
-                ],
-                "operationId": "completeTransaction",
-                "parameters": [
-                    {
-                        "name": "transactionId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    },
-                    {
-                        "name": "processedBy",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/transactions/{transactionId}/cancel": {
-            "post": {
-                "tags": [
-                    "share-transaction-controller"
-                ],
-                "operationId": "cancelTransaction",
-                "parameters": [
-                    {
-                        "name": "transactionId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    },
-                    {
-                        "name": "reason",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/transactions/sell": {
-            "post": {
-                "tags": [
-                    "share-transaction-controller"
-                ],
-                "operationId": "requestSellShares",
-                "parameters": [
-                    {
-                        "name": "shareholderId",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    },
-                    {
-                        "name": "quantity",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int32"
-                        }
-                    },
-                    {
-                        "name": "pricePerShare",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "number",
-                            "format": "double"
-                        }
-                    },
-                    {
-                        "name": "notes",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/transactions/buy": {
-            "post": {
-                "tags": [
-                    "share-transaction-controller"
-                ],
-                "operationId": "requestBuyShares",
-                "parameters": [
-                    {
-                        "name": "shareholderId",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    },
-                    {
-                        "name": "quantity",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int32"
-                        }
-                    },
-                    {
-                        "name": "pricePerShare",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "number",
-                            "format": "double"
-                        }
-                    },
-                    {
-                        "name": "notes",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/shareholders": {
             "get": {
                 "tags": [
@@ -1620,6 +1432,216 @@
                                     "additionalProperties": {
                                         "type": "object"
                                     }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/main-balance/withdraw": {
+            "post": {
+                "tags": [
+                    "Main Balance Management"
+                ],
+                "summary": "Withdraw funds",
+                "description": "Allows investor to withdraw money from main balance",
+                "operationId": "withdraw",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/WithdrawalRequestDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Withdrawal successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MainBalanceResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Insufficient funds or invalid request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/main-balance/product-cost": {
+            "post": {
+                "tags": [
+                    "Main Balance Management"
+                ],
+                "summary": "Add product cost",
+                "description": "Records product purchase expenses",
+                "operationId": "addProductCost",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AmountRequestDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "400": {
+                        "description": "Invalid request data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Product cost added successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MainBalanceResponseDTO"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/main-balance/maintenance-cost": {
+            "post": {
+                "tags": [
+                    "Main Balance Management"
+                ],
+                "summary": "Add maintenance cost",
+                "description": "Records system maintenance expenses",
+                "operationId": "addMaintenanceCost",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AmountRequestDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Maintenance cost added successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MainBalanceResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/main-balance/investment": {
+            "post": {
+                "tags": [
+                    "Main Balance Management"
+                ],
+                "summary": "Add investment",
+                "description": "Adds investment from a shareholder to main balance",
+                "operationId": "addInvestment",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InvestmentRequestDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "400": {
+                        "description": "Invalid request data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Investment added successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MainBalanceResponseDTO"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/main-balance/installment-return": {
+            "post": {
+                "tags": [
+                    "Main Balance Management"
+                ],
+                "summary": "Add installment return",
+                "description": "Records installment payment received from borrowers",
+                "operationId": "addInstallmentReturn",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AmountRequestDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "400": {
+                        "description": "Invalid request data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Installment return added successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MainBalanceResponseDTO"
                                 }
                             }
                         }
@@ -2189,170 +2211,6 @@
                 }
             }
         },
-        "/api/transactions/{transactionId}": {
-            "get": {
-                "tags": [
-                    "share-transaction-controller"
-                ],
-                "operationId": "getTransactionById",
-                "parameters": [
-                    {
-                        "name": "transactionId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/transactions/statistics": {
-            "get": {
-                "tags": [
-                    "share-transaction-controller"
-                ],
-                "operationId": "getAllTransactionStatistics",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/transactions/shareholder/{shareholderId}": {
-            "get": {
-                "tags": [
-                    "share-transaction-controller"
-                ],
-                "operationId": "getShareTransactions",
-                "parameters": [
-                    {
-                        "name": "shareholderId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/transactions/shareholder/{shareholderId}/statistics": {
-            "get": {
-                "tags": [
-                    "share-transaction-controller"
-                ],
-                "operationId": "getTransactionStatistics",
-                "parameters": [
-                    {
-                        "name": "shareholderId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/transactions/shareholder/{shareholderId}/recent": {
-            "get": {
-                "tags": [
-                    "share-transaction-controller"
-                ],
-                "operationId": "getRecentTransactions",
-                "parameters": [
-                    {
-                        "name": "shareholderId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/transactions/pending": {
-            "get": {
-                "tags": [
-                    "share-transaction-controller"
-                ],
-                "operationId": "getPendingTransactions",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/shareholders/{id}/details": {
             "get": {
                 "tags": [
@@ -2850,6 +2708,72 @@
                                     "items": {
                                         "$ref": "#/components/schemas/DeletedMember"
                                     }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/main-balance": {
+            "get": {
+                "tags": [
+                    "Main Balance Management"
+                ],
+                "summary": "Get current main balance",
+                "description": "Fetches the current main balance with all totals",
+                "operationId": "getBalance",
+                "responses": {
+                    "200": {
+                        "description": "Main balance retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MainBalanceResponseDTO"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/main-balance/transactions": {
+            "get": {
+                "tags": [
+                    "Main Balance Management"
+                ],
+                "summary": "Get all transactions",
+                "description": "Fetches all transaction history records",
+                "operationId": "getAllTransactions",
+                "responses": {
+                    "200": {
+                        "description": "Transaction history retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionHistoryResponseDTO"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/main-balance/earnings": {
+            "get": {
+                "tags": [
+                    "Main Balance Management"
+                ],
+                "summary": "Calculate investor earnings",
+                "description": "Calculates total earnings for investors",
+                "operationId": "calculateEarnings",
+                "responses": {
+                    "200": {
+                        "description": "Earnings calculated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EarningsResponseDTO"
                                 }
                             }
                         }
@@ -3739,6 +3663,111 @@
                     }
                 }
             },
+            "WithdrawalRequestDTO": {
+                "required": [
+                    "amount",
+                    "shareholderId"
+                ],
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "shareholderId": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "MainBalanceResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalBalance": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "totalInvestment": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "totalWithdrawal": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "totalProductCost": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "totalMaintenanceCost": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "totalInstallmentReturn": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "earnings": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "lastUpdated": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ErrorResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "AmountRequestDTO": {
+                "required": [
+                    "amount"
+                ],
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "type": "number",
+                        "format": "double"
+                    }
+                }
+            },
+            "InvestmentRequestDTO": {
+                "required": [
+                    "amount",
+                    "shareholderId"
+                ],
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "shareholderId": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
             "InstallmentCreateDTO": {
                 "required": [
                     "advanced_paid",
@@ -4130,6 +4159,48 @@
                     "deletedAt": {
                         "type": "string",
                         "format": "date-time"
+                    }
+                }
+            },
+            "TransactionHistoryResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "shareholderId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "shareholderName": {
+                        "type": "string"
+                    }
+                }
+            },
+            "EarningsResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "earnings": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "message": {
+                        "type": "string"
                     }
                 }
             },

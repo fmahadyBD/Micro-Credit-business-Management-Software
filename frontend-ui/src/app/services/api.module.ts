@@ -13,9 +13,9 @@ import { MembersService } from './services/members.service';
 import { InstallmentManagementService } from './services/installment-management.service';
 import { AgentsService } from './services/agents.service';
 import { WithdrawalControllerService } from './services/withdrawal-controller.service';
-import { ShareTransactionControllerService } from './services/share-transaction-controller.service';
 import { RequestProductControllerService } from './services/request-product-controller.service';
 import { PaymentScheduleControllerService } from './services/payment-schedule-controller.service';
+import { MainBalanceManagementService } from './services/main-balance-management.service';
 
 /**
  * Module that provides all services and configuration.
@@ -32,9 +32,9 @@ import { PaymentScheduleControllerService } from './services/payment-schedule-co
     InstallmentManagementService,
     AgentsService,
     WithdrawalControllerService,
-    ShareTransactionControllerService,
     RequestProductControllerService,
     PaymentScheduleControllerService,
+    MainBalanceManagementService,
     ApiConfiguration
   ],
 })

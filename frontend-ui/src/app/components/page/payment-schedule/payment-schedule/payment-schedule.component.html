@@ -245,16 +245,27 @@
                 </div>
               </div>
 
-              <!-- Payment History Button -->
+              <!-- Payment History and PDF Buttons -->
               <div class="mt-4">
-                <button 
-                  class="btn btn-outline-primary w-100" 
-                  (click)="togglePaymentHistory()"
-                  [disabled]="paymentHistory.length === 0">
-                  <i class="fas fa-history me-2"></i>
-                  {{ showPaymentHistory ? 'Hide' : 'Show' }} Payment History
-                  <span class="badge bg-primary ms-2">{{ paymentHistory.length }}</span>
-                </button>
+                <div class="d-grid gap-2">
+                  <button 
+                    class="btn btn-outline-primary" 
+                    (click)="togglePaymentHistory()"
+                    [disabled]="paymentHistory.length === 0">
+                    <i class="fas fa-history me-2"></i>
+                    {{ showPaymentHistory ? 'Hide' : 'Show' }} Payment History
+                    <span class="badge bg-primary ms-2">{{ paymentHistory.length }}</span>
+                  </button>
+                  
+                  <button 
+                    class="btn btn-outline-danger" 
+                    (click)="generatePdfReport()"
+                    [disabled]="isGeneratingPdf">
+                    <span *ngIf="isGeneratingPdf" class="spinner-border spinner-border-sm me-2"></span>
+                    <i *ngIf="!isGeneratingPdf" class="fas fa-file-pdf me-2"></i>
+                    {{ isGeneratingPdf ? 'Generating PDF...' : 'Download PDF Report' }}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

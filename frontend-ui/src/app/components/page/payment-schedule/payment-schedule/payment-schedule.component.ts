@@ -12,6 +12,10 @@ import { PaymentScheduleRequestDto } from '../../../../services/models/payment-s
 import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
 import { InstallmentBalance } from '../../../../service/models/InstallmentBalance';
 
+// Import jsPDF and autoTable
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
 interface PaymentHistory {
   id: number;
   paidAmount: number;
@@ -55,6 +59,7 @@ export class PaymentScheduleComponent implements OnInit, OnDestroy {
   isLoading = false;
   isSearching = false;
   isSubmitting = false;
+  isGeneratingPdf = false;
   errorMessage = '';
   successMessage = '';
   isSidebarCollapsed = false;
@@ -207,15 +212,15 @@ export class PaymentScheduleComponent implements OnInit, OnDestroy {
 
     const paymentThisMonth = this.paymentHistory.find(payment => {
       const paymentDate = new Date(payment.paymentDate);
-      return paymentDate.getMonth() === currentMonth && 
-             paymentDate.getFullYear() === currentYear;
+      return paymentDate.getMonth() === currentMonth &&
+        paymentDate.getFullYear() === currentYear;
     });
 
     if (paymentThisMonth) {
       this.duplicatePaymentWarning = true;
-      this.duplicatePaymentMonth = new Date(paymentThisMonth.paymentDate).toLocaleDateString('en-US', { 
-        month: 'long', 
-        year: 'numeric' 
+      this.duplicatePaymentMonth = new Date(paymentThisMonth.paymentDate).toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric'
       });
     } else {
       this.duplicatePaymentWarning = false;
@@ -226,6 +231,186 @@ export class PaymentScheduleComponent implements OnInit, OnDestroy {
   togglePaymentHistory(): void {
     this.showPaymentHistory = !this.showPaymentHistory;
   }
+
+// Generate PDF Report
+generatePdfReport(): void {
+  if (!this.selectedInstallment) {
+    this.errorMessage = 'No installment selected';
+    return;
+  }
+
+  this.isGeneratingPdf = true;
+
+  try {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let yPos = 20;
+
+    // Add Title
+    doc.setFontSize(20);
+    doc.setTextColor(102, 126, 234);
+    doc.text('Payment Schedule Report', pageWidth / 2, yPos, { align: 'center' });
+
+    yPos += 10;
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated on: ${new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })}`, pageWidth / 2, yPos, { align: 'center' });
+
+    yPos += 15;
+
+    // Member Information Section
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Member Information', 14, yPos);
+    yPos += 7;
+
+    doc.setFontSize(10);
+    const memberInfo = [
+      ['Full Name:', this.selectedInstallment.member?.name || 'N/A'],
+      ['Phone Number:', this.selectedInstallment.member?.phone || 'N/A'],
+      ['Status:', this.selectedInstallment.status || 'N/A']
+    ];
+
+    memberInfo.forEach(([label, value]) => {
+      doc.setTextColor(100, 100, 100);
+      doc.text(label || '', 14, yPos);
+      doc.setTextColor(0, 0, 0);
+      doc.text(value || '', 60, yPos);
+      yPos += 6;
+    });
+
+    yPos += 5;
+
+    // Product Information Section
+    if (this.selectedInstallment.product) {
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Product Information', 14, yPos);
+      yPos += 7;
+
+      doc.setFontSize(10);
+      const productInfo = [
+        ['Product Name:', this.selectedInstallment.product.name || 'N/A'],
+        ['Category:', this.selectedInstallment.product.category || 'N/A']
+      ];
+
+      productInfo.forEach(([label, value]) => {
+        doc.setTextColor(100, 100, 100);
+        doc.text(label || '', 14, yPos);
+        doc.setTextColor(0, 0, 0);
+        doc.text(value || '', 60, yPos);
+        yPos += 6;
+      });
+
+      yPos += 5;
+    }
+
+    // Financial Summary Section
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Financial Summary', 14, yPos);
+    yPos += 7;
+
+    doc.setFontSize(10);
+    const financialInfo = [
+      ['Total Amount:', `${this.formatCurrency(this.selectedInstallment.totalAmountWithInterest)} ৳`],
+      ['Total Paid:', `${this.formatCurrency(this.getTotalPaidAmount())} ৳`],
+      ['Remaining Balance:', `${this.formatCurrency(this.getRemainingAmount())} ৳`],
+      ['Monthly Installment:', `${this.formatCurrency(this.selectedInstallment.monthlyInstallmentAmount)} ৳`],
+      ['Progress:', `${this.getProgressPercentage().toFixed(1)}%`]
+    ];
+
+    financialInfo.forEach(([label, value]) => {
+      doc.setTextColor(100, 100, 100);
+      doc.text(label || '', 14, yPos);
+      doc.setTextColor(0, 0, 0);
+      doc.text(value || '', 60, yPos);
+      yPos += 6;
+    });
+
+    yPos += 10;
+
+    // Payment History Table
+    if (this.paymentHistory.length > 0) {
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Payment History', 14, yPos);
+      yPos += 5;
+
+      const tableData = this.paymentHistory.map((payment, index) => [
+        (index + 1).toString(),
+        this.formatDate(payment.paymentDate),
+        `${this.formatCurrency(payment.paidAmount)} ৳`,
+        `${this.formatCurrency(payment.remainingAmount)} ৳`,
+        payment.agentName || 'N/A',
+        payment.status || 'N/A',
+        payment.notes || '-'
+      ]);
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [['#', 'Date', 'Amount Paid', 'Remaining', 'Agent', 'Status', 'Notes']],
+        body: tableData,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [102, 126, 234],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold'
+        },
+        styles: {
+          fontSize: 9,
+          cellPadding: 3
+        },
+        columnStyles: {
+          0: { cellWidth: 10 },
+          1: { cellWidth: 30 },
+          2: { cellWidth: 25 },
+          3: { cellWidth: 25 },
+          4: { cellWidth: 25 },
+          5: { cellWidth: 20 },
+          6: { cellWidth: 45 }
+        }
+      });
+    } else {
+      doc.setFontSize(10);
+      doc.setTextColor(150, 150, 150);
+      doc.text('No payment history available', 14, yPos);
+    }
+
+    // Add footer
+    const pageCount = (doc.internal as any).getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(
+        `Page ${i} of ${pageCount}`,
+        pageWidth / 2,
+        doc.internal.pageSize.getHeight() - 10,
+        { align: 'center' }
+      );
+    }
+
+    // Save the PDF
+    const fileName = `Payment_Report_${this.selectedInstallment.member?.name?.replace(/\s+/g, '_') || 'Unknown'}_${new Date().getTime()}.pdf`;
+    doc.save(fileName);
+
+    this.successMessage = 'PDF report generated successfully!';
+    this.isGeneratingPdf = false;
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    this.errorMessage = 'Failed to generate PDF report';
+    this.isGeneratingPdf = false;
+  }
+}
+
+
 
   // Submit payment
   onPayInstallment(): void {
