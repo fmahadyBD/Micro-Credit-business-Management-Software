@@ -1,8 +1,26 @@
-
-<main class="main-content" [class.collapsed]="isSidebarCollapsed"> 
-   <div class="container-fluid">
-    <!-- Page Title (Desktop Only) -->
-    <h2 class="page-title mb-4 d-none d-md-block">Dashboard Overview</h2>
+<main class="main-content" [class.collapsed]="isSidebarCollapsed">
+  <div class="container-fluid">
+    <!-- Page Title with Action Buttons -->
+    <div class="page-header mb-4">
+      <h2 class="page-title d-none d-md-block">Main Balance Management</h2>
+      <div class="action-buttons">
+        <button class="btn btn-success" (click)="openInvestmentModal()">
+          <i class="fas fa-plus"></i> Add Investment
+        </button>
+        <button class="btn btn-info" (click)="openInstallmentModal()">
+          <i class="fas fa-money-bill"></i> Add Return
+        </button>
+        <button class="btn btn-warning" (click)="openProductCostModal()">
+          <i class="fas fa-shopping-cart"></i> Add Cost
+        </button>
+        <button class="btn btn-secondary" (click)="openMaintenanceModal()">
+          <i class="fas fa-tools"></i> Maintenance
+        </button>
+        <button class="btn btn-danger" (click)="openWithdrawalModal()">
+          <i class="fas fa-arrow-down"></i> Withdraw
+        </button>
+      </div>
+    </div>
 
     <!-- Stats Cards -->
     <div class="stats-grid">
@@ -27,45 +45,48 @@
 
     <!-- Charts Row -->
     <div class="chart-row">
-      <!-- Revenue Chart -->
+      <!-- Balance Overview Chart -->
       <div class="card chart-card">
         <div class="card-header">
-          <h5 class="mb-0">Revenue Overview</h5>
+          <h5 class="mb-0">Balance Overview</h5>
         </div>
         <div class="card-body">
           <div class="chart-container">
-            <canvas id="revenueChart"></canvas>
+            <canvas id="balanceChart"></canvas>
           </div>
         </div>
       </div>
 
-      <!-- Installment Status Chart -->
+      <!-- Transaction Distribution Chart -->
       <div class="card chart-card">
         <div class="card-header">
-          <h5 class="mb-0">Installment Status</h5>
+          <h5 class="mb-0">Transaction Distribution</h5>
         </div>
         <div class="card-body">
           <div class="chart-container">
-            <canvas id="installmentChart"></canvas>
+            <canvas id="transactionChart"></canvas>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Installment Payments Table -->
+    <!-- Transaction History Table -->
     <div class="card table-card">
       <div class="card-header">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">Installment Payments</h5>
+          <h5 class="mb-0">Transaction History</h5>
+          <button class="btn btn-sm btn-primary" (click)="loadTransactions()">
+            <i class="fas fa-sync"></i> Refresh
+          </button>
         </div>
         <div class="search-box">
           <i class="fas fa-search"></i>
           <input 
             type="text" 
             class="form-control" 
-            [(ngModel)]="installmentSearchTerm"
-            (input)="onInstallmentSearch()"
-            placeholder="Search by customer name, plan, or status...">
+            [(ngModel)]="transactionSearchTerm"
+            (input)="onTransactionSearch()"
+            placeholder="Search by transaction type or amount...">
         </div>
       </div>
       <div class="card-body">
@@ -73,25 +94,34 @@
           <table class="table table-hover">
             <thead>
               <tr>
-                <th>Customer</th>
-                <th>Plan</th>
+                <th>ID</th>
+                <th>Type</th>
                 <th>Amount</th>
-                <th>Paid</th>
-                <th>Next Payment</th>
-                <th>Status</th>
+                <th>Date</th>
+                <th>Details</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let payment of paginatedInstallments">
-                <td>{{ payment.customer }}</td>
-                <td>{{ payment.plan }}</td>
-                <td>{{ payment.amount }}</td>
-                <td>{{ payment.paid }}</td>
-                <td>{{ payment.nextPayment }}</td>
+              <tr *ngIf="paginatedTransactions.length === 0">
+                <td colspan="5" class="text-center py-4">
+                  <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                  <p class="text-muted">No transactions found</p>
+                </td>
+              </tr>
+              <tr *ngFor="let transaction of paginatedTransactions">
+                <td>#{{ transaction.id || 'N/A' }}</td>
                 <td>
-                  <span class="badge" [ngClass]="'bg-' + getInstallmentStatusClass(payment.status)">
-                    {{ payment.status }}
+                  <span class="badge" [ngClass]="'bg-' + getTransactionTypeClass(transaction.type)">
+                    {{ transaction.type || 'Transaction' }}
                   </span>
+                </td>
+                <td class="fw-bold">{{ formatCurrency(transaction.amount || 0) }}</td>
+                <td>{{ formatDate(transaction.timestamp) }}</td>
+                <td>
+                  <div>{{ transaction.description || 'N/A' }}</div>
+                  <small class="text-muted" *ngIf="transaction.shareholderName">
+                    Shareholder: {{ transaction.shareholderName }}
+                  </small>
                 </td>
               </tr>
             </tbody>
@@ -99,123 +129,35 @@
         </div>
 
         <!-- Pagination -->
-        <div class="pagination-container">
+        <div class="pagination-container" *ngIf="transactionFilteredData.length > 0">
           <div class="pagination-info">
             Showing 
-            {{ installmentFilteredData.length > 0 ? (installmentCurrentPage - 1) * installmentRowsPerPage + 1 : 0 }} 
+            {{ transactionFilteredData.length > 0 ? (transactionCurrentPage - 1) * transactionRowsPerPage + 1 : 0 }} 
             to 
-            {{ Math.min(installmentCurrentPage * installmentRowsPerPage, installmentFilteredData.length) }} 
+            {{ Math.min(transactionCurrentPage * transactionRowsPerPage, transactionFilteredData.length) }} 
             of 
-            {{ installmentFilteredData.length }} 
+            {{ transactionFilteredData.length }} 
             entries
           </div>
           <nav>
             <ul class="pagination mb-0">
-              <li class="page-item" [class.disabled]="installmentCurrentPage === 1">
-                <a class="page-link" href="#" (click)="$event.preventDefault(); changeInstallmentPage(installmentCurrentPage - 1)">
+              <li class="page-item" [class.disabled]="transactionCurrentPage === 1">
+                <a class="page-link" href="#" (click)="$event.preventDefault(); changeTransactionPage(transactionCurrentPage - 1)">
                   Previous
                 </a>
               </li>
               <li class="page-item" 
-                  *ngFor="let page of getPageNumbers(installmentTotalPages, installmentCurrentPage)"
-                  [class.active]="page === installmentCurrentPage"
+                  *ngFor="let page of getPageNumbers(transactionTotalPages, transactionCurrentPage)"
+                  [class.active]="page === transactionCurrentPage"
                   [class.disabled]="page === '...'">
                 <a class="page-link" 
                    href="#" 
-                   (click)="$event.preventDefault(); page !== '...' && changeInstallmentPage(+page)">
+                   (click)="$event.preventDefault(); page !== '...' && changeTransactionPage(+page)">
                   {{ page }}
                 </a>
               </li>
-              <li class="page-item" [class.disabled]="installmentCurrentPage === installmentTotalPages">
-                <a class="page-link" href="#" (click)="$event.preventDefault(); changeInstallmentPage(installmentCurrentPage + 1)">
-                  Next
-                </a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </div>
-    </div>
-
-    <!-- Recent Activity Table -->
-    <div class="card table-card">
-      <div class="card-header">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">Recent Activity</h5>
-        </div>
-        <div class="search-box">
-          <i class="fas fa-search"></i>
-          <input 
-            type="text" 
-            class="form-control"
-            [(ngModel)]="activitySearchTerm"
-            (input)="onActivitySearch()"
-            placeholder="Search by user or action...">
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Action</th>
-                <th>Date</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let activity of paginatedActivities">
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="activity-avatar" [style.background]="activity.gradient">
-                      {{ activity.initials }}
-                    </div>
-                    <span>{{ activity.user }}</span>
-                  </div>
-                </td>
-                <td>{{ activity.action }}</td>
-                <td>{{ activity.date }}</td>
-                <td>
-                  <span class="badge" [ngClass]="'bg-' + getActivityStatusClass(activity.status)">
-                    {{ activity.status }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination -->
-        <div class="pagination-container">
-          <div class="pagination-info">
-            Showing 
-            {{ activityFilteredData.length > 0 ? (activityCurrentPage - 1) * activityRowsPerPage + 1 : 0 }} 
-            to 
-            {{ Math.min(activityCurrentPage * activityRowsPerPage, activityFilteredData.length) }} 
-            of 
-            {{ activityFilteredData.length }} 
-            entries
-          </div>
-          <nav>
-            <ul class="pagination mb-0">
-              <li class="page-item" [class.disabled]="activityCurrentPage === 1">
-                <a class="page-link" href="#" (click)="$event.preventDefault(); changeActivityPage(activityCurrentPage - 1)">
-                  Previous
-                </a>
-              </li>
-              <li class="page-item" 
-                  *ngFor="let page of getPageNumbers(activityTotalPages, activityCurrentPage)"
-                  [class.active]="page === activityCurrentPage"
-                  [class.disabled]="page === '...'">
-                <a class="page-link" 
-                   href="#" 
-                   (click)="$event.preventDefault(); page !== '...' && changeActivityPage(+page)">
-                  {{ page }}
-                </a>
-              </li>
-              <li class="page-item" [class.disabled]="activityCurrentPage === activityTotalPages">
-                <a class="page-link" href="#" (click)="$event.preventDefault(); changeActivityPage(activityCurrentPage + 1)">
+              <li class="page-item" [class.disabled]="transactionCurrentPage === transactionTotalPages">
+                <a class="page-link" href="#" (click)="$event.preventDefault(); changeTransactionPage(transactionCurrentPage + 1)">
                   Next
                 </a>
               </li>
@@ -226,3 +168,202 @@
     </div>
   </div>
 </main>
+
+<!-- Investment Modal -->
+<div class="modal-overlay" *ngIf="showInvestmentModal" (click)="closeInvestmentModal()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Investment</h5>
+        <button type="button" class="btn-close" (click)="closeInvestmentModal()"></button>
+      </div>
+      <form [formGroup]="investmentForm" (ngSubmit)="submitInvestment()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Amount <span class="text-danger">*</span></label>
+            <input 
+              type="number" 
+              class="form-control" 
+              formControlName="amount"
+              placeholder="Enter investment amount"
+              [class.is-invalid]="investmentForm.get('amount')?.invalid && investmentForm.get('amount')?.touched">
+            <div class="invalid-feedback" *ngIf="investmentForm.get('amount')?.invalid && investmentForm.get('amount')?.touched">
+              Please enter a valid amount
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Shareholder ID <span class="text-danger">*</span></label>
+            <input 
+              type="text" 
+              class="form-control" 
+              formControlName="shareholderId"
+              placeholder="Enter shareholder ID"
+              [class.is-invalid]="investmentForm.get('shareholderId')?.invalid && investmentForm.get('shareholderId')?.touched">
+            <div class="invalid-feedback" *ngIf="investmentForm.get('shareholderId')?.invalid && investmentForm.get('shareholderId')?.touched">
+              Shareholder ID is required
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeInvestmentModal()" [disabled]="isSubmitting">Cancel</button>
+          <button type="submit" class="btn btn-success" [disabled]="investmentForm.invalid || isSubmitting">
+            <span *ngIf="!isSubmitting">Add Investment</span>
+            <span *ngIf="isSubmitting"><i class="fas fa-spinner fa-spin"></i> Processing...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Withdrawal Modal -->
+<div class="modal-overlay" *ngIf="showWithdrawalModal" (click)="closeWithdrawalModal()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Withdraw Funds</h5>
+        <button type="button" class="btn-close" (click)="closeWithdrawalModal()"></button>
+      </div>
+      <form [formGroup]="withdrawalForm" (ngSubmit)="submitWithdrawal()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Amount <span class="text-danger">*</span></label>
+            <input 
+              type="number" 
+              class="form-control" 
+              formControlName="amount"
+              placeholder="Enter withdrawal amount"
+              [class.is-invalid]="withdrawalForm.get('amount')?.invalid && withdrawalForm.get('amount')?.touched">
+            <div class="invalid-feedback" *ngIf="withdrawalForm.get('amount')?.invalid && withdrawalForm.get('amount')?.touched">
+              Please enter a valid amount
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Shareholder ID <span class="text-danger">*</span></label>
+            <input 
+              type="text" 
+              class="form-control" 
+              formControlName="shareholderId"
+              placeholder="Enter shareholder ID"
+              [class.is-invalid]="withdrawalForm.get('shareholderId')?.invalid && withdrawalForm.get('shareholderId')?.touched">
+            <div class="invalid-feedback" *ngIf="withdrawalForm.get('shareholderId')?.invalid && withdrawalForm.get('shareholderId')?.touched">
+              Shareholder ID is required
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeWithdrawalModal()" [disabled]="isSubmitting">Cancel</button>
+          <button type="submit" class="btn btn-danger" [disabled]="withdrawalForm.invalid || isSubmitting">
+            <span *ngIf="!isSubmitting">Withdraw</span>
+            <span *ngIf="isSubmitting"><i class="fas fa-spinner fa-spin"></i> Processing...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Installment Return Modal -->
+<div class="modal-overlay" *ngIf="showInstallmentModal" (click)="closeInstallmentModal()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Installment Return</h5>
+        <button type="button" class="btn-close" (click)="closeInstallmentModal()"></button>
+      </div>
+      <form [formGroup]="installmentReturnForm" (ngSubmit)="submitInstallmentReturn()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Amount <span class="text-danger">*</span></label>
+            <input 
+              type="number" 
+              class="form-control" 
+              formControlName="amount"
+              placeholder="Enter installment return amount"
+              [class.is-invalid]="installmentReturnForm.get('amount')?.invalid && installmentReturnForm.get('amount')?.touched">
+            <div class="invalid-feedback" *ngIf="installmentReturnForm.get('amount')?.invalid && installmentReturnForm.get('amount')?.touched">
+              Please enter a valid amount
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeInstallmentModal()" [disabled]="isSubmitting">Cancel</button>
+          <button type="submit" class="btn btn-info" [disabled]="installmentReturnForm.invalid || isSubmitting">
+            <span *ngIf="!isSubmitting">Add Return</span>
+            <span *ngIf="isSubmitting"><i class="fas fa-spinner fa-spin"></i> Processing...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Product Cost Modal -->
+<div class="modal-overlay" *ngIf="showProductCostModal" (click)="closeProductCostModal()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Product Cost</h5>
+        <button type="button" class="btn-close" (click)="closeProductCostModal()"></button>
+      </div>
+      <form [formGroup]="productCostForm" (ngSubmit)="submitProductCost()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Amount <span class="text-danger">*</span></label>
+            <input 
+              type="number" 
+              class="form-control" 
+              formControlName="amount"
+              placeholder="Enter product cost amount"
+              [class.is-invalid]="productCostForm.get('amount')?.invalid && productCostForm.get('amount')?.touched">
+            <div class="invalid-feedback" *ngIf="productCostForm.get('amount')?.invalid && productCostForm.get('amount')?.touched">
+              Please enter a valid amount
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeProductCostModal()" [disabled]="isSubmitting">Cancel</button>
+          <button type="submit" class="btn btn-warning" [disabled]="productCostForm.invalid || isSubmitting">
+            <span *ngIf="!isSubmitting">Add Cost</span>
+            <span *ngIf="isSubmitting"><i class="fas fa-spinner fa-spin"></i> Processing...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Maintenance Cost Modal -->
+<div class="modal-overlay" *ngIf="showMaintenanceModal" (click)="closeMaintenanceModal()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Maintenance Cost</h5>
+        <button type="button" class="btn-close" (click)="closeMaintenanceModal()"></button>
+      </div>
+      <form [formGroup]="maintenanceCostForm" (ngSubmit)="submitMaintenanceCost()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Amount <span class="text-danger">*</span></label>
+            <input 
+              type="number" 
+              class="form-control" 
+              formControlName="amount"
+              placeholder="Enter maintenance cost amount"
+              [class.is-invalid]="maintenanceCostForm.get('amount')?.invalid && maintenanceCostForm.get('amount')?.touched">
+            <div class="invalid-feedback" *ngIf="maintenanceCostForm.get('amount')?.invalid && maintenanceCostForm.get('amount')?.touched">
+              Please enter a valid amount
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeMaintenanceModal()" [disabled]="isSubmitting">Cancel</button>
+          <button type="submit" class="btn btn-secondary" [disabled]="maintenanceCostForm.invalid || isSubmitting">
+            <span *ngIf="!isSubmitting">Add Cost</span>
+            <span *ngIf="isSubmitting"><i class="fas fa-spinner fa-spin"></i> Processing...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
