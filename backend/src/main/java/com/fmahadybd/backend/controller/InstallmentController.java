@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,6 +50,7 @@ public class InstallmentController {
     private ObjectMapper objectMapper;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create new installment", description = "Creates a new installment without images")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Installment created successfully",
@@ -60,6 +62,11 @@ public class InstallmentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
+
+
+
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/with-images", consumes = "multipart/form-data")
     @Operation(summary = "Create installment with images", description = "Creates a new installment with optional images")
     @ApiResponses(value = {
@@ -77,6 +84,12 @@ public class InstallmentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
+   
+   
+   
+   
+   
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/{id}/images", consumes = "multipart/form-data")
     @Operation(summary = "Upload images to existing installment", description = "Uploads images to an existing installment")
     @ApiResponses(value = {
@@ -92,7 +105,11 @@ public class InstallmentController {
     }
 
 
-    
+
+
+
+
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     @Operation(summary = "Get all installments", description = "Retrieves all installments")
     @ApiResponse(responseCode = "200", description = "List of installments retrieved successfully",
@@ -101,6 +118,13 @@ public class InstallmentController {
         List<InstallmentResponseDTO> installments = installmentService.findAll();
         return ResponseEntity.ok(installments);
     }
+
+
+
+
+
+
+    @PreAuthorize("hasRole('ADMIN')")
 
     @GetMapping("/{id}")
     @Operation(summary = "Get installment by ID", description = "Retrieves a specific installment by its ID")
@@ -115,6 +139,12 @@ public class InstallmentController {
         return ResponseEntity.ok(installment);
     }
 
+
+
+
+
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     @Operation(summary = "Update installment", description = "Updates an existing installment")
     @ApiResponses(value = {
@@ -130,6 +160,11 @@ public class InstallmentController {
         return ResponseEntity.ok(updatedInstallment);
     }
 
+
+
+
+
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete installment", description = "Deletes an installment by ID")
     @ApiResponses(value = {
@@ -146,6 +181,12 @@ public class InstallmentController {
         }
     }
 
+
+
+
+
+
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}/images")
     @Operation(summary = "Get installment images", description = "Retrieves all image paths for an installment")
     @ApiResponses(value = {
@@ -163,6 +204,16 @@ public class InstallmentController {
         }
     }
 
+
+
+
+
+
+
+
+
+
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/search")
     @Operation(summary = "Search installments", description = "Search installments by member name, product name, or phone number")
     @ApiResponses(value = {

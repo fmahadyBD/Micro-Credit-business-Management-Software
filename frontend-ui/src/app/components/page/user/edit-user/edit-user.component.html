@@ -1,56 +1,54 @@
-<main class="main-content" [class.collapsed]="isSidebarCollapsed">
-  <div class="container-fluid mt-4">
-    <div class="card border-0 shadow-sm">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5>Edit User</h5>
-        <button class="btn btn-secondary btn-sm" (click)="backToUsers()">
-          <i class="fas fa-arrow-left"></i> Back to All Users
-        </button>
-      </div>
-
-      <div class="card-body" *ngIf="user && !loading">
-        <form (ngSubmit)="saveChanges()">
-          <div class="mb-3">
-            <label class="form-label">Username</label>
-            <input class="form-control" [(ngModel)]="user.username" name="username" required />
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Password</label>
-            <input class="form-control" type="password" [(ngModel)]="user.password" name="password" required />
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Role</label>
-            <select class="form-select" [(ngModel)]="user.role" name="role">
-              <option value="ADMIN">ADMIN</option>
-              <option value="AGENT">AGENT</option>
-              <option value="SHAREHOLDER">SHAREHOLDER</option>
-            </select>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Status</label>
-            <select class="form-select" [(ngModel)]="user.status" name="status">
-              <option value="ACTIVE">ACTIVE</option>
-              <option value="INACTIVE">INACTIVE</option>
-              <option value="SUSPENDED">SUSPENDED</option>
-              <option value="PENDING_VERIFICATION">PENDING_VERIFICATION</option>
-            </select>
-          </div>
-
-          <button class="btn btn-primary" type="submit" [disabled]="loading">
-            <i class="fas fa-save"></i> Save Changes
-          </button>
-        </form>
-      </div>
-
-      <div class="text-center py-3" *ngIf="loading">
-        <div class="spinner-border" role="status"></div>
-        <span class="ms-2">Saving...</span>
-      </div>
-
-      <div *ngIf="message" class="alert alert-info m-3">{{ message }}</div>
+<div class="container-fluid mt-4">
+  <div class="card border-0 shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5>Edit User</h5>
+      <button class="btn btn-secondary btn-sm" (click)="backToUsers()">
+        <i class="fas fa-arrow-left"></i> Back to All Users
+      </button>
     </div>
+
+    <div class="card-body" *ngIf="user && !loading">
+      <form (ngSubmit)="saveChanges()">
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <input class="form-control" [(ngModel)]="user.username" name="username" required />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input class="form-control" type="password" [(ngModel)]="user.password" name="password" required />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Role</label>
+          <select class="form-select" [(ngModel)]="user.role" name="role">
+            <option value="ADMIN">ADMIN</option>
+            <option value="AGENT">AGENT</option>
+            <option value="SHAREHOLDER">SHAREHOLDER</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Status</label>
+          <select class="form-select" [(ngModel)]="user.status" name="status">
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="INACTIVE">INACTIVE</option>
+            <option value="SUSPENDED">SUSPENDED</option>
+            <option value="PENDING_VERIFICATION">PENDING_VERIFICATION</option>
+          </select>
+        </div>
+
+        <button class="btn btn-primary" type="submit" [disabled]="loading">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+      </form>
+    </div>
+
+    <div class="text-center py-3" *ngIf="loading">
+      <div class="spinner-border" role="status"></div>
+      <span class="ms-2">Saving...</span>
+    </div>
+
+    <div *ngIf="message" class="alert alert-info m-3">{{ message }}</div>
   </div>
-</main>
+</div>

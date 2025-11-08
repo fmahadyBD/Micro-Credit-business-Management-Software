@@ -1,42 +1,51 @@
-// deleted-users.component.ts
-import { Component, OnInit } from '@angular/core';
-import { CommonModule, NgFor, NgIf, NgClass, DatePipe } from '@angular/common';
-import { DeletedUser } from '../../../../services/models/deleted-user';
-import { UsersService } from '../../../../services/services/users.service';
-import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
+import { Component, Inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { DeletedUser } from '../../../../service/models/user';
+import { UsersService } from '../../../../service/models/users.service';
 
 @Component({
   selector: 'app-deleted-users',
   standalone: true,
-  imports: [CommonModule, NgFor, NgIf, NgClass, DatePipe],
-  templateUrl: './deleted-users.component.html',
-  styleUrls: ['./deleted-users.component.css']
+  imports: [CommonModule],
+  templateUrl: './deleted-users.component.html'
 })
 export class DeletedUsersComponent implements OnInit {
   deletedUsers: DeletedUser[] = [];
   loading = false;
-  message: { type: string, text: string } | null = null;
-  isSidebarCollapsed = false;
-  constructor(private usersService: UsersService, private sidebarService: SidebarTopbarService) { }
+  message: { text: string, type: 'success' | 'error' } | null = null;
+
+  constructor(
+    @Inject(UsersService) private usersService: UsersService
+  ) {}
 
   ngOnInit() {
     this.loadDeletedUsers();
-    this.sidebarService.isCollapsed$.subscribe(collapsed => {
-      this.isSidebarCollapsed = collapsed;
-    });
   }
 
   loadDeletedUsers() {
     this.loading = true;
     this.usersService.getDeletedUsers().subscribe({
-      next: data => {
+      next: (data: DeletedUser[]) => {
         this.deletedUsers = data;
         this.loading = false;
       },
-      error: err => {
-        this.deletedUsers = [];
+      error: (err: any) => {
+        console.error(err);
+        this.message = { text: 'Failed to load deleted users', type: 'error' };
         this.loading = false;
-        this.message = { type: 'error', text: 'Failed to load deleted users.' };
+      }
+    });
+  }
+
+  restoreUser(id: number) {
+    this.usersService.restoreUser(id).subscribe({
+      next: () => {
+        this.message = { text: 'User restored successfully', type: 'success' };
+        this.loadDeletedUsers();
+      },
+      error: (err: any) => {
+        console.error(err);
+        this.message = { text: 'Failed to restore user', type: 'error' };
       }
     });
   }

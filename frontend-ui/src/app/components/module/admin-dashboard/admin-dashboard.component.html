@@ -70,9 +70,7 @@
   </app-payment-schedule>
 
   <!-- 👔 Shareholders -->
-
-    <app-add-shareholder *ngIf="currentView === 'add-shareholder'"></app-add-shareholder>
-
+  <app-add-shareholder *ngIf="currentView === 'add-shareholder'"></app-add-shareholder>
   <app-all-shareholders *ngIf="currentView === 'all-shareholders'"></app-all-shareholders>
   <app-shareholder-details
     *ngIf="currentView === 'shareholder-details' && selectedShareholderId !== null"
@@ -82,8 +80,4 @@
     *ngIf="currentView === 'edit-shareholder' && selectedShareholderId !== null"
     [shareholderId]="selectedShareholderId!"
   ></app-edit-shareholder>
-
-
-
-  
 </main>

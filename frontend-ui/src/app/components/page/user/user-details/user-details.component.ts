@@ -1,54 +1,51 @@
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
-import { User } from '../../../../services/models/user';
-import { UsersService } from '../../../../services/services/users.service';
-import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
+import { User } from '../../../../service/models/user';
+import { UsersService } from '../../../../service/models/users.service';
 
 @Component({
   selector: 'app-user-details',
   standalone: true,
-  imports: [CommonModule, HttpClientModule],
-  templateUrl: './user-details.component.html',
-  styleUrls: ['./user-details.component.css']
+  imports: [CommonModule],
+  templateUrl: './user-details.component.html'
 })
-export class UserDetailsComponent implements OnInit {
-
+export class UserDetailsComponent implements OnInit, OnChanges {
   @Input() userId!: number;
+  
   user: User | null = null;
   loading = false;
-  message: string | null = null;
-  isSidebarCollapsed = false;
+  message = '';
 
-  constructor(
-    private userService: UsersService,
-    private sidebarService: SidebarTopbarService
-  ) {}
+  constructor(private userService: UsersService) {}
 
-  ngOnInit(): void {
-    this.sidebarService.isCollapsed$.subscribe(c => this.isSidebarCollapsed = c);
+  ngOnInit() {
     if (this.userId) {
-      this.loadUser();
+      this.loadUser(this.userId);
     }
   }
 
-  loadUser(): void {
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['userId'] && changes['userId'].currentValue) {
+      this.loadUser(changes['userId'].currentValue);
+    }
+  }
+
+  loadUser(id: number) {
     this.loading = true;
-    this.userService.getUserById({ id: this.userId }).subscribe({
-      next: (data: any) => {
-        this.user = data;
+    this.userService.getUserById(id).subscribe({
+      next: (user: User) => {
+        this.user = user;
         this.loading = false;
       },
-      error: (err) => {
-        this.message = 'Failed to load user details.';
+      error: (err: any) => {
         console.error(err);
+        this.message = 'Failed to load user details';
         this.loading = false;
       }
     });
   }
 
   backToUsers() {
-    const event = new CustomEvent('backToAllUsers');
-    window.dispatchEvent(event);
+    window.dispatchEvent(new CustomEvent('backToAllUsers'));
   }
 }

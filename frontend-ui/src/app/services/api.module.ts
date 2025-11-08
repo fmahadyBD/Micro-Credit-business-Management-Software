@@ -6,7 +6,6 @@ import { NgModule, ModuleWithProviders, SkipSelf, Optional } from '@angular/core
 import { HttpClient } from '@angular/common/http';
 import { ApiConfiguration, ApiConfigurationParams } from './api-configuration';
 
-import { UsersService } from './services/users.service';
 import { ShareholdersService } from './services/shareholders.service';
 import { ProductsService } from './services/products.service';
 import { MembersService } from './services/members.service';
@@ -25,7 +24,6 @@ import { MainBalanceManagementService } from './services/main-balance-management
   exports: [],
   declarations: [],
   providers: [
-    UsersService,
     ShareholdersService,
     ProductsService,
     MembersService,

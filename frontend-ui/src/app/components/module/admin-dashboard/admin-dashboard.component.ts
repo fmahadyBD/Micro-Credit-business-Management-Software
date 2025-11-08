@@ -64,7 +64,6 @@ import { InstallmentManagementComponent } from '../../page/installment/installme
     // 💳 Installments
     AddInstallmentComponent,
     InstallmentManagementComponent,
-
     // 💰 Payment Schedules
     PaymentScheduleComponent,
     // 👔 Shareholders

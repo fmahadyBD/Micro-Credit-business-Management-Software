@@ -1,0 +1,14 @@
+<div class="auth-form">
+  <h2>Register</h2>
+  <form (ngSubmit)="onSubmit()">
+    <input placeholder="First Name" [(ngModel)]="request.firstname" name="firstname" required />
+    <input placeholder="Last Name" [(ngModel)]="request.lastname" name="lastname" required />
+    <input placeholder="Email" [(ngModel)]="request.email" name="email" required type="email" />
+    <input placeholder="Password" [(ngModel)]="request.password" name="password" required type="password" />
+
+    <button type="submit">Register</button>
+
+    <div *ngIf="successMessage" class="success">{{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+  </form>
+</div>
