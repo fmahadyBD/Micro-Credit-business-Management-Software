@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output, Input, OnInit, OnDestroy, HostListener
 import { Subscription } from 'rxjs';
 import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../../service/auth.service';
 
 @Component({
   selector: 'app-side-bar',
@@ -18,19 +19,29 @@ export class SideBarComponent implements OnInit, OnDestroy {
     | 'all-members' | 'add-member'
     | 'all-agents' | 'add-agent'
     | 'all-products' | 'add-product'
-    | 'all-installments' | 'installment-management' | 'add-installment'
+    | 'installment-management' | 'add-installment'
     | 'payment-schedules' | 'record-payment'
     | 'all-shareholders' | 'add-shareholder'
   >();
 
   sidebarOpen = false;
   activeSubmenu: number | null = null;
+  isAdmin = false;
+  isAgent = false;
+
   private mobileSubscription?: Subscription;
   private collapseSubscription?: Subscription;
 
-  constructor(private sidebarService: SidebarTopbarService) { }
+  constructor(
+    private sidebarService: SidebarTopbarService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
+    // Determine role
+    this.isAdmin = this.authService.isAdmin();
+    this.isAgent = this.authService.isAgent();
+
     this.mobileSubscription = this.sidebarService.isMobileOpen$.subscribe(state => {
       this.sidebarOpen = state;
       document.body.classList.toggle('sidebar-open', state);
@@ -60,18 +71,7 @@ export class SideBarComponent implements OnInit, OnDestroy {
     this.activeSubmenu = this.activeSubmenu === index ? null : index;
   }
 
-  handleSubmenuClick(
-    event: Event,
-    view?:
-      | 'dashboard'
-      | 'all-users' | 'add-user' | 'deleted-users'
-      | 'all-members' | 'add-member'
-      | 'all-agents' | 'add-agent'
-      | 'all-products' | 'add-product'
-      | 'all-installments' | 'installment-management' | 'add-installment'
-      | 'payment-schedules' | 'record-payment'
-      | 'all-shareholders' | 'add-shareholder'
-  ) {
+  handleSubmenuClick(event: Event, view: any) {
     event.preventDefault();
     event.stopPropagation();
     if (view) this.submenuSelected.emit(view);

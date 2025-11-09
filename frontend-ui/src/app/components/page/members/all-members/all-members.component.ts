@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MembersService } from '../../../../services/services/members.service';
 import { Member } from '../../../../services/models/member';
 import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
+import { AuthService } from '../../../../service/auth.service'; // ✅ Import AuthService
 
 @Component({
   selector: 'app-all-members',
@@ -13,20 +14,28 @@ import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service
 })
 export class AllMembersComponent implements OnInit {
   members: Member[] = [];
-  loading: boolean = true;
+  loading = true;
   error: string | null = null;
   successMessage: string | null = null;
   isSidebarCollapsed = false;
 
+  // ✅ Track user role
+  userRole: string | null = null;
+
   constructor(
     private membersService: MembersService,
-    private sidebarService: SidebarTopbarService
+    private sidebarService: SidebarTopbarService,
+    private authService: AuthService // ✅ Inject AuthService
   ) {}
 
   ngOnInit(): void {
     this.sidebarService.isCollapsed$.subscribe(collapsed => {
       this.isSidebarCollapsed = collapsed;
     });
+
+    // ✅ Get user role from AuthService
+    this.userRole = this.authService.getRole();
+
     this.loadMembers();
   }
 
@@ -55,7 +64,13 @@ export class AllMembersComponent implements OnInit {
     window.dispatchEvent(new CustomEvent('editMember', { detail: memberId }));
   }
 
+  // ✅ Allow delete only if admin
   deleteMember(memberId: number): void {
+    if (this.userRole !== 'ADMIN') {
+      alert('You are not authorized to delete members.');
+      return;
+    }
+
     if (confirm('Are you sure you want to delete this member?')) {
       this.membersService.deleteMember({ id: memberId }).subscribe({
         next: () => {
@@ -74,12 +89,11 @@ export class AllMembersComponent implements OnInit {
   }
 
   formatDate(date: string | undefined): string {
-    if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString();
+    return date ? new Date(date).toLocaleDateString() : 'N/A';
   }
 
   getStatusClass(status: string | undefined): string {
-    switch(status) {
+    switch (status) {
       case 'ACTIVE': return 'badge bg-success';
       case 'INACTIVE': return 'badge bg-secondary';
       case 'SUSPENDED': return 'badge bg-warning';

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { InstallmentManagementService } from '../../../../services/services/installment-management.service';
 import { InstallmentResponseDto } from '../../../../services/models/installment-response-dto';
 import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
+import { AuthService } from '../../../../service/auth.service';
 
 @Component({
   selector: 'app-installment-management',
@@ -20,10 +21,18 @@ export class InstallmentManagementComponent implements OnInit {
   successMessage: string | null = null;
   isSidebarCollapsed = false;
 
+  // Role-based access
+  isAdmin: boolean = false;
+  userRole: string = '';
+
   // Search and Filter
   searchTerm: string = '';
   statusFilter: string = 'ALL';
   dateFilter: string = '';
+
+  // View Details Modal
+  showDetailsModal: boolean = false;
+  selectedInstallment: InstallmentResponseDto | null = null;
 
   // Edit Modal
   showEditModal: boolean = false;
@@ -41,18 +50,23 @@ export class InstallmentManagementComponent implements OnInit {
   itemsPerPage: number = 10;
   totalPages: number = 1;
 
-  // For template Math reference
   Math = Math;
 
   constructor(
     private installmentService: InstallmentManagementService,
-    private sidebarService: SidebarTopbarService
+    private sidebarService: SidebarTopbarService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     this.sidebarService.isCollapsed$.subscribe(collapsed => {
       this.isSidebarCollapsed = collapsed;
     });
+
+    // Get user role from auth service
+    this.userRole = this.authService.getRole() || '';
+    this.isAdmin = this.authService.isAdmin();
+
     this.loadInstallments();
   }
 
@@ -93,14 +107,12 @@ export class InstallmentManagementComponent implements OnInit {
   applyFilters(): void {
     let filtered = [...this.installments];
 
-    // Status filter
     if (this.statusFilter !== 'ALL') {
       filtered = filtered.filter(installment => 
         installment.status === this.statusFilter
       );
     }
 
-    // Date filter (simple implementation)
     if (this.dateFilter) {
       filtered = filtered.filter(installment => {
         const createdDate = new Date(installment.createdTime || '').toISOString().split('T')[0];
@@ -122,24 +134,30 @@ export class InstallmentManagementComponent implements OnInit {
     return this.filteredInstallments.slice(startIndex, startIndex + this.itemsPerPage);
   }
 
-  // Add new installment
   addNewInstallment(): void {
-    window.dispatchEvent(new CustomEvent('addInstallment'));
+    if (this.isAdmin) {
+      window.dispatchEvent(new CustomEvent('addInstallment'));
+    }
   }
 
-  // View installment details
-  viewInstallmentDetails(installment: InstallmentResponseDto): void {
-    console.log('View details for installment:', installment);
-    // Navigate to details page or open modal
-  }
-
-  // Get installments count by status
   getInstallmentsByStatus(status: string): number {
     return this.installments.filter(i => i.status === status).length;
   }
 
+  // View Details
+  openDetailsModal(installment: InstallmentResponseDto): void {
+    this.selectedInstallment = installment;
+    this.showDetailsModal = true;
+  }
+
+  closeDetailsModal(): void {
+    this.showDetailsModal = false;
+    this.selectedInstallment = null;
+  }
+
   // Edit functionality
   openEditModal(installment: InstallmentResponseDto): void {
+    if (!this.isAdmin) return;
     this.editingInstallment = installment;
     this.editFormData = {
       totalAmountOfProduct: installment.totalAmountOfProduct,
@@ -168,7 +186,6 @@ export class InstallmentManagementComponent implements OnInit {
       body: this.editFormData
     }).subscribe({
       next: (updatedInstallment) => {
-        // Update the installment in the list
         const index = this.installments.findIndex(i => i.id === updatedInstallment.id);
         if (index !== -1) {
           this.installments[index] = updatedInstallment;
@@ -189,6 +206,7 @@ export class InstallmentManagementComponent implements OnInit {
 
   // Delete functionality
   openDeleteModal(installment: InstallmentResponseDto): void {
+    if (!this.isAdmin) return;
     this.deletingInstallment = installment;
     this.showDeleteModal = true;
   }
@@ -207,7 +225,6 @@ export class InstallmentManagementComponent implements OnInit {
       id: this.deletingInstallment.id!
     }).subscribe({
       next: () => {
-        // Remove from list
         this.installments = this.installments.filter(
           i => i.id !== this.deletingInstallment!.id
         );
@@ -281,7 +298,6 @@ export class InstallmentManagementComponent implements OnInit {
     this.loadInstallments();
   }
 
-  // Helper for pagination
   getPaginationArray(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
