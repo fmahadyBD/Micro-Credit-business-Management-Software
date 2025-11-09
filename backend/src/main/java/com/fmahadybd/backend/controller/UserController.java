@@ -1,71 +1,64 @@
 package com.fmahadybd.backend.controller;
 
 import com.fmahadybd.backend.dto.UserDTO;
+import com.fmahadybd.backend.dto.UpdateUserDTO;
 import com.fmahadybd.backend.entity.User;
 import com.fmahadybd.backend.entity.UserStatus;
-import com.fmahadybd.backend.repository.UserRepository;
+import com.fmahadybd.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    // ✅ Convert Entity → DTO
-    private UserDTO toDTO(User user) {
-        return UserDTO.builder()
-                .id(user.getId())
-                .firstname(user.getFirstname())
-                .lastname(user.getLastname())
-                .username(user.getUsername())
-                .role(user.getRole())
-                .status(user.getStatus())
-                .build();
-    }
-
-    // ✅ Get all users
+    // ✅ Get all users - Only ADMIN can access
     @GetMapping
+    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<UserDTO> users = userRepository.findAll()
-                .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+        List<UserDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
-    // ✅ Get one user
+    // ✅ Get one user - ADMIN or the user themselves
     @GetMapping("/{id}")
+    // @PreAuthorize("hasRole('ADMIN') or @userSecurity.isOwnProfile(authentication, #id)")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-        return userRepository.findById(id)
-                .map(user -> ResponseEntity.ok(toDTO(user)))
-                .orElse(ResponseEntity.notFound().build());
+        UserDTO user = userService.getUserById(id);
+        return ResponseEntity.ok(user);
     }
 
-    // ✅ Delete
+    // ✅ Update user - ADMIN or the user themselves
+    @PutMapping("/{id}")
+    // @PreAuthorize("hasRole('ADMIN') or @userSecurity.isOwnProfile(authentication, #id)")
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UpdateUserDTO updateUserDTO) {
+        UserDTO updatedUser = userService.updateUser(id, updateUserDTO);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    // ✅ Delete - Only ADMIN
     @DeleteMapping("/{id}")
+    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        if (!userRepository.existsById(id)) return ResponseEntity.notFound().build();
-        userRepository.deleteById(id);
+        userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
-    // ✅ Update status
+    // ✅ Update status - Only ADMIN
     @PatchMapping("/{id}/status")
-    public ResponseEntity<?> updateStatus(
+    // @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDTO> updateStatus(
             @PathVariable Long id,
             @RequestParam("status") String status
     ) {
-        return userRepository.findById(id).map(user -> {
-            user.setStatus(UserStatus.valueOf(status));
-            userRepository.save(user);
-            return ResponseEntity.ok().build();
-        }).orElse(ResponseEntity.notFound().build());
+        UserDTO updatedUser = userService.updateUserStatus(id, status);
+        return ResponseEntity.ok(updatedUser);
     }
 }

@@ -2,10 +2,11 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { User } from '../../../../service/models/user';
+import { User } from '../../../../service/models/user.model'; // ✅ fixed import
 import { UsersService } from '../../../../service/models/users.service';
 import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
-import { AuthService } from '../../../../service/auth.service'; // ✅ import AuthService
+import { AuthService } from '../../../../service/auth.service';
+
 
 @Component({
   selector: 'app-all-users',
@@ -27,7 +28,7 @@ export class AllUsersComponent implements OnInit {
     private sidebarService: SidebarTopbarService,
     private router: Router,
     private authService: AuthService // ✅ inject auth
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.sidebarService.isCollapsed$.subscribe(collapsed => {
@@ -62,17 +63,27 @@ export class AllUsersComponent implements OnInit {
     });
   }
 
-  addUser() {
-    this.router.navigate(['/admin/add-user']);
-  }
+  // addUser() {
+  //   this.router.navigate(['/admin/add-user']);
+  // }
+
+  // viewDetails(user: User) {
+  //   this.router.navigate(['/admin/user-details', user.id]);
+  // }
+
+  // editUser(user: User) {
+  //   this.router.navigate(['/admin/edit-user', user.id]);
+  // }
+
 
   viewDetails(user: User) {
-    this.router.navigate(['/admin/user-details', user.id]);
+    window.dispatchEvent(new CustomEvent('viewUserDetails', { detail: user.id }));
   }
 
   editUser(user: User) {
-    this.router.navigate(['/admin/edit-user', user.id]);
+    window.dispatchEvent(new CustomEvent('editUser', { detail: user.id }));
   }
+
 
   deleteUser(user: User) {
     if (!this.isAdminUser) return;

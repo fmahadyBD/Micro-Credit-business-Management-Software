@@ -8,9 +8,9 @@ import { AdminMainComponent } from '../admin-main/admin-main.component';
 
 import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
 
-import { AddNewUserComponent } from '../../page/user/add-new-user/add-new-user.component';
+// import { AddNewUserComponent } from '../../page/user/add-new-user/add-new-user.component';
 import { AllUsersComponent } from '../../page/user/all-users/all-users.component';
-import { DeletedUsersComponent } from '../../page/user/deleted-users/deleted-users.component';
+// import { DeletedUsersComponent } from '../../page/user/deleted-users/deleted-users.component';
 import { EditUserComponent } from '../../page/user/edit-user/edit-user.component';
 import { UserDetailsComponent } from '../../page/user/user-details/user-details.component';
 
@@ -44,8 +44,8 @@ import { InstallmentManagementComponent } from '../../page/installment/installme
     AdminMainComponent,
     // 👥 Users
     AllUsersComponent,
-    AddNewUserComponent,
-    DeletedUsersComponent,
+    // AddNewUserComponent,
+    // DeletedUsersComponent,
     UserDetailsComponent,
     EditUserComponent,
     // 👨‍👩‍👧 Members

@@ -1,7 +1,8 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { User } from '../../../../service/models/user';
 import { UsersService } from '../../../../service/models/users.service';
+import { User } from '../../../../service/models/user.model';
+import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
 
 @Component({
   selector: 'app-user-details',
@@ -11,14 +12,21 @@ import { UsersService } from '../../../../service/models/users.service';
 })
 export class UserDetailsComponent implements OnInit, OnChanges {
   @Input() userId!: number;
-  
+
   user: User | null = null;
   loading = false;
   message = '';
-
-  constructor(private userService: UsersService) {}
+  isSidebarCollapsed = false;
+  constructor(private userService: UsersService,
+    private sidebarService: SidebarTopbarService
+  ) { }
 
   ngOnInit() {
+    this.sidebarService.isCollapsed$.subscribe(collapsed => {
+      this.isSidebarCollapsed = collapsed;
+    });
+
+
     if (this.userId) {
       this.loadUser(this.userId);
     }

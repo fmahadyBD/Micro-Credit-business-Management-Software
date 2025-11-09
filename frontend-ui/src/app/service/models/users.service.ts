@@ -1,7 +1,8 @@
+// src/app/services/users.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { User, DeletedUser } from '../models/user';
+import { User, CreateUserDTO, UpdateUserDTO } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -19,11 +20,11 @@ export class UsersService {
     return this.http.get<User>(`${this.apiUrl}/${id}`);
   }
 
-  createUser(user: User): Observable<User> {
+  createUser(user: CreateUserDTO): Observable<User> {
     return this.http.post<User>(this.apiUrl, user);
   }
 
-  updateUser(id: number, user: User): Observable<User> {
+  updateUser(id: number, user: UpdateUserDTO): Observable<User> {
     return this.http.put<User>(`${this.apiUrl}/${id}`, user);
   }
 
@@ -31,15 +32,7 @@ export class UsersService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  getDeletedUsers(): Observable<DeletedUser[]> {
-    return this.http.get<DeletedUser[]>(`${this.apiUrl}/deleted`);
-  }
-
-  restoreUser(id: number): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/${id}/restore`, {});
-  }
-
-  updateUserStatus(id: number, status: User['status']): Observable<User> {
-    return this.http.patch<User>(`${this.apiUrl}/${id}/status`, { status });
+  updateUserStatus(id: number, status: string): Observable<User> {
+    return this.http.patch<User>(`${this.apiUrl}/${id}/status?status=${status}`, {});
   }
 }

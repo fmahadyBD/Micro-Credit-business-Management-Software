@@ -1,8 +1,10 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { User } from '../../../../service/models/user';
 import { UsersService } from '../../../../service/models/users.service';
+import { AuthService } from '../../../../service/auth.service';
+import { User, UpdateUserDTO } from '../../../../service/models/user.model';
+import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
 
 @Component({
   selector: 'app-edit-user',
@@ -12,36 +14,64 @@ import { UsersService } from '../../../../service/models/users.service';
 })
 export class EditUserComponent implements OnInit, OnChanges {
   @Input() userId!: number;
-  
-  user: User = {
+
+  user: UpdateUserDTO = {
+    firstname: '',
+    lastname: '',
     username: '',
     password: '',
     role: 'AGENT',
     status: 'ACTIVE'
   };
-  
+
+  originalUser: User | null = null;
   loading = false;
   message = '';
+  isAdmin = false;
+  isSidebarCollapsed = false;
 
-  constructor(private userService: UsersService) {}
+  constructor(
+    private userService: UsersService,
+    private authService: AuthService,
+    private sidebarService: SidebarTopbarService
+  ) { }
 
   ngOnInit() {
-    if (this.userId) {
+    this.sidebarService.isCollapsed$.subscribe(collapsed => {
+      this.isSidebarCollapsed = collapsed;
+    });
+    
+    this.isAdmin = this.authService.isAdmin();
+    if (this.userId && this.isAdmin) {
       this.loadUser();
     }
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['userId'] && changes['userId'].currentValue) {
+    if (changes['userId'] && changes['userId'].currentValue && this.isAdmin) {
       this.loadUser();
     }
   }
 
   loadUser() {
+    if (!this.isAdmin) {
+      this.message = 'Access denied: Only administrators can edit users.';
+      return;
+    }
+
     this.loading = true;
     this.userService.getUserById(this.userId).subscribe({
       next: (user: User) => {
-        this.user = user;
+        this.originalUser = user;
+        this.user = {
+          firstname: user.firstname,
+          lastname: user.lastname,
+          username: user.username,
+          password: '', // Don’t prefill password
+          role: user.role,
+          status: user.status,
+          referenceId: user.referenceId
+        };
         this.loading = false;
       },
       error: (err: any) => {
@@ -53,6 +83,16 @@ export class EditUserComponent implements OnInit, OnChanges {
   }
 
   saveChanges() {
+    if (!this.isAdmin) {
+      this.message = 'Access denied: Only administrators can edit users.';
+      return;
+    }
+
+    if (!this.user.username || !this.user.firstname || !this.user.lastname) {
+      this.message = 'Please fill in all required fields.';
+      return;
+    }
+
     this.loading = true;
     this.userService.updateUser(this.userId, this.user).subscribe({
       next: () => {
