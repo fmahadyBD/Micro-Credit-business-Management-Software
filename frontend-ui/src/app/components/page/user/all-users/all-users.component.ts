@@ -4,7 +4,8 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { User } from '../../../../service/models/user';
 import { UsersService } from '../../../../service/models/users.service';
-
+import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
+import { AuthService } from '../../../../service/auth.service'; // ✅ import AuthService
 
 @Component({
   selector: 'app-all-users',
@@ -16,18 +17,34 @@ export class AllUsersComponent implements OnInit {
   users: User[] = [];
   loading = false;
   message: { text: string, type: 'success' | 'error' } | null = null;
-  
-  // For status modal
+  isSidebarCollapsed = false;
   selectedUser: User | null = null;
   newStatus: User['status'] = 'ACTIVE';
+  isAdminUser = false; // ✅ for UI condition
 
   constructor(
     @Inject(UsersService) private userService: UsersService,
-    private router: Router
+    private sidebarService: SidebarTopbarService,
+    private router: Router,
+    private authService: AuthService // ✅ inject auth
   ) {}
 
   ngOnInit() {
-    this.loadUsers();
+    this.sidebarService.isCollapsed$.subscribe(collapsed => {
+      this.isSidebarCollapsed = collapsed;
+    });
+
+    // ✅ Check if logged-in user is admin
+    this.isAdminUser = this.authService.isAdmin();
+
+    if (this.isAdminUser) {
+      this.loadUsers();
+    } else {
+      this.message = {
+        text: 'Access denied: only administrators can view all users.',
+        type: 'error'
+      };
+    }
   }
 
   loadUsers() {
@@ -58,6 +75,8 @@ export class AllUsersComponent implements OnInit {
   }
 
   deleteUser(user: User) {
+    if (!this.isAdminUser) return;
+
     if (confirm(`Are you sure you want to delete user: ${user.username}?`)) {
       this.userService.deleteUser(user.id!).subscribe({
         next: () => {
@@ -73,9 +92,11 @@ export class AllUsersComponent implements OnInit {
   }
 
   confirmStatusChange(user: User) {
+    if (!this.isAdminUser) return;
+
     this.selectedUser = user;
     this.newStatus = this.getNextStatus(user.status);
-    // Show modal - you might need to use ViewChild for Bootstrap modal
+
     const modal = new (window as any).bootstrap.Modal(document.getElementById('statusModal'));
     modal.show();
   }
@@ -87,7 +108,7 @@ export class AllUsersComponent implements OnInit {
       next: () => {
         this.message = { text: 'User status updated successfully', type: 'success' };
         this.loadUsers();
-        // Hide modal
+
         const modal = (window as any).bootstrap.Modal.getInstance(document.getElementById('statusModal'));
         modal.hide();
       },
