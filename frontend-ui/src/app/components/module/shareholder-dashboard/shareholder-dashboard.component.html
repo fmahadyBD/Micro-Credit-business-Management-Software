@@ -1,111 +1,332 @@
-<app-top-bar></app-top-bar>
-  <div class="container-fluid mt-4">
-    <!-- Header -->
-    <div class="card shadow-sm mb-4">
-      <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center py-3">
-        <div>
-          <h4 class="mb-0">
-            <i class="fas fa-user-tie me-2"></i> Shareholder Dashboard
-          </h4>
-          <small class="opacity-75">Comprehensive financial overview</small>
+<!-- Money Rain Background -->
+<div class="money-rain" id="moneyRain"></div>
+
+<!-- Integrated Topbar -->
+<header class="topbar shadow-sm">
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center py-2">
+      <div class="d-flex align-items-center">
+        <div class="logo me-4">
+          <i class="fas fa-chart-line fa-2x gradient-text"></i>
         </div>
-        <button class="btn btn-outline-light" (click)="goBack()">
-          <i class="fas fa-arrow-left me-1"></i> Back
-        </button>
+        <h4 class="mb-0 gradient-text fw-bold">WealthPortal</h4>
+      </div>
+      
+      <div class="topbar-actions">
+        <!-- Notifications -->
+        <div class="dropdown">
+          <button class="btn btn-light rounded-circle position-relative mx-2 floating" data-bs-toggle="dropdown">
+            <i class="fas fa-bell"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                  *ngIf="getUnreadCount() > 0">
+              {{ getUnreadCount() }}
+              <span class="visually-hidden">unread messages</span>
+            </span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="min-width: 350px">
+            <li>
+              <h6 class="dropdown-header">
+                <i class="fas fa-bell me-2"></i>Notifications ({{ getUnreadCount() }} unread)
+              </h6>
+            </li>
+            <li *ngFor="let n of notifications; let i = index">
+              <a href="#" class="dropdown-item notification-item py-3" [class.unread]="n.unread" (click)="markAsRead(i, $event)">
+                <div class="d-flex align-items-center">
+                  <div class="notification-icon me-3">
+                    <i [ngClass]="n.icon" class="fa-lg gradient-text"></i>
+                  </div>
+                  <div class="notification-text flex-grow-1">
+                    <div class="fw-semibold">{{ n.title }}</div>
+                    <small class="text-muted">{{ n.time }}</small>
+                  </div>
+                  <i class="fas fa-circle text-primary" *ngIf="n.unread"></i>
+                </div>
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a href="#" class="dropdown-item text-center text-primary" (click)="markAllAsRead($event)">
+                <i class="fas fa-check-double me-2"></i>Mark all as read
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Profile Dropdown -->
+        <div class="dropdown">
+          <div class="profile-dropdown d-flex align-items-center cursor-pointer" data-bs-toggle="dropdown">
+            <div class="profile-avatar bg-gradient-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2 floating">
+              {{ userName.charAt(0).toUpperCase() }}
+            </div>
+            <div class="profile-info d-none d-md-block">
+              <div class="profile-name fw-semibold">{{ userName }}</div>
+              <div class="profile-role small text-muted">{{ userRole }}</div>
+            </div>
+            <i class="fas fa-chevron-down ms-2 d-none d-md-block"></i>
+          </div>
+          <ul class="dropdown-menu dropdown-menu-end shadow-lg">
+            <li><h6 class="dropdown-header">Welcome, {{ userName }}!</h6></li>
+            <li>
+              <a class="dropdown-item" href="#">
+                <i class="fas fa-user me-2 gradient-text"></i>View Profile
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">
+                <i class="fas fa-cog me-2 gradient-text"></i>Settings
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li><h6 class="dropdown-header">Theme</h6></li>
+            <li>
+              <a class="dropdown-item" href="#" (click)="setTheme('light', $event)">
+                <i class="fas fa-sun me-2 text-warning"></i>Light
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" (click)="setTheme('dark', $event)">
+                <i class="fas fa-moon me-2 text-primary"></i>Dark
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" (click)="setTheme('auto', $event)">
+                <i class="fas fa-circle-half-stroke me-2 text-info"></i>Auto
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item text-danger" href="#" (click)="logout($event)">
+                <i class="fas fa-sign-out-alt me-2"></i>Logout
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
+  </div>
+</header>
 
-    <!-- Loading -->
-    <div *ngIf="loading" class="text-center py-5">
-      <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-      <p class="mt-3 text-muted">Loading shareholder details...</p>
-    </div>
-
-    <!-- Error -->
-    <div *ngIf="error && !loading" class="alert alert-danger">
-      <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
-      <button type="button" class="btn-close" (click)="error = null"></button>
-    </div>
-
-    <!-- Main -->
-    <div *ngIf="!loading && shareholderDetails as details">
-      <div class="row mb-4">
-        <!-- Total Investment -->
-        <div class="col-md-3 mb-3">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <p class="text-muted mb-1 small">Total Investment</p>
-              <h3 class="mb-0 fw-bold text-primary">{{ formatCurrency(details.investment) }}</h3>
-              <small class="text-muted">
-                Since {{ formatDate(details.activeSince) }}
-              </small>
+<!-- Dashboard Content -->
+<div class="container-fluid mt-4">
+  <!-- Welcome Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="animated-card glow bounce-in">
+        <div class="card-body py-4">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h2 class="gradient-text fw-bold mb-2">Welcome back, {{ userName }}! 🎉</h2>
+              <p class="text-muted mb-0">Your financial dashboard is updated with the latest earnings and performance metrics.</p>
             </div>
-          </div>
-        </div>
-
-        <!-- Total Earnings -->
-        <div class="col-md-3 mb-3">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <p class="text-muted mb-1 small">Total Earnings</p>
-              <h3 class="mb-0 fw-bold text-success">{{ formatCurrency(details.totalEarnings) }}</h3>
-              <small class="text-success">ROI: {{ formatROI() }}</small>
+            <div class="col-md-4 text-end">
+              <div class="floating">
+                <i class="fas fa-rocket fa-3x gradient-text"></i>
+              </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Balance -->
-        <div class="col-md-3 mb-3">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <p class="text-muted mb-1 small">Current Balance</p>
-              <h3 class="mb-0 fw-bold text-info">{{ formatCurrency(details.currentBalance) }}</h3>
-              <small class="text-muted">Available funds</small>
-            </div>
-          </div>
-        </div>
-
-        <!-- Total Value -->
-        <div class="col-md-3 mb-3">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <p class="text-muted mb-1 small">Total Value</p>
-              <h3 class="mb-0 fw-bold text-warning">{{ formatCurrency(details.totalValue) }}</h3>
-              <small class="text-muted">{{ details.totalShares ?? 0 }} shares</small>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Personal Info -->
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white border-bottom">
-          <h5 class="mb-0">
-            <i class="fas fa-user-circle me-2 text-primary"></i>Personal Information
-          </h5>
-        </div>
-        <div class="card-body">
-          <div class="row g-2">
-            <div class="col-md-6"><b>Full Name:</b> {{ details.shareholder?.name ?? 'N/A' }}</div>
-            <div class="col-md-6"><b>Phone:</b> {{ details.shareholder?.phone ?? 'N/A' }}</div>
-            <div class="col-md-6"><b>NID:</b> {{ details.shareholder?.nidCard ?? 'N/A' }}</div>
-            <div class="col-md-6"><b>Nominee:</b> {{ details.shareholder?.nominee ?? 'N/A' }}</div>
-            <div class="col-md-6"><b>Role:</b> {{ details.shareholder?.role ?? 'N/A' }}</div>
-            <div class="col-md-6">
-              <b>Status:</b>
-              <span [class]="getStatusClass(details.shareholder?.status)">
-                {{ details.shareholder?.status ?? 'N/A' }}
-              </span>
-            </div>
-            <div class="col-md-6"><b>District:</b> {{ details.shareholder?.zila ?? 'N/A' }}</div>
-            <div class="col-md-6"><b>House:</b> {{ details.shareholder?.house ?? 'N/A' }}</div>
-            <div class="col-md-6"><b>Join Date:</b> {{ formatDate(details.shareholder?.joinDate) }}</div>
-            <div class="col-md-6"><b>Active Since:</b> {{ formatDate(details.activeSince) }}</div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-white">Loading your wealth dashboard...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !loading" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+    <button type="button" class="btn-close" (click)="error = null"></button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && shareholderDetails as details">
+    <!-- Key Metrics -->
+    <div class="row mb-4">
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="animated-card glow h-100 bounce-in" style="animation-delay: 0.1s;">
+          <div class="card-body text-center py-4">
+            <div class="floating mb-3">
+              <i class="fas fa-piggy-bank fa-2x text-primary"></i>
+            </div>
+            <h4 class="text-muted mb-2">Total Investment</h4>
+            <h2 class="text-primary fw-bold counter pulse-amount">
+              ৳{{ counterValues.investment.toLocaleString() }}
+            </h2>
+            <small class="text-muted">
+              <i class="fas fa-calendar me-1"></i>
+              Since {{ formatDate(details.activeSince) }}
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="animated-card glow h-100 bounce-in" style="animation-delay: 0.2s;">
+          <div class="card-body text-center py-4">
+            <div class="floating mb-3">
+              <i class="fas fa-chart-line fa-2x text-success"></i>
+            </div>
+            <h4 class="text-muted mb-2">Total Earnings</h4>
+            <h2 class="text-success fw-bold counter pulse-amount">
+              ৳{{ counterValues.earnings.toLocaleString() }}
+            </h2>
+            <small class="text-success">
+              <i class="fas fa-trophy me-1"></i>
+              ROI: {{ formatROI() }}
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="animated-card glow h-100 bounce-in" style="animation-delay: 0.3s;">
+          <div class="card-body text-center py-4">
+            <div class="floating mb-3">
+              <i class="fas fa-wallet fa-2x text-info"></i>
+            </div>
+            <h4 class="text-muted mb-2">Current Balance</h4>
+            <h2 class="text-info fw-bold counter pulse-amount">
+              ৳{{ counterValues.balance.toLocaleString() }}
+            </h2>
+            <small class="text-muted">
+              <i class="fas fa-coins me-1"></i>
+              Available funds
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="animated-card glow h-100 bounce-in" style="animation-delay: 0.4s;">
+          <div class="card-body text-center py-4">
+            <div class="floating mb-3">
+              <i class="fas fa-gem fa-2x text-warning"></i>
+            </div>
+            <h4 class="text-muted mb-2">Portfolio Value</h4>
+            <h2 class="text-warning fw-bold counter pulse-amount">
+              ৳{{ counterValues.totalValue.toLocaleString() }}
+            </h2>
+            <small class="text-muted">
+              <i class="fas fa-chart-pie me-1"></i>
+              {{ details.totalShares ?? 0 }} shares
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row mb-4">
+      <div class="col-lg-8 mb-4">
+        <div class="chart-container bounce-in" style="animation-delay: 0.5s;">
+          <h5 class="gradient-text fw-bold mb-4">
+            <i class="fas fa-chart-line me-2"></i>Earnings Growth & Investment
+          </h5>
+          <canvas id="earningsChart" height="250"></canvas>
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="chart-container bounce-in" style="animation-delay: 0.6s;">
+          <h5 class="gradient-text fw-bold mb-4">
+            <i class="fas fa-chart-pie me-2"></i>Portfolio Distribution
+          </h5>
+          <canvas id="distributionChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Charts -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="chart-container bounce-in" style="animation-delay: 0.7s;">
+          <h5 class="gradient-text fw-bold mb-4">
+            <i class="fas fa-percentage me-2"></i>Monthly Return on Investment
+          </h5>
+          <canvas id="roiChart" height="150"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personal Information & Performance -->
+    <div class="row">
+      <div class="col-lg-6 mb-4">
+        <div class="animated-card bounce-in" style="animation-delay: 0.8s;">
+          <div class="card-header bg-transparent border-bottom-0">
+            <h5 class="gradient-text fw-bold mb-0">
+              <i class="fas fa-user-circle me-2"></i>Personal Information
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-sm-6">
+                <label class="form-label text-muted small mb-1">Full Name</label>
+                <p class="fw-semibold mb-0">{{ details.shareholder?.name ?? 'N/A' }}</p>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label text-muted small mb-1">Phone</label>
+                <p class="fw-semibold mb-0">{{ details.shareholder?.phone ?? 'N/A' }}</p>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label text-muted small mb-1">NID</label>
+                <p class="fw-semibold mb-0">{{ details.shareholder?.nidCard ?? 'N/A' }}</p>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label text-muted small mb-1">Nominee</label>
+                <p class="fw-semibold mb-0">{{ details.shareholder?.nominee ?? 'N/A' }}</p>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label text-muted small mb-1">Status</label>
+                <p class="mb-0">
+                  <span [class]="getStatusClass(details.shareholder?.status)">
+                    {{ details.shareholder?.status ?? 'N/A' }}
+                  </span>
+                </p>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label text-muted small mb-1">Join Date</label>
+                <p class="fw-semibold mb-0">{{ formatDate(details.shareholder?.joinDate) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 mb-4">
+        <div class="animated-card bounce-in" style="animation-delay: 0.9s;">
+          <div class="card-header bg-transparent border-bottom-0">
+            <h5 class="gradient-text fw-bold mb-0">
+              <i class="fas fa-tachometer-alt me-2"></i>Performance Metrics
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label text-muted small mb-1">Monthly Average Earnings</label>
+                <p class="fw-semibold text-success mb-0">{{ getMonthlyAverage() }}</p>
+              </div>
+              <div class="col-12">
+                <label class="form-label text-muted small mb-1">Months Active</label>
+                <p class="fw-semibold mb-0">{{ getMonthsActive() }} months</p>
+              </div>
+              <div class="col-12">
+                <label class="form-label text-muted small mb-1">Progress to Goal</label>
+                <div class="progress" style="height: 10px;">
+                  <div class="progress-bar bg-gradient-primary progress-bar-striped progress-bar-animated" 
+                       [style.width]="getProgressPercentage() + '%'">
+                  </div>
+                </div>
+                <small class="text-muted">{{ getProgressPercentage().toFixed(1) }}% of target achieved</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
