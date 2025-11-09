@@ -12,47 +12,51 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class Shareholder {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
     @Column(nullable = false)
     private String name;
-    
+
     @Column(unique = true)
     private String phone;
-    
+
     @Column(name = "nid_card", unique = true)
     private String nidCard;
-    
+
     private String nominee;
-    
+
     private String zila;
-    
+
     private String house;
-    
+
     @Column(nullable = false)
     private Double investment = 0.0;
-    
+
     @Column(name = "total_share")
     private Integer totalShare = 0;
-    
+
     @Column(name = "total_earning")
     private Double totalEarning = 0.0;
-    
+
     @Column(name = "current_balance")
     private Double currentBalance = 0.0;
-    
+
     private String role;
-    
-    private String status = "Active"; 
-    
+
+    private String status = "Active";
+
     @Column(name = "join_date")
     private LocalDate joinDate;
-    
-  
-    
+
+    @Column(name = "user_id", unique = true)
+    private Long userId; // Links to User table
+
     // Calculate ROI
     @Transient
     public Double getROI() {
@@ -61,7 +65,7 @@ public class Shareholder {
         }
         return 0.0;
     }
-    
+
     // Calculate total value
     @Transient
     public Double getTotalValue() {

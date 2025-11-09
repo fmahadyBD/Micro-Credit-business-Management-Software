@@ -33,7 +33,7 @@ public class AgentController {
     /** Create a new Agent with validation - ADMIN only */
     @PostMapping
     @Operation(summary = "Create a new agent")
-    @PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createAgent(@Valid @RequestBody Agent agent, BindingResult result) {
         if (result.hasErrors()) {
             String errorMessage = result.getAllErrors().get(0).getDefaultMessage();
@@ -50,7 +50,7 @@ public class AgentController {
     /** Create Agent with Photo Upload - ADMIN only */
     @PostMapping(value = "/with-photo", consumes = "multipart/form-data")
     @Operation(summary = "Create agent with photo")
-    @PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createAgentWithPhoto(
             @RequestPart("agent") @Valid Agent agent,
             BindingResult result,
@@ -86,7 +86,7 @@ public class AgentController {
     /** Update Agent with Photo - ADMIN only */
     @PutMapping(value = "/{id}/with-photo", consumes = "multipart/form-data")
     @Operation(summary = "Update agent with photo")
-    @PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateAgentWithPhoto(
             @PathVariable Long id,
             @RequestPart("agent") @Valid Agent updatedAgent,
@@ -144,7 +144,7 @@ public class AgentController {
     /** Upload/Update Agent Photo - ADMIN only */
     @PostMapping(value = "/{id}/photo", consumes = "multipart/form-data")
     @Operation(summary = "Upload agent photo")
-    @PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> uploadAgentPhoto(
             @PathVariable Long id,
             @RequestPart("photo") MultipartFile photo) {
@@ -181,7 +181,7 @@ public class AgentController {
     /** Get all Agents - ADMIN and AGENT can access */
     @GetMapping
     @Operation(summary = "Get all agents")
-    @PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
+    // @PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
     public ResponseEntity<List<Agent>> getAllAgents() {
         return ResponseEntity.ok(agentService.getAllAgents());
     }
@@ -189,7 +189,7 @@ public class AgentController {
     /** Get Agent by ID - ADMIN, AGENT, and SHAREHOLDER can access */
     @GetMapping("/{id}")
     @Operation(summary = "Get agent by ID")
-    @PreAuthorize("hasAnyRole('ADMIN', 'AGENT', 'SHAREHOLDER')")
+    // @PreAuthorize("hasAnyRole('ADMIN', 'AGENT', 'SHAREHOLDER')")
     public ResponseEntity<?> getAgentById(@PathVariable Long id) {
         try {
             Agent agent = agentService.getAgentById(id)
@@ -206,7 +206,7 @@ public class AgentController {
     /** Update existing Agent - ADMIN only */
     @PutMapping("/{id}")
     @Operation(summary = "Update existing agent")
-    @PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateAgent(@PathVariable Long id, @Valid @RequestBody Agent updatedAgent,
             BindingResult result) {
         if (result.hasErrors()) {
@@ -246,7 +246,7 @@ public class AgentController {
     /** Delete Agent by ID - ADMIN only */
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete agent by ID")
-    @PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> deleteAgent(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
         try {
@@ -269,7 +269,7 @@ public class AgentController {
     /** Get Agents by Status - ADMIN and AGENT can access */
     @GetMapping("/status/{status}")
     @Operation(summary = "Get agents by status")
-    @PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
+    // @PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
     public ResponseEntity<List<Agent>> getAgentsByStatus(@PathVariable String status) {
         return ResponseEntity.ok(agentService.getAgentsByStatus(status));
     }
@@ -277,7 +277,7 @@ public class AgentController {
     /** Update only Agent status - ADMIN only */
     @PutMapping("/{id}/status")
     @Operation(summary = "Update agent status")
-    @PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateAgentStatus(@PathVariable Long id, @RequestParam String status) {
         try {
             Agent updatedAgent = agentService.updateAgentStatus(id, status);
@@ -297,7 +297,7 @@ public class AgentController {
     /** Get all deleted agents - ADMIN only */
     @GetMapping("/deleted")
     @Operation(summary = "Get all deleted agents (deletion history)")
-    @PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<DeletedAgent>> getDeletedAgents() {
         List<DeletedAgent> deletedAgents = agentService.getAllDeletedAgents();
         if (deletedAgents.isEmpty()) {

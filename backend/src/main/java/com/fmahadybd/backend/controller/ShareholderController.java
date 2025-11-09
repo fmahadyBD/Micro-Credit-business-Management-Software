@@ -1,4 +1,3 @@
-// ShareholderController.java (updated)
 package com.fmahadybd.backend.controller;
 
 import com.fmahadybd.backend.dto.*;
@@ -50,7 +49,7 @@ public class ShareholderController {
             return ResponseEntity.ok(shareholders);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(List.of()); // or throw a custom exception
+                    .body(List.of());
         }
     }
 
@@ -109,26 +108,40 @@ public class ShareholderController {
         return ResponseEntity.ok(details);
     }
 
-@GetMapping("/{id}/dashboard")
-@Operation(summary = "Get shareholder dashboard",
-    responses = @ApiResponse(
-        responseCode = "200",
-        description = "Shareholder dashboard data",
-        content = @Content(mediaType = "application/json",
-            schema = @Schema(implementation = ShareholderDashboardDTO.class))
+    @GetMapping("/{id}/dashboard")
+    @Operation(summary = "Get shareholder dashboard",
+        responses = @ApiResponse(
+            responseCode = "200",
+            description = "Shareholder dashboard data",
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = ShareholderDashboardDTO.class))
+        )
     )
-)
-public ResponseEntity<ShareholderDashboardDTO> getShareholderDashboard(@PathVariable Long id) {
-    ShareholderDashboardDTO dashboard = shareholderService.getShareholderDashboard(id);
-    return ResponseEntity.ok(dashboard);
-}
+    public ResponseEntity<ShareholderDashboardDTO> getShareholderDashboard(@PathVariable Long id) {
+        ShareholderDashboardDTO dashboard = shareholderService.getShareholderDashboard(id);
+        return ResponseEntity.ok(dashboard);
+    }
 
-
-
-
-
-
-
+    @GetMapping("/by-user/{userId}")
+    @Operation(summary = "Get shareholder by user ID",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Shareholder fetched successfully",
+                content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ShareholderDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Shareholder not found")
+        }
+    )
+    public ResponseEntity<?> getShareholderByUserId(@PathVariable Long userId) {
+        try {
+            ShareholderDTO shareholder = shareholderService.getShareholderByUserId(userId);
+            return ResponseEntity.ok(shareholder);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to fetch shareholder: " + e.getMessage()));
+        }
+    }
 
     @GetMapping("/active")
     @Operation(summary = "Get active shareholders")
@@ -165,4 +178,29 @@ public ResponseEntity<ShareholderDashboardDTO> getShareholderDashboard(@PathVari
                     .body(Map.of("error", "Failed to fetch statistics: " + e.getMessage()));
         }
     }
+
+    @GetMapping("/by-email/{email}")
+@Operation(
+    summary = "Get shareholder by email",
+    responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Shareholder fetched successfully",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ShareholderDTO.class))
+        ),
+        @ApiResponse(responseCode = "404", description = "Shareholder not found")
+    }
+)
+public ResponseEntity<?> getShareholderByEmail(@PathVariable String email) {
+    try {
+        ShareholderDTO shareholder = shareholderService.getShareholderByEmail(email);
+        return ResponseEntity.ok(shareholder);
+    } catch (RuntimeException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Failed to fetch shareholder: " + e.getMessage()));
+    }
+}
+
 }

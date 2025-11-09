@@ -1,0 +1,111 @@
+<app-top-bar></app-top-bar>
+  <div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center py-3">
+        <div>
+          <h4 class="mb-0">
+            <i class="fas fa-user-tie me-2"></i> Shareholder Dashboard
+          </h4>
+          <small class="opacity-75">Comprehensive financial overview</small>
+        </div>
+        <button class="btn btn-outline-light" (click)="goBack()">
+          <i class="fas fa-arrow-left me-1"></i> Back
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3 text-muted">Loading shareholder details...</p>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error && !loading" class="alert alert-danger">
+      <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+      <button type="button" class="btn-close" (click)="error = null"></button>
+    </div>
+
+    <!-- Main -->
+    <div *ngIf="!loading && shareholderDetails as details">
+      <div class="row mb-4">
+        <!-- Total Investment -->
+        <div class="col-md-3 mb-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <p class="text-muted mb-1 small">Total Investment</p>
+              <h3 class="mb-0 fw-bold text-primary">{{ formatCurrency(details.investment) }}</h3>
+              <small class="text-muted">
+                Since {{ formatDate(details.activeSince) }}
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Earnings -->
+        <div class="col-md-3 mb-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <p class="text-muted mb-1 small">Total Earnings</p>
+              <h3 class="mb-0 fw-bold text-success">{{ formatCurrency(details.totalEarnings) }}</h3>
+              <small class="text-success">ROI: {{ formatROI() }}</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Balance -->
+        <div class="col-md-3 mb-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <p class="text-muted mb-1 small">Current Balance</p>
+              <h3 class="mb-0 fw-bold text-info">{{ formatCurrency(details.currentBalance) }}</h3>
+              <small class="text-muted">Available funds</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Value -->
+        <div class="col-md-3 mb-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <p class="text-muted mb-1 small">Total Value</p>
+              <h3 class="mb-0 fw-bold text-warning">{{ formatCurrency(details.totalValue) }}</h3>
+              <small class="text-muted">{{ details.totalShares ?? 0 }} shares</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Info -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom">
+          <h5 class="mb-0">
+            <i class="fas fa-user-circle me-2 text-primary"></i>Personal Information
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-md-6"><b>Full Name:</b> {{ details.shareholder?.name ?? 'N/A' }}</div>
+            <div class="col-md-6"><b>Phone:</b> {{ details.shareholder?.phone ?? 'N/A' }}</div>
+            <div class="col-md-6"><b>NID:</b> {{ details.shareholder?.nidCard ?? 'N/A' }}</div>
+            <div class="col-md-6"><b>Nominee:</b> {{ details.shareholder?.nominee ?? 'N/A' }}</div>
+            <div class="col-md-6"><b>Role:</b> {{ details.shareholder?.role ?? 'N/A' }}</div>
+            <div class="col-md-6">
+              <b>Status:</b>
+              <span [class]="getStatusClass(details.shareholder?.status)">
+                {{ details.shareholder?.status ?? 'N/A' }}
+              </span>
+            </div>
+            <div class="col-md-6"><b>District:</b> {{ details.shareholder?.zila ?? 'N/A' }}</div>
+            <div class="col-md-6"><b>House:</b> {{ details.shareholder?.house ?? 'N/A' }}</div>
+            <div class="col-md-6"><b>Join Date:</b> {{ formatDate(details.shareholder?.joinDate) }}</div>
+            <div class="col-md-6"><b>Active Since:</b> {{ formatDate(details.activeSince) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+

@@ -14,7 +14,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.Random;
 
 @Service
 public class JwtService {
@@ -25,37 +24,38 @@ public class JwtService {
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
 
-    private final Random random = new Random();
-
+    /**
+     * Extracts username from JWT token
+     */
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
+    /**
+     * Extracts a specific claim from the token
+     */
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
+    /**
+     * Generates JWT token with default claims
+     */
     public String generateToken(UserDetails userDetails) {
-        // Add unique components to ensure token uniqueness
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("rnd", random.nextLong());
-        claims.put("ts", System.currentTimeMillis());
-        return generateToken(claims, userDetails);
+        return generateToken(new HashMap<>(), userDetails);
     }
 
+    /**
+     * Generates JWT token with custom claims
+     */
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        // Ensure unique components are present
-        if (!extraClaims.containsKey("rnd")) {
-            extraClaims.put("rnd", random.nextLong());
-        }
-        if (!extraClaims.containsKey("ts")) {
-            extraClaims.put("ts", System.currentTimeMillis());
-        }
-        
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 
+    /**
+     * Builds the JWT token
+     */
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
         var authorities = userDetails.getAuthorities()
                 .stream()
@@ -73,19 +73,31 @@ public class JwtService {
                 .compact();
     }
 
+    /**
+     * Validates the JWT token
+     */
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
+    /**
+     * Checks if token is expired
+     */
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
+    /**
+     * Extracts expiration date from token
+     */
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    /**
+     * Extracts all claims from token
+     */
     private Claims extractAllClaims(String token) {
         return Jwts
                 .parserBuilder()
@@ -95,6 +107,9 @@ public class JwtService {
                 .getBody();
     }
 
+    /**
+     * Gets the signing key for JWT
+     */
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);

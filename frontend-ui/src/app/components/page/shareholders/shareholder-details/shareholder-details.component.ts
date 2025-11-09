@@ -4,6 +4,7 @@ import { ShareholdersService } from '../../../../services/services/shareholders.
 import { ShareholderDetailsDto } from '../../../../services/models/shareholder-details-dto';
 import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
 import { Chart, registerables } from 'chart.js';
+import { AuthService } from '../../../../service/auth.service';
 
 // Register Chart.js components
 Chart.register(...registerables);
@@ -22,6 +23,8 @@ export class ShareholderDetailsComponent implements OnInit {
   loading: boolean = true;
   error: string | null = null;
   isSidebarCollapsed = false;
+  isAdmin: boolean = false;
+  currentUserId: number | null = null;
   
   // Chart instances
   private investmentChart?: Chart;
@@ -30,13 +33,38 @@ export class ShareholderDetailsComponent implements OnInit {
 
   constructor(
     private shareholdersService: ShareholdersService,
-    private sidebarService: SidebarTopbarService
+    private sidebarService: SidebarTopbarService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     this.sidebarService.isCollapsed$.subscribe(collapsed => {
       this.isSidebarCollapsed = collapsed;
     });
+    
+    // Check user role and set permissions
+    this.isAdmin = this.authService.isAdmin();
+    // this.currentUserId = 1; // Hey in hhere i needed assign the logged in share holder id
+    this.currentUserId = this.authService.getUserId();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     this.loadShareholderDetails();
   }
 
@@ -44,7 +72,21 @@ export class ShareholderDetailsComponent implements OnInit {
     this.loading = true;
     this.error = null;
     
-    this.shareholdersService.getShareholderDetails({ id: this.shareholderId }).subscribe({
+    // Determine which ID to use
+    let idToUse = this.shareholderId;
+    
+    // If no ID provided via input and user is shareholder, use their own ID
+    if (!idToUse && this.authService.isShareholder() && this.currentUserId) {
+      idToUse = this.currentUserId;
+    }
+    
+    if (!idToUse) {
+      this.error = 'Unable to load shareholder details. No shareholder ID available.';
+      this.loading = false;
+      return;
+    }
+    
+    this.shareholdersService.getShareholderDetails({ id: idToUse }).subscribe({
       next: (data) => {
         this.shareholderDetails = data;
         this.loading = false;
@@ -265,7 +307,18 @@ export class ShareholderDetailsComponent implements OnInit {
   }
 
   editShareholder(): void {
-    window.dispatchEvent(new CustomEvent('editShareholder', { detail: this.shareholderId }));
+    if (this.shareholderDetails?.shareholder?.id) {
+      window.dispatchEvent(new CustomEvent('editShareholder', { 
+        detail: this.shareholderDetails.shareholder.id 
+      }));
+    }
+  }
+
+  /**
+   * Check if edit button should be shown (only for admin users)
+   */
+  shouldShowEditButton(): boolean {
+    return this.isAdmin && !!this.shareholderDetails?.shareholder?.id;
   }
 
   formatCurrency(amount: number | undefined): string {

@@ -50,7 +50,7 @@ public class InstallmentController {
     private ObjectMapper objectMapper;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+//     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create new installment", description = "Creates a new installment without images")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Installment created successfully",
@@ -66,7 +66,7 @@ public class InstallmentController {
 
 
 
-    @PreAuthorize("hasRole('ADMIN')")
+//     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/with-images", consumes = "multipart/form-data")
     @Operation(summary = "Create installment with images", description = "Creates a new installment with optional images")
     @ApiResponses(value = {
@@ -89,7 +89,7 @@ public class InstallmentController {
    
    
    
-    @PreAuthorize("hasRole('ADMIN')")
+//     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/{id}/images", consumes = "multipart/form-data")
     @Operation(summary = "Upload images to existing installment", description = "Uploads images to an existing installment")
     @ApiResponses(value = {
@@ -109,7 +109,7 @@ public class InstallmentController {
 
 
 
-    @PreAuthorize("hasRole('ADMIN')")
+//     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     @Operation(summary = "Get all installments", description = "Retrieves all installments")
     @ApiResponse(responseCode = "200", description = "List of installments retrieved successfully",
@@ -124,7 +124,7 @@ public class InstallmentController {
 
 
 
-    @PreAuthorize("hasRole('ADMIN')")
+//     @PreAuthorize("hasRole('ADMIN')")
 
     @GetMapping("/{id}")
     @Operation(summary = "Get installment by ID", description = "Retrieves a specific installment by its ID")
@@ -144,7 +144,7 @@ public class InstallmentController {
 
 
 
-    @PreAuthorize("hasRole('ADMIN')")
+//     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     @Operation(summary = "Update installment", description = "Updates an existing installment")
     @ApiResponses(value = {
@@ -164,7 +164,7 @@ public class InstallmentController {
 
 
 
-    @PreAuthorize("hasRole('ADMIN')")
+//     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete installment", description = "Deletes an installment by ID")
     @ApiResponses(value = {
@@ -186,7 +186,7 @@ public class InstallmentController {
 
 
 
-    @PreAuthorize("hasRole('ADMIN')")
+//     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}/images")
     @Operation(summary = "Get installment images", description = "Retrieves all image paths for an installment")
     @ApiResponses(value = {
@@ -213,7 +213,7 @@ public class InstallmentController {
 
 
 
-    @PreAuthorize("hasRole('ADMIN')")
+//     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/search")
     @Operation(summary = "Search installments", description = "Search installments by member name, product name, or phone number")
     @ApiResponses(value = {

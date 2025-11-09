@@ -21,8 +21,12 @@ import { getAllShareholders } from '../fn/shareholders/get-all-shareholders';
 import { GetAllShareholders$Params } from '../fn/shareholders/get-all-shareholders';
 import { getInactiveShareholders } from '../fn/shareholders/get-inactive-shareholders';
 import { GetInactiveShareholders$Params } from '../fn/shareholders/get-inactive-shareholders';
+import { getShareholderByEmail } from '../fn/shareholders/get-shareholder-by-email';
+import { GetShareholderByEmail$Params } from '../fn/shareholders/get-shareholder-by-email';
 import { getShareholderById } from '../fn/shareholders/get-shareholder-by-id';
 import { GetShareholderById$Params } from '../fn/shareholders/get-shareholder-by-id';
+import { getShareholderByUserId } from '../fn/shareholders/get-shareholder-by-user-id';
+import { GetShareholderByUserId$Params } from '../fn/shareholders/get-shareholder-by-user-id';
 import { getShareholderDashboard } from '../fn/shareholders/get-shareholder-dashboard';
 import { GetShareholderDashboard$Params } from '../fn/shareholders/get-shareholder-dashboard';
 import { getShareholderDetails } from '../fn/shareholders/get-shareholder-details';
@@ -359,6 +363,72 @@ export class ShareholdersService extends BaseService {
       map((r: StrictHttpResponse<{
 }>): {
 } => r.body)
+    );
+  }
+
+  /** Path part for operation `getShareholderByUserId()` */
+  static readonly GetShareholderByUserIdPath = '/api/shareholders/by-user/{userId}';
+
+  /**
+   * Get shareholder by user ID.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getShareholderByUserId()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getShareholderByUserId$Response(params: GetShareholderByUserId$Params, context?: HttpContext): Observable<StrictHttpResponse<ShareholderDto>> {
+    return getShareholderByUserId(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * Get shareholder by user ID.
+   *
+   *
+   *
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getShareholderByUserId$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getShareholderByUserId(params: GetShareholderByUserId$Params, context?: HttpContext): Observable<ShareholderDto> {
+    return this.getShareholderByUserId$Response(params, context).pipe(
+      map((r: StrictHttpResponse<ShareholderDto>): ShareholderDto => r.body)
+    );
+  }
+
+  /** Path part for operation `getShareholderByEmail()` */
+  static readonly GetShareholderByEmailPath = '/api/shareholders/by-email/{email}';
+
+  /**
+   * Get shareholder by email.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getShareholderByEmail()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getShareholderByEmail$Response(params: GetShareholderByEmail$Params, context?: HttpContext): Observable<StrictHttpResponse<ShareholderDto>> {
+    return getShareholderByEmail(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * Get shareholder by email.
+   *
+   *
+   *
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getShareholderByEmail$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getShareholderByEmail(params: GetShareholderByEmail$Params, context?: HttpContext): Observable<ShareholderDto> {
+    return this.getShareholderByEmail$Response(params, context).pipe(
+      map((r: StrictHttpResponse<ShareholderDto>): ShareholderDto => r.body)
     );
   }
 

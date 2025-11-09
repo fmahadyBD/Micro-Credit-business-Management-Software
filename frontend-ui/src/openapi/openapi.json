@@ -336,8 +336,8 @@
                     }
                 ],
                 "responses": {
-                    "404": {
-                        "description": "Installment not found",
+                    "200": {
+                        "description": "Installment found",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -346,8 +346,8 @@
                             }
                         }
                     },
-                    "200": {
-                        "description": "Installment found",
+                    "404": {
+                        "description": "Installment not found",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -387,8 +387,8 @@
                     "required": true
                 },
                 "responses": {
-                    "200": {
-                        "description": "Installment updated successfully",
+                    "404": {
+                        "description": "Installment not found",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -397,8 +397,8 @@
                             }
                         }
                     },
-                    "404": {
-                        "description": "Installment not found",
+                    "200": {
+                        "description": "Installment updated successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1530,8 +1530,8 @@
                     "required": true
                 },
                 "responses": {
-                    "400": {
-                        "description": "Invalid input",
+                    "201": {
+                        "description": "Installment created successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1540,8 +1540,8 @@
                             }
                         }
                     },
-                    "201": {
-                        "description": "Installment created successfully",
+                    "400": {
+                        "description": "Invalid input",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1677,8 +1677,8 @@
                     }
                 },
                 "responses": {
-                    "400": {
-                        "description": "Invalid input",
+                    "201": {
+                        "description": "Installment created successfully with images",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1687,8 +1687,8 @@
                             }
                         }
                     },
-                    "201": {
-                        "description": "Installment created successfully with images",
+                    "400": {
+                        "description": "Invalid input",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2144,6 +2144,89 @@
                 "responses": {
                     "200": {
                         "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/shareholders/by-user/{userId}": {
+            "get": {
+                "tags": [
+                    "Shareholders"
+                ],
+                "summary": "Get shareholder by user ID",
+                "operationId": "getShareholderByUserId",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Shareholder fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ShareholderDTO"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Shareholder not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/shareholders/by-email/{email}": {
+            "get": {
+                "tags": [
+                    "Shareholders"
+                ],
+                "summary": "Get shareholder by email",
+                "operationId": "getShareholderByEmail",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Shareholder fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ShareholderDTO"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Shareholder not found",
                         "content": {
                             "application/json": {
                                 "schema": {

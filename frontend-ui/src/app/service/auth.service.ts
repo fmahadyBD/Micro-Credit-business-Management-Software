@@ -16,15 +16,13 @@ export interface AuthenticationRequest {
 
 export interface AuthenticationResponse {
   token: string;
-  role: string; // Add role to the response
-  email: string;
-  userId: number;
 }
 
-export interface User {
-  id: number;
-  email: string;
-  role: string;
+interface JWTPayload {
+  sub: string;
+  authorities: string[];
+  exp: number;
+  iat: number;
 }
 
 @Injectable({
@@ -33,7 +31,6 @@ export interface User {
 export class AuthService {
   private apiUrl = 'http://localhost:8080/auth';
   private readonly TOKEN_KEY = 'token';
-  private readonly USER_KEY = 'user';
 
   constructor(private http: HttpClient) {}
 
@@ -45,49 +42,103 @@ export class AuthService {
     return this.http.post<AuthenticationResponse>(`${this.apiUrl}/authenticate`, request)
       .pipe(
         tap(response => {
-          // Store token and user info
+          // Clear storage first
+          this.clearStorage();
+          
+          // Store ONLY the token - nothing else!
           localStorage.setItem(this.TOKEN_KEY, response.token);
-          localStorage.setItem(this.USER_KEY, JSON.stringify({
-            email: response.email,
-            role: response.role,
-            userId: response.userId
-          }));
+          
+          console.log('Token stored successfully');
         })
       );
   }
 
   logout(): void {
+    this.clearStorage();
+  }
+
+  private clearStorage(): void {
+    // Remove only the token
     localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
+    // No user data to remove
+  }
+
+  private decodeToken(token: string): JWTPayload | null {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
+      
+      const payload = parts[1];
+      const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const decoded = atob(base64);
+      return JSON.parse(decoded);
+    } catch (e) {
+      console.error('Error decoding token:', e);
+      return null;
+    }
   }
 
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  getUser(): User | null {
-    const userStr = localStorage.getItem(this.USER_KEY);
-    return userStr ? JSON.parse(userStr) : null;
+  getRole(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+    
+    const decoded = this.decodeToken(token);
+    if (!decoded?.authorities?.length) return null;
+    
+    let role = decoded.authorities[0];
+    if (role.startsWith('ROLE_')) {
+      role = role.substring(5);
+    }
+    
+    return role;
   }
 
-  getRole(): string | null {
-    const user = this.getUser();
-    return user ? user.role : null;
+  getUserEmail(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+    
+    const decoded = this.decodeToken(token);
+    return decoded?.sub || null;
   }
 
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    if (!token) return false;
+
+    try {
+      const decoded = this.decodeToken(token);
+      if (!decoded) return false;
+      
+      const currentTime = Math.floor(Date.now() / 1000);
+      if (decoded.exp < currentTime) {
+        this.clearStorage();
+        return false;
+      }
+      
+      return true;
+    } catch {
+      return false;
+    }
   }
 
-  isAdmin(): boolean {
-    return this.getRole() === 'ADMIN';
-  }
+  getUserId(): number | null {
+  const token = this.getToken();
+  if (!token) return null;
 
-  isUser(): boolean {
-    return this.getRole() === 'USER';
-  }
+  const decoded = this.decodeToken(token);
+  if (!decoded) return null;
 
-  isShareholder(): boolean {
-    return this.getRole() === 'SHAREHOLDER';
-  }
+  // 'sub' contains email; if you include userId in JWT claims, use that
+  // Example: decoded.userId or decoded.id depending on backend token payload
+  return (decoded as any).userId ?? null;
+}
+
+  isAdmin(): boolean { return this.getRole() === 'ADMIN'; }
+  isUser(): boolean { return this.getRole() === 'USER'; }
+  isShareholder(): boolean { return this.getRole() === 'SHAREHOLDER'; }
+  isAgent(): boolean { return this.getRole() === 'AGENT'; }
 }

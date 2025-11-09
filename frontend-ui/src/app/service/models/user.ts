@@ -2,7 +2,7 @@ export interface User {
   id?: number;
   username: string;
   password?: string;
-  role: 'ADMIN' | 'AGENT' | 'SHAREHOLDER';
+  role: 'ADMIN' | 'AGENT' | 'SHAREHOLDER' | 'USER';
   status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'PENDING_VERIFICATION';
   referenceId?: number;
   createdAt?: string;

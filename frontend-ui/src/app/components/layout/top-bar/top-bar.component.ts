@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, NgFor, NgClass } from '@angular/common';
 import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
 import { ThemeService } from '../../../service/theme.service.ts.service';
+import { AuthService } from '../../../service/auth.service';
 
 interface Notification {
   icon: string[];
@@ -30,7 +31,8 @@ export class TopBarComponent implements OnInit {
 
   constructor(
     private sidebarService: SidebarTopbarService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+     private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -78,4 +80,16 @@ export class TopBarComponent implements OnInit {
   getUnreadCount(): number {
     return this.notifications.filter(n => n.unread).length;
   }
+
+
+  logout(event: Event) {
+  event.preventDefault();
+  event.stopPropagation();
+  
+  this.authService.logout();
+
+  // Optionally redirect to login page
+  window.location.href = '/login'; 
+}
+
 }

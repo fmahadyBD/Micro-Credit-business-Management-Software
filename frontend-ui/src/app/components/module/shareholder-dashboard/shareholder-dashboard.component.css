@@ -1,0 +1,43 @@
+.dashboard-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+}
+
+.dashboard-view {
+  padding: 20px;
+}
+
+.dashboard-header {
+  margin-bottom: 30px;
+}
+
+.dashboard-header h2 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.dashboard-header p {
+  color: #666;
+}
+
+.shareholder-list {
+  background: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.error-message {
+  background: #ffe6e6;
+  color: #d63031;
+  padding: 15px;
+  border-radius: 5px;
+  margin: 20px 0;
+  text-align: center;
+}

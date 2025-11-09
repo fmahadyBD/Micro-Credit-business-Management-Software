@@ -115,7 +115,7 @@ public class ProductController {
 
     @GetMapping
     @Operation(summary = "Get all products")
-    @PreAuthorize("hasAuthority('USER')")
+    // @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
         return ResponseEntity.ok(productService.getAllProducts());
     }

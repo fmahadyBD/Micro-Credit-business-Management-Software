@@ -6,7 +6,11 @@
 
   <!-- Sidebar toggle for desktop -->
   <button class="toggle-sidebar d-none d-md-block" (click)="toggleSidebar()">
-    <i class="fas" [class.fa-bars]="!isSidebarCollapsed" [class.fa-times]="isSidebarCollapsed"></i>
+    <i
+      class="fas"
+      [class.fa-bars]="!isSidebarCollapsed"
+      [class.fa-times]="isSidebarCollapsed"
+    ></i>
   </button>
 
   <!-- Page Title (Mobile Only) -->
@@ -16,7 +20,7 @@
   <div class="topbar-search d-none d-md-flex">
     <div class="search-box">
       <i class="fas fa-search"></i>
-      <input type="search" class="form-control" placeholder="Search...">
+      <input type="search" class="form-control" placeholder="Search..." />
     </div>
   </div>
 
@@ -25,13 +29,23 @@
     <div class="dropdown">
       <button class="topbar-icon" data-bs-toggle="dropdown">
         <i class="fas fa-bell"></i>
-        <span class="notification-badge" *ngIf="getUnreadCount() > 0">{{ getUnreadCount() }}</span>
+        <span class="notification-badge" *ngIf="getUnreadCount() > 0">{{
+          getUnreadCount()
+        }}</span>
       </button>
-      <ul class="dropdown-menu dropdown-menu-end" style="min-width: 300px;">
-        <li><h6 class="dropdown-header">Notifications ({{ getUnreadCount() }} unread)</h6></li>
+      <ul class="dropdown-menu dropdown-menu-end" style="min-width: 300px">
+        <li>
+          <h6 class="dropdown-header">
+            Notifications ({{ getUnreadCount() }} unread)
+          </h6>
+        </li>
         <li *ngFor="let n of notifications; let i = index">
-          <a href="#" class="dropdown-item notification-item" [class.unread]="n.unread"
-             (click)="markAsRead(i, $event)">
+          <a
+            href="#"
+            class="dropdown-item notification-item"
+            [class.unread]="n.unread"
+            (click)="markAsRead(i, $event)"
+          >
             <i class="me-2" [ngClass]="n.icon"></i>
             <div class="notification-text">
               <div>{{ n.title }}</div>
@@ -39,8 +53,15 @@
             </div>
           </a>
         </li>
-        <li><hr class="dropdown-divider"></li>
-        <li><a href="#" class="dropdown-item text-center" (click)="markAllAsRead($event)">Mark all as read</a></li>
+        <li><hr class="dropdown-divider" /></li>
+        <li>
+          <a
+            href="#"
+            class="dropdown-item text-center"
+            (click)="markAllAsRead($event)"
+            >Mark all as read</a
+          >
+        </li>
       </ul>
     </div>
 
@@ -55,15 +76,43 @@
         <i class="fas fa-chevron-down ms-2 d-none d-md-block"></i>
       </div>
       <ul class="dropdown-menu dropdown-menu-end">
-        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>View Profile</a></li>
-        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
-        <li><hr class="dropdown-divider"></li>
+        <li>
+          <a class="dropdown-item" href="#"
+            ><i class="fas fa-user me-2"></i>View Profile</a
+          >
+        </li>
+        <li>
+          <a class="dropdown-item" href="#"
+            ><i class="fas fa-cog me-2"></i>Settings</a
+          >
+        </li>
+        <li><hr class="dropdown-divider" /></li>
         <li><h6 class="dropdown-header">Theme</h6></li>
-        <li><a class="dropdown-item" href="#" (click)="setTheme('light', $event)"><i class="fas fa-sun me-2"></i>Light</a></li>
-        <li><a class="dropdown-item" href="#" (click)="setTheme('dark', $event)"><i class="fas fa-moon me-2"></i>Dark</a></li>
-        <li><a class="dropdown-item" href="#" (click)="setTheme('auto', $event)"><i class="fas fa-circle-half-stroke me-2"></i>Auto</a></li>
-        <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+        <li>
+          <a class="dropdown-item" href="#" (click)="setTheme('light', $event)"
+            ><i class="fas fa-sun me-2"></i>Light</a
+          >
+        </li>
+        <li>
+          <a class="dropdown-item" href="#" (click)="setTheme('dark', $event)"
+            ><i class="fas fa-moon me-2"></i>Dark</a
+          >
+        </li>
+        <li>
+          <a class="dropdown-item" href="#" (click)="setTheme('auto', $event)"
+            ><i class="fas fa-circle-half-stroke me-2"></i>Auto</a
+          >
+        </li>
+        <li><hr class="dropdown-divider" /></li>
+        <li>
+          <a
+            class="dropdown-item text-danger"
+            href="#"
+            (click)="logout($event)"
+          >
+            <i class="fas fa-sign-out-alt me-2"></i>Logout
+          </a>
+        </li>
       </ul>
     </div>
   </div>

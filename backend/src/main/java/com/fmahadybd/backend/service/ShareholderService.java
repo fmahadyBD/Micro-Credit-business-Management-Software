@@ -228,4 +228,46 @@ public class ShareholderService {
                                 .build()));
     }
 
+    @Transactional(readOnly = true)
+    public ShareholderDTO getShareholderByUserId(Long userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID cannot be null");
+        }
+
+        log.info("Fetching shareholder for user ID: {}", userId);
+
+        // If you have a userId field in Shareholder entity:
+        // Shareholder shareholder = shareholderRepository.findByUserId(userId)
+        // .orElseThrow(() -> new RuntimeException("Shareholder not found for user ID: "
+        // + userId));
+
+        // If you need to add userId field to Shareholder entity:
+        // Add this to Shareholder.java:
+        // @Column(name = "user_id", unique = true)
+        // private Long userId;
+
+        // For now, using a workaround if you don't have userId field:
+        // You'll need to add this query to ShareholderRepository
+        Shareholder shareholder = shareholderRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Shareholder not found for user ID: " + userId));
+
+        return shareholderMapper.toDTO(shareholder);
+    }
+
+
+    @Transactional(readOnly = true)
+public ShareholderDTO getShareholderByEmail(String email) {
+    if (email == null || email.isBlank()) {
+        throw new IllegalArgumentException("Email cannot be null or empty");
+    }
+
+    log.info("Fetching shareholder for email: {}", email);
+
+    Shareholder shareholder = shareholderRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Shareholder not found with email: " + email));
+
+    return shareholderMapper.toDTO(shareholder);
+}
+
+
 }
