@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-
 import { CommonModule, NgFor, NgClass } from '@angular/common';
 import { SidebarTopbarService } from '../../../service/sidebar-topbar.service';
 import { ThemeService } from '../../../service/theme.service.ts.service';
@@ -20,6 +19,9 @@ interface Notification {
 })
 export class TopBarComponent implements OnInit {
   isSidebarCollapsed = false;
+  userEmail: string | null = null;
+  userRole: string | null = null;
+  userInitial: string = 'U';
 
   notifications: Notification[] = [
     { icon: ['fas', 'fa-user'], title: 'New user registered', time: '2 minutes ago', unread: true },
@@ -32,28 +34,28 @@ export class TopBarComponent implements OnInit {
   constructor(
     private sidebarService: SidebarTopbarService,
     private themeService: ThemeService,
-     private authService: AuthService
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
-    // Subscribe to sidebar collapse state
+    // Sidebar state listener
     this.sidebarService.isCollapsed$.subscribe(collapsed => {
-      console.log('Topbar - Sidebar collapsed:', collapsed);
       this.isSidebarCollapsed = collapsed;
     });
-    
+
     this.themeService.initSystemThemeListener();
+
+    // ✅ Load logged-in user info
+    this.userEmail = this.authService.getUserEmail();
+    this.userRole = this.authService.getRole();
+    this.userInitial = this.userEmail ? this.userEmail.charAt(0).toUpperCase() : 'U';
   }
 
-  // Desktop sidebar toggle
   toggleSidebar() {
-    console.log('Toggle sidebar clicked');
     this.sidebarService.toggleSidebar();
   }
 
-  // Mobile sidebar toggle
   toggleMobileSidebar() {
-    console.log('Toggle mobile sidebar clicked');
     this.sidebarService.toggleMobileSidebar();
   }
 
@@ -81,15 +83,10 @@ export class TopBarComponent implements OnInit {
     return this.notifications.filter(n => n.unread).length;
   }
 
-
   logout(event: Event) {
-  event.preventDefault();
-  event.stopPropagation();
-  
-  this.authService.logout();
-
-  // Optionally redirect to login page
-  window.location.href = '/login'; 
-}
-
+    event.preventDefault();
+    event.stopPropagation();
+    this.authService.logout();
+    window.location.href = '/login';
+  }
 }
