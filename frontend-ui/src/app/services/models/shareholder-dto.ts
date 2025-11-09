@@ -14,6 +14,11 @@ export interface ShareholderDto {
   currentBalance?: number;
 
   /**
+   * Email address
+   */
+  email: string;
+
+  /**
    * House address
    */
   house?: string;

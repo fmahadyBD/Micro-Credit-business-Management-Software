@@ -32,54 +32,31 @@
                 <div class="card-body">
                   <div class="mb-3">
                     <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
-                    <input 
-                      type="text" 
-                      class="form-control" 
-                      id="name" 
-                      name="name"
-                      [(ngModel)]="shareholder.name"
-                      required
-                      maxlength="100"
-                      placeholder="Enter full name"
-                    >
+                    <input type="text" class="form-control" id="name" name="name" [(ngModel)]="shareholder.name"
+                      required maxlength="100" placeholder="Enter full name">
                     <div class="form-text">Full name of the shareholder</div>
                   </div>
                   <div class="mb-3">
                     <label for="phone" class="form-label">Phone</label>
-                    <input 
-                      type="tel" 
-                      class="form-control" 
-                      id="phone" 
-                      name="phone"
-                      [(ngModel)]="shareholder.phone"
-                      maxlength="20"
-                      placeholder="+1234567890"
-                    >
+                    <input type="tel" class="form-control" id="phone" name="phone" [(ngModel)]="shareholder.phone"
+                      maxlength="20" placeholder="+1234567890">
                     <div class="form-text">Phone number with country code</div>
                   </div>
                   <div class="mb-3">
+                    <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" id="email" name="email" [(ngModel)]="shareholder.email"
+                      required email placeholder="Enter email address">
+                    <div class="form-text">Unique email address for the shareholder</div>
+                  </div>
+                  <div class="mb-3">
                     <label for="nidCard" class="form-label">NID Card Number</label>
-                    <input 
-                      type="text" 
-                      class="form-control" 
-                      id="nidCard" 
-                      name="nidCard"
-                      [(ngModel)]="shareholder.nidCard"
-                      maxlength="50"
-                      placeholder="Enter NID card number"
-                    >
+                    <input type="text" class="form-control" id="nidCard" name="nidCard"
+                      [(ngModel)]="shareholder.nidCard" maxlength="50" placeholder="Enter NID card number">
                   </div>
                   <div class="mb-3">
                     <label for="nominee" class="form-label">Nominee</label>
-                    <input 
-                      type="text" 
-                      class="form-control" 
-                      id="nominee" 
-                      name="nominee"
-                      [(ngModel)]="shareholder.nominee"
-                      maxlength="100"
-                      placeholder="Nominee name"
-                    >
+                    <input type="text" class="form-control" id="nominee" name="nominee"
+                      [(ngModel)]="shareholder.nominee" maxlength="100" placeholder="Nominee name">
                     <div class="form-text">Person who will inherit the shares</div>
                   </div>
                 </div>
@@ -95,62 +72,30 @@
                 <div class="card-body">
                   <div class="mb-3">
                     <label for="zila" class="form-label">District</label>
-                    <input 
-                      type="text" 
-                      class="form-control" 
-                      id="zila" 
-                      name="zila"
-                      [(ngModel)]="shareholder.zila"
-                      maxlength="50"
-                      placeholder="Enter district"
-                    >
+                    <input type="text" class="form-control" id="zila" name="zila" [(ngModel)]="shareholder.zila"
+                      maxlength="50" placeholder="Enter district">
                   </div>
                   <div class="mb-3">
                     <label for="house" class="form-label">House Address</label>
-                    <input 
-                      type="text" 
-                      class="form-control" 
-                      id="house" 
-                      name="house"
-                      [(ngModel)]="shareholder.house"
-                      maxlength="200"
-                      placeholder="Full house address"
-                    >
+                    <input type="text" class="form-control" id="house" name="house" [(ngModel)]="shareholder.house"
+                      maxlength="200" placeholder="Full house address">
                   </div>
                   <div class="mb-3">
                     <label for="role" class="form-label">Role</label>
-                    <input 
-                      type="text" 
-                      class="form-control" 
-                      id="role" 
-                      name="role"
-                      [(ngModel)]="shareholder.role"
-                      maxlength="50"
-                      placeholder="e.g., Investor, Director"
-                    >
+                    <input type="text" class="form-control" id="role" name="role" [(ngModel)]="shareholder.role"
+                      maxlength="50" placeholder="e.g., Investor, Director">
                   </div>
                   <div class="mb-3">
                     <label for="status" class="form-label">Status</label>
-                    <select 
-                      class="form-control" 
-                      id="status" 
-                      name="status"
-                      [(ngModel)]="shareholder.status"
-                    >
+                    <select class="form-control" id="status" name="status" [(ngModel)]="shareholder.status">
                       <option value="Active">Active</option>
                       <option value="Inactive">Inactive</option>
                     </select>
                   </div>
                   <div class="mb-3">
                     <label for="joinDate" class="form-label">Join Date</label>
-                    <input 
-                      type="date" 
-                      class="form-control" 
-                      id="joinDate" 
-                      name="joinDate"
-                      [value]="formatDate(shareholder.joinDate)"
-                      (input)="onDateChange($event)"
-                    >
+                    <input type="date" class="form-control" id="joinDate" name="joinDate"
+                      [value]="formatDate(shareholder.joinDate)" (input)="onDateChange($event)">
                     <div class="form-text">Date when shareholder joined</div>
                   </div>
                 </div>
@@ -168,23 +113,16 @@
                     <div class="col-md-4">
                       <div class="mb-3">
                         <label for="investment" class="form-label">Initial Investment (৳)</label>
-                        <input 
-                          type="number" 
-                          class="form-control" 
-                          id="investment" 
-                          name="investment"
-                          [(ngModel)]="shareholder.investment"
-                          min="0"
-                          step="0.01"
-                          placeholder="0.00"
-                        >
+                        <input type="number" class="form-control" id="investment" name="investment"
+                          [(ngModel)]="shareholder.investment" min="0" step="0.01" placeholder="0.00">
                         <div class="form-text">Initial investment amount</div>
                       </div>
                     </div>
                   </div>
                   <div class="alert alert-info">
                     <i class="fas fa-info-circle me-2"></i>
-                    <strong>Note:</strong> Shares, earnings, and balance will be calculated automatically based on transactions. You can update these later.
+                    <strong>Note:</strong> Shares, earnings, and balance will be calculated automatically based on
+                    transactions. You can update these later.
                   </div>
                 </div>
               </div>
@@ -196,20 +134,11 @@
             <button type="button" class="btn btn-secondary" (click)="goBack()">
               <i class="fas fa-times me-1"></i> Cancel
             </button>
-            <button 
-              type="button" 
-              class="btn btn-outline-success" 
-              (click)="resetForm()"
-              [disabled]="loading"
-            >
+            <button type="button" class="btn btn-outline-success" (click)="resetForm()" [disabled]="loading">
               <i class="fas fa-redo me-1"></i> Reset
             </button>
-            <button 
-              type="submit" 
-              class="btn btn-success"
-              [disabled]="!addForm.form.valid || loading"
-            >
-              <i class="fas fa-save me-1"></i> 
+            <button type="submit" class="btn btn-success" [disabled]="!addForm.form.valid || loading">
+              <i class="fas fa-save me-1"></i>
               {{ loading ? 'Creating...' : 'Create Shareholder' }}
             </button>
           </div>

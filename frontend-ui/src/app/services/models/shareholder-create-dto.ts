@@ -9,6 +9,11 @@
 export interface ShareholderCreateDto {
 
   /**
+   * Email address
+   */
+  email: string;
+
+  /**
    * House address
    */
   house?: string;

@@ -15,7 +15,7 @@ import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service
 })
 export class EditShareholderComponent implements OnInit {
   @Input() shareholderId!: number;
-  
+
   shareholder: ShareholderUpdateDto = {};
   loading: boolean = true;
   saving: boolean = false;
@@ -38,14 +38,15 @@ export class EditShareholderComponent implements OnInit {
   loadShareholder(): void {
     this.loading = true;
     this.error = null;
-    
+
     this.shareholdersService.getShareholderById({ id: this.shareholderId }).subscribe({
       next: (data) => {
         const shareholder = data as ShareholderDto;
-        
+
         // Only map the fields that exist in ShareholderUpdateDto
         this.shareholder = {
           name: shareholder.name,
+          email: shareholder.email,
           phone: shareholder.phone,
           nidCard: shareholder.nidCard,
           nominee: shareholder.nominee,
@@ -59,7 +60,7 @@ export class EditShareholderComponent implements OnInit {
           status: shareholder.status,
           joinDate: shareholder.joinDate
         };
-        
+
         this.loading = false;
       },
       error: (err) => {
@@ -78,6 +79,7 @@ export class EditShareholderComponent implements OnInit {
     // Create a clean update object without id or roi
     const updateData: ShareholderUpdateDto = {
       name: this.shareholder.name,
+      email: this.shareholder.email,
       phone: this.shareholder.phone,
       nidCard: this.shareholder.nidCard,
       nominee: this.shareholder.nominee,

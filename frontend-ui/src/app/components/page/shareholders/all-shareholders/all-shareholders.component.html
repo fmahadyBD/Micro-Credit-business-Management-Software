@@ -35,6 +35,7 @@
               <tr>
                 <th>ID</th>
                 <th>Name</th>
+                <th>Email</th> 
                 <th>Phone</th>
                 <th>Investment</th>
                 <th>Shares</th>
@@ -52,6 +53,7 @@
                   <strong>{{ shareholder.name }}</strong>
                   <div *ngIf="shareholder.role" class="small text-muted">{{ shareholder.role }}</div>
                 </td>
+                  <td>{{ shareholder.email || 'N/A' }}</td>
                 <td>{{ shareholder.phone || 'N/A' }}</td>
                 <td>{{ formatCurrency(shareholder.investment) }}</td>
                 <td>{{ shareholder.totalShare || 0 }}</td>

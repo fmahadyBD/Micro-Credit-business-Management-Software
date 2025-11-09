@@ -1,8 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthenticationRequest, AuthService } from '../../../service/auth.service';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -31,6 +31,8 @@ export class LoginComponent {
       },
       error: (err) => {
         this.isLoading = false;
+         const role = this.authService.getRole();
+        console.log('Login successful, user role:', role);
         console.error('Login error:', err);
         this.errorMessage = err.error?.message || 'Invalid email or password';
       }
@@ -46,6 +48,9 @@ export class LoginComponent {
         break;
       case 'SHAREHOLDER':
         this.router.navigate(['/shareholder']);
+        break;
+         case 'AGENT':
+        this.router.navigate(['/agent']);
         break;
       default:
         console.error('Unknown role:', role);

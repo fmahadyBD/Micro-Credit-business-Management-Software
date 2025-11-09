@@ -16,6 +16,7 @@ public class ShareholderMapper {
         return ShareholderDTO.builder()
                 .id(shareholder.getId())
                 .name(shareholder.getName())
+                .email(shareholder.getEmail())
                 .phone(shareholder.getPhone())
                 .nidCard(shareholder.getNidCard())
                 .nominee(shareholder.getNominee())
@@ -41,6 +42,7 @@ public class ShareholderMapper {
         return Shareholder.builder()
                 .name(dto.getName())
                 .phone(dto.getPhone())
+                .email(dto.getEmail())
                 .nidCard(dto.getNidCard())
                 .nominee(dto.getNominee())
                 .zila(dto.getZila())
@@ -65,6 +67,9 @@ public class ShareholderMapper {
         }
         if (dto.getPhone() != null) {
             existing.setPhone(dto.getPhone());
+        }
+        if (dto.getEmail() != null) {
+            existing.setEmail(dto.getEmail());
         }
         if (dto.getNidCard() != null) {
             existing.setNidCard(dto.getNidCard());

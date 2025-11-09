@@ -20,6 +20,11 @@ public class ShareholderCreateDTO {
     @Schema(description = "Shareholder full name", example = "John Doe", required = true)
     private String name;
     
+    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email is required")
+    @Schema(description = "Email address", example = "john.doe@example.com", required = true)
+    private String email;
+    
     @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Invalid phone number format")
     @Schema(description = "Phone number", example = "+1234567890")
     private String phone;

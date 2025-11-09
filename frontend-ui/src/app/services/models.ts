@@ -28,4 +28,6 @@ export type { ShareholderDetailsDto } from './models/shareholder-details-dto';
 export type { ShareholderDto } from './models/shareholder-dto';
 export type { ShareholderUpdateDto } from './models/shareholder-update-dto';
 export type { TransactionHistoryResponseDto } from './models/transaction-history-response-dto';
+export type { UpdateUserDto } from './models/update-user-dto';
+export type { UserDto } from './models/user-dto';
 export type { WithdrawalRequestDto } from './models/withdrawal-request-dto';

@@ -16,6 +16,7 @@ export class AddShareholderComponent implements OnInit {
   shareholder: {
     name: string;
     phone?: string;
+    email: string;
     nidCard?: string;
     nominee?: string;
     role?: string;
@@ -25,11 +26,12 @@ export class AddShareholderComponent implements OnInit {
     joinDate?: string;
     investment?: number;
   } = {
-    name: '',
-    status: 'Active',
-    investment: 0
-  };
-  
+      name: '',
+      email: '',
+      status: 'Active',
+      investment: 0
+    };
+
   loading: boolean = false;
   error: string | null = null;
   successMessage: string | null = null;
@@ -61,6 +63,7 @@ export class AddShareholderComponent implements OnInit {
     // Prepare the payload according to the actual ShareholderCreateDto
     const createPayload: ShareholderCreateDto = {
       name: this.shareholder.name.trim(),
+      email: this.shareholder.email,
       phone: this.shareholder.phone || undefined,
       nidCard: this.shareholder.nidCard || undefined,
       nominee: this.shareholder.nominee || undefined,
@@ -78,10 +81,10 @@ export class AddShareholderComponent implements OnInit {
       next: (response) => {
         this.successMessage = 'Shareholder created successfully!';
         this.loading = false;
-        
+
         // Reset form
         this.resetForm();
-        
+
         // Redirect back after delay
         setTimeout(() => {
           window.dispatchEvent(new CustomEvent('backToAllShareholders'));
@@ -89,7 +92,7 @@ export class AddShareholderComponent implements OnInit {
       },
       error: (err) => {
         console.error('Create error:', err);
-        
+
         if (err.error && err.error.error) {
           this.error = `Server error: ${err.error.error}`;
         } else if (err.status === 400) {
@@ -97,7 +100,7 @@ export class AddShareholderComponent implements OnInit {
         } else {
           this.error = 'Failed to create shareholder. Please try again.';
         }
-        
+
         this.loading = false;
       }
     });
@@ -115,6 +118,7 @@ export class AddShareholderComponent implements OnInit {
   resetForm(): void {
     this.shareholder = {
       name: '',
+      email: '',
       status: 'Active',
       investment: 0
     };
