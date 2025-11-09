@@ -1,1 +1,30 @@
-<p>agent-dashboard works!</p>
+<!-- Sidebar -->
+<app-side-bar
+  [collapsed]="isSidebarCollapsed"
+  (submenuSelected)="onSubmenuSelected($event)"
+></app-side-bar>
+
+<!-- Topbar -->
+<app-top-bar></app-top-bar>
+
+<!-- Main Content -->
+<main class="main-content-wrapper" [class.collapsed]="isSidebarCollapsed">
+
+  <!-- 👨‍👩‍👧 Members -->
+  <app-all-members *ngIf="currentView === 'all-members'"></app-all-members>
+  <app-add-new-member *ngIf="currentView === 'add-member'"></app-add-new-member>
+
+  <!-- 🎁 Products -->
+  <app-all-products *ngIf="currentView === 'all-products'"></app-all-products>
+  <app-add-product *ngIf="currentView === 'add-product'"></app-add-product>
+
+  <!-- 💳 Installments -->
+  <app-installment-management *ngIf="currentView === 'installment-management'"></app-installment-management>
+  <app-add-installment *ngIf="currentView === 'add-installment'"></app-add-installment>
+
+  <!-- 💰 Payment Schedules -->
+  <app-payment-schedule
+    *ngIf="currentView === 'payment-schedules' || currentView === 'record-payment'">
+  </app-payment-schedule>
+
+</main>
