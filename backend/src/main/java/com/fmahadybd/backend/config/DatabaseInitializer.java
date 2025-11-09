@@ -21,28 +21,29 @@ public class DatabaseInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         // Check if admin user already exists
-        if (userRepository.findByUsername("admin").isEmpty()) {
+        if (userRepository.findByUsername("admin@admin.com").isEmpty()) {
             // Create admin user
             User admin = User.builder()
-                    .username("admin")
-                    .password(passwordEncoder.encode("admin123"))
+                    .username("admin@admin.com")
+                    .password(passwordEncoder.encode("@Fahim220032@"))
                     .role(Role.ADMIN)
+                    .enabled(true)
                     .referenceId(0L)
                     .status(UserStatus.ACTIVE)
                     .build();
             
             userRepository.save(admin);
             log.info("✅ Admin user created successfully");
-            log.info("   Username: admin");
-            log.info("   Password: admin123");
+            log.info("   Username: admin@admin.com");
+            log.info("   Password: @Fahim220032@");
         } else {
             log.info("ℹ️  Admin user already exists");
         }
 
         // Optional: Create test users
-        createTestUserIfNotExists("agent1", "admin123", Role.AGENT);
-        createTestUserIfNotExists("shareholder1", "admin123", Role.SHAREHOLDER);
-        createTestUserIfNotExists("user1", "admin123", Role.USER);
+        // createTestUserIfNotExists("agent1", "admin123", Role.AGENT);
+        // createTestUserIfNotExists("shareholder1", "admin123", Role.SHAREHOLDER);
+        // createTestUserIfNotExists("user1", "admin123", Role.USER);
     }
 
     private void createTestUserIfNotExists(String username, String password, Role role) {

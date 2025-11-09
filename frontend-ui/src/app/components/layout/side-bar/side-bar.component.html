@@ -1,14 +1,25 @@
 <!-- Toggle Button (Mobile Only) -->
-<button class="btn btn-primary d-md-none sidebar-toggle" (click)="toggleSidebar()">
+<button
+  class="btn btn-primary d-md-none sidebar-toggle"
+  (click)="toggleSidebar()"
+>
   <i class="fas fa-bars"></i>
 </button>
 
-<div class="sidebar-overlay" (click)="closeSidebar()" [class.show]="sidebarOpen"></div>
+<!-- Sidebar Overlay -->
+<div
+  class="sidebar-overlay"
+  (click)="closeSidebar()"
+  [class.show]="sidebarOpen"
+></div>
 
+<!-- Sidebar -->
 <nav class="sidebar" [class.show]="sidebarOpen" [class.collapsed]="collapsed">
   <div class="sidebar-header">
     <div class="sidebar-logo"><i class="fas fa-bolt"></i></div>
     <div class="sidebar-title">Micro</div>
+
+    <!-- Close Button (Mobile Only) -->
     <button class="sidebar-close d-md-none" (click)="closeSidebar()">
       <i class="fas fa-times"></i>
     </button>
@@ -16,105 +27,275 @@
 
   <ul class="sidebar-menu">
     <!-- Dashboard -->
-    <li class="menu-item" *ngIf="isAdmin">
-      <a href="#" class="menu-link" (click)="handleSubmenuClick($event, 'dashboard')">
+    <li class="menu-item">
+      <a
+        href="#"
+        class="menu-link"
+        (click)="handleSubmenuClick($event, 'dashboard')"
+      >
         <span class="menu-icon"><i class="fas fa-home"></i></span>
         <span class="menu-text">Dashboard</span>
       </a>
     </li>
 
-    <!-- 🧑‍💼 Admin-only: Users -->
-    <li class="menu-item" *ngIf="isAdmin">
-      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 0)">
-        <span class="menu-icon"><i class="fas fa-users"></i></span>
-        <span class="menu-text">Users</span>
-        <i class="fas fa-chevron-right menu-arrow" [class.rotated]="activeSubmenu === 0"></i>
-      </a>
-      <ul class="submenu" [class.show]="activeSubmenu === 0">
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'all-users')">All Users</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'add-user')">Add User</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'deleted-users')">Deleted Users</a></li>
-      </ul>
-    </li>
-
-    <!-- 👨‍👩‍👧 Members (Agent + Admin) -->
-    <li class="menu-item" *ngIf="isAdmin || isAgent">
-      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 1)">
-        <span class="menu-icon"><i class="fas fa-id-badge"></i></span>
-        <span class="menu-text">Members</span>
-        <i class="fas fa-chevron-right menu-arrow" [class.rotated]="activeSubmenu === 1"></i>
-      </a>
-      <ul class="submenu" [class.show]="activeSubmenu === 1">
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'all-members')">All Members</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'add-member')">Add Member</a></li>
-      </ul>
-    </li>
-
-    <!-- 🎁 Products (Agent + Admin) -->
-    <li class="menu-item" *ngIf="isAdmin || isAgent">
+    <!-- Products -->
+    <li class="menu-item">
       <a href="#" class="menu-link" (click)="toggleSubmenu($event, 6)">
         <span class="menu-icon"><i class="fas fa-box"></i></span>
         <span class="menu-text">Products</span>
-        <i class="fas fa-chevron-right menu-arrow" [class.rotated]="activeSubmenu === 6"></i>
+        <span class="menu-arrow"
+          ><i
+            class="fas fa-chevron-right"
+            [class.rotated]="activeSubmenu === 6"
+          ></i
+        ></span>
       </a>
       <ul class="submenu" [class.show]="activeSubmenu === 6">
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'all-products')">All Products</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'add-product')">Add Product</a></li>
+        <li>
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'all-products')"
+            >All Products</a
+          >
+        </li>
+        <li>
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'add-product')"
+            >Add Product</a
+          >
+        </li>
       </ul>
     </li>
 
-    <!-- 💳 Installments (Agent + Admin) -->
-    <li class="menu-item" *ngIf="isAdmin || isAgent">
+    <!-- Users -->
+    <li class="menu-item">
+      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 0)">
+        <span class="menu-icon"><i class="fas fa-users"></i></span>
+        <span class="menu-text">Users</span>
+        <span class="menu-arrow"
+          ><i
+            class="fas fa-chevron-right"
+            [class.rotated]="activeSubmenu === 0"
+          ></i
+        ></span>
+      </a>
+      <ul class="submenu" [class.show]="activeSubmenu === 0">
+        <li>
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'all-users')"
+            >All Users</a
+          >
+        </li>
+        <li>
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'add-user')"
+            >Add New</a
+          >
+        </li>
+        <li>
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'deleted-users')"
+            >Deleted Users</a
+          >
+        </li>
+      </ul>
+    </li>
+
+    <!-- Members -->
+    <li class="menu-item">
+      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 1)">
+        <span class="menu-icon"><i class="fas fa-id-badge"></i></span>
+        <span class="menu-text">Members</span>
+        <span class="menu-arrow"
+          ><i
+            class="fas fa-chevron-right"
+            [class.rotated]="activeSubmenu === 1"
+          ></i
+        ></span>
+      </a>
+      <ul class="submenu" [class.show]="activeSubmenu === 1">
+        <li>
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'all-members')"
+            >All Members</a
+          >
+        </li>
+        <li>
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'add-member')"
+            >Add Member</a
+          >
+        </li>
+      </ul>
+    </li>
+
+    <!-- Agents -->
+    <!-- Agents - ADMIN ONLY -->
+    <li class="menu-item" *ngIf="isAdmin">
+      <a href="#" class="menu-link" (click)="toggleSubmenu($event, 2)">
+        <span class="menu-icon"><i class="fas fa-user-secret"></i></span>
+        <span class="menu-text">Agents</span>
+        <span class="menu-arrow"
+          ><i
+            class="fas fa-chevron-right"
+            [class.rotated]="activeSubmenu === 2"
+          ></i
+        ></span>
+      </a>
+      <ul class="submenu" [class.show]="activeSubmenu === 2">
+        <li>
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'all-agents')"
+            >All Agents</a
+          >
+        </li>
+        <li>
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'add-agent')"
+            >Add Agent</a
+          >
+        </li>
+      </ul>
+    </li>
+
+    <!-- Installments -->
+    <!-- Installments -->
+    <li class="menu-item">
       <a href="#" class="menu-link" (click)="toggleSubmenu($event, 7)">
         <span class="menu-icon"><i class="fas fa-credit-card"></i></span>
         <span class="menu-text">Installments</span>
-        <i class="fas fa-chevron-right menu-arrow" [class.rotated]="activeSubmenu === 7"></i>
+        <span class="menu-arrow"
+          ><i
+            class="fas fa-chevron-right"
+            [class.rotated]="activeSubmenu === 7"
+          ></i
+        ></span>
       </a>
       <ul class="submenu" [class.show]="activeSubmenu === 7">
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'installment-management')">Manage Installment</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'add-installment')">Add Installment</a></li>
+        <li>
+          <!-- Change this to emit 'installment-management' -->
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'installment-management')"
+            >Manage Installment</a
+          >
+        </li>
+        <li>
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'add-installment')"
+            >Add Installment</a
+          >
+        </li>
       </ul>
     </li>
 
-    <!-- 💰 Payments (Agent + Admin) -->
-    <li class="menu-item" *ngIf="isAdmin || isAgent">
+    <!-- ✅ NEW: Payment Schedules -->
+    <li class="menu-item">
       <a href="#" class="menu-link" (click)="toggleSubmenu($event, 8)">
         <span class="menu-icon"><i class="fas fa-money-bill-wave"></i></span>
         <span class="menu-text">Payments</span>
-        <i class="fas fa-chevron-right menu-arrow" [class.rotated]="activeSubmenu === 8"></i>
+        <span class="menu-arrow"
+          ><i
+            class="fas fa-chevron-right"
+            [class.rotated]="activeSubmenu === 8"
+          ></i
+        ></span>
       </a>
       <ul class="submenu" [class.show]="activeSubmenu === 8">
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'payment-schedules')">Payment Schedules</a></li>
+        <li>
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'payment-schedules')"
+            >Payment Schedules</a
+          >
+        </li>
+        <!-- <li>
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'record-payment')"
+            >Record Payment</a
+          >
+        </li> -->
       </ul>
     </li>
 
-    <!-- 👔 Shareholders (Admin only) -->
-    <li class="menu-item" *ngIf="isAdmin">
+    <!-- Shareholders -->
+    <li class="menu-item">
       <a href="#" class="menu-link" (click)="toggleSubmenu($event, 9)">
         <span class="menu-icon"><i class="fas fa-user-tie"></i></span>
         <span class="menu-text">Shareholders</span>
-        <i class="fas fa-chevron-right menu-arrow" [class.rotated]="activeSubmenu === 9"></i>
+        <span class="menu-arrow">
+          <i
+            class="fas fa-chevron-right"
+            [class.rotated]="activeSubmenu === 9"
+          ></i>
+        </span>
       </a>
       <ul class="submenu" [class.show]="activeSubmenu === 9">
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'add-shareholder')">Add Shareholder</a></li>
-        <li><a href="#" class="submenu-link" (click)="handleSubmenuClick($event, 'all-shareholders')">All Shareholders</a></li>
+        <li>
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'add-shareholder')"
+          >
+            Add Shareholder
+          </a>
+        </li>
+
+        <li>
+          <a
+            href="#"
+            class="submenu-link"
+            (click)="handleSubmenuClick($event, 'all-shareholders')"
+          >
+            All Shareholders
+          </a>
+        </li>
       </ul>
     </li>
 
-    <!-- ⚙️ Settings (Admin only) -->
-    <li class="menu-item" *ngIf="isAdmin">
+    <!-- Settings -->
+    <li class="menu-item">
       <a href="#" class="menu-link" (click)="toggleSubmenu($event, 5)">
         <span class="menu-icon"><i class="fas fa-cog"></i></span>
         <span class="menu-text">Settings</span>
-        <i class="fas fa-chevron-right menu-arrow" [class.rotated]="activeSubmenu === 5"></i>
+        <span class="menu-arrow"
+          ><i
+            class="fas fa-chevron-right"
+            [class.rotated]="activeSubmenu === 5"
+          ></i
+        ></span>
       </a>
       <ul class="submenu" [class.show]="activeSubmenu === 5">
         <li><a href="#" class="submenu-link">General</a></li>
         <li><a href="#" class="submenu-link">Security</a></li>
+        <li><a href="#" class="submenu-link">Notifications</a></li>
       </ul>
     </li>
 
-    <!-- Help & Support (All) -->
+    <!-- Help & Support -->
     <li class="menu-item">
       <a href="#" class="menu-link">
         <span class="menu-icon"><i class="fas fa-question-circle"></i></span>
