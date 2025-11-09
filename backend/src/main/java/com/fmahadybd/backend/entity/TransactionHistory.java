@@ -17,17 +17,24 @@ public class TransactionHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String type; // INVESTMENT, WITHDRAWAL, PRODUCT_COST, MAINTENANCE, INSTALLMENT_RETURN
+    @Column(nullable = false, length = 50)
+    private String type; // INVESTMENT, WITHDRAWAL, PRODUCT_COST, MAINTENANCE, 
+                         // INSTALLMENT_RETURN, ADVANCED_PAYMENT, INSTALLMENT_PAYMENT
 
+    @Column(nullable = false)
     private Double amount;
 
+    @Column(length = 500)
     private String description;
 
-    private LocalDateTime timestamp;
+    @Column(name = "shareholder_id")
+    private Long shareholderId; // For investment/withdrawal transactions
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shareholder_id")
-    private Shareholder shareholder; // optional link to investor
+    @Column(name = "member_id")
+    private Long memberId; // For installment-related transactions
+
+    @Column(nullable = false)
+    private LocalDateTime timestamp;
 
     @PrePersist
     public void prePersist() {

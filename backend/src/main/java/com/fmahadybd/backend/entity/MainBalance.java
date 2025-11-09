@@ -19,22 +19,32 @@ public class MainBalance {
     private Long id;
 
     @Min(0)
+    @Column(nullable = false)
     private Double totalBalance = 0.0;
 
     @Min(0)
+    @Column(nullable = false)
     private Double totalInvestment = 0.0;
 
     @Min(0)
+    @Column(nullable = false)
     private Double totalWithdrawal = 0.0;
 
     @Min(0)
+    @Column(nullable = false)
     private Double totalProductCost = 0.0;
 
     @Min(0)
+    @Column(nullable = false)
     private Double totalMaintenanceCost = 0.0;
 
     @Min(0)
+    @Column(nullable = false)
     private Double totalInstallmentReturn = 0.0;
+
+    @Min(0)
+    @Column(nullable = false)
+    private Double totalEarnings = 0.0; // 15% earnings tracked separately
 
     private LocalDateTime lastUpdated;
 
@@ -50,7 +60,14 @@ public class MainBalance {
     }
 
     @Transient
-    public Double getEarnings() {
-        return (totalInstallmentReturn + totalInvestment) - getTotalExpenses();
+    public Double getNetProfit() {
+        // Net profit = Total earnings from interest
+        return totalEarnings;
+    }
+
+    @Transient
+    public Double getTotalRevenue() {
+        // Total money coming in
+        return totalInvestment + totalInstallmentReturn;
     }
 }

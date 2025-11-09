@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,19 +12,16 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fmahadybd.backend.dto.InstallmentCreateDTO;
 import com.fmahadybd.backend.dto.InstallmentResponseDTO;
 import com.fmahadybd.backend.dto.InstallmentUpdateDTO;
-import com.fmahadybd.backend.entity.Agent;
-import com.fmahadybd.backend.entity.Installment;
-import com.fmahadybd.backend.entity.InstallmentStatus;
-import com.fmahadybd.backend.entity.Product;
+import com.fmahadybd.backend.entity.*;
 import com.fmahadybd.backend.mapper.InstallmentMapper;
-import com.fmahadybd.backend.repository.AgentRepository;
-import com.fmahadybd.backend.repository.InstallmentRepository;
-import com.fmahadybd.backend.repository.ProductRepository;
+import com.fmahadybd.backend.repository.*;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class InstallmentService {
 
     private final InstallmentRepository installmentRepository;
@@ -33,20 +29,88 @@ public class InstallmentService {
     private final InstallmentMapper installmentMapper;
     private final ProductRepository productRepository;
     private final AgentRepository agentRepository;
+    private final MainBalanceRepository mainBalanceRepository;
+    private final TransactionHistoryRepository transactionHistoryRepository;
 
     private final String folder = "installment";
 
-    public InstallmentResponseDTO createInstallment(InstallmentCreateDTO installmentCreateDTO) {
-        Installment installment = mapToEntity(installmentCreateDTO);
+    private MainBalance getMainBalance() {
+        return mainBalanceRepository.findAll().stream().findFirst()
+                .orElseGet(() -> mainBalanceRepository.save(
+                        MainBalance.builder()
+                                .totalBalance(0.0)
+                                .totalInvestment(0.0)
+                                .totalWithdrawal(0.0)
+                                .totalProductCost(0.0)
+                                .totalMaintenanceCost(0.0)
+                                .totalInstallmentReturn(0.0)
+                                .totalEarnings(0.0)
+                                .build()));
+    }
+
+    @Transactional
+    public InstallmentResponseDTO createInstallment(InstallmentCreateDTO dto) {
+        Installment installment = mapToEntity(dto);
+        
+        // Validate advanced payment
+        if (installment.getAdvanced_paid() < 0) {
+            throw new IllegalArgumentException("Advanced payment cannot be negative");
+        }
+
+        // Add advanced payment to main balance
+        if (installment.getAdvanced_paid() > 0) {
+            MainBalance mb = getMainBalance();
+            mb.setTotalBalance(mb.getTotalBalance() + installment.getAdvanced_paid());
+            
+            // Calculate 15% earnings on advanced payment
+            double earnings = installment.getAdvanced_paid() * 0.15;
+            mb.setTotalEarnings(mb.getTotalEarnings() + earnings);
+            mb.setTotalInstallmentReturn(mb.getTotalInstallmentReturn() + installment.getAdvanced_paid());
+            
+            mainBalanceRepository.save(mb);
+
+            // Log transaction
+            logTransaction("ADVANCED_PAYMENT", installment.getAdvanced_paid(), 
+                "Advanced payment for installment - Earnings: " + earnings, 
+                installment.getMember().getId());
+        }
+
         Installment savedInstallment = save(installment);
+        log.info("Installment created with ID: {}", savedInstallment.getId());
         return installmentMapper.toResponseDTO(savedInstallment);
     }
 
-    public InstallmentResponseDTO createInstallmentWithImages(InstallmentCreateDTO installmentCreateDTO, MultipartFile[] images) {
-        Installment installment = mapToEntity(installmentCreateDTO);
+    @Transactional
+    public InstallmentResponseDTO createInstallmentWithImages(
+            InstallmentCreateDTO dto, MultipartFile[] images) {
         
+        Installment installment = mapToEntity(dto);
+
+        // Validate advanced payment
+        if (installment.getAdvanced_paid() < 0) {
+            throw new IllegalArgumentException("Advanced payment cannot be negative");
+        }
+
         // Save installment first
         Installment savedInstallment = save(installment);
+
+        // Add advanced payment to main balance
+        if (installment.getAdvanced_paid() > 0) {
+            MainBalance mb = getMainBalance();
+            mb.setTotalBalance(mb.getTotalBalance() + installment.getAdvanced_paid());
+            
+            // Calculate 15% earnings on advanced payment
+            double earnings = installment.getAdvanced_paid() * 0.15;
+            mb.setTotalEarnings(mb.getTotalEarnings() + earnings);
+            mb.setTotalInstallmentReturn(mb.getTotalInstallmentReturn() + installment.getAdvanced_paid());
+            
+            mainBalanceRepository.save(mb);
+
+            // Log transaction
+            logTransaction("ADVANCED_PAYMENT", installment.getAdvanced_paid(), 
+                "Advanced payment for installment - Earnings: " + earnings, 
+                installment.getMember().getId());
+        }
 
         // Upload images if any
         if (images != null && images.length > 0) {
@@ -69,13 +133,14 @@ public class InstallmentService {
 
         Installment installment = new Installment();
         installment.setProduct(product);
-        installment.setMember(product.getWhoRequest()); // Auto-set member from product
+        installment.setMember(product.getWhoRequest());
         installment.setTotalAmountOfProduct(dto.getTotalAmountOfProduct());
         installment.setOtherCost(dto.getOtherCost() != null ? dto.getOtherCost() : 0.0);
         installment.setAdvanced_paid(dto.getAdvanced_paid());
         installment.setInstallmentMonths(dto.getInstallmentMonths());
-        installment.setInterestRate(dto.getInterestRate());
-        installment.setStatus(dto.getStatus() != null ? InstallmentStatus.valueOf(dto.getStatus()) : InstallmentStatus.PENDING);
+        installment.setInterestRate(dto.getInterestRate() != null ? dto.getInterestRate() : 15.0);
+        installment.setStatus(
+                dto.getStatus() != null ? InstallmentStatus.valueOf(dto.getStatus()) : InstallmentStatus.PENDING);
         installment.setGiven_product_agent(agent);
         installment.setCreatedTime(LocalDateTime.now());
 
@@ -85,12 +150,87 @@ public class InstallmentService {
     public Installment save(Installment installment) {
         validateInstallment(installment);
         calculateInstallmentAmounts(installment);
-
-        // Ensure product requires delivery
         setProductDeliveryRequired(installment);
 
         Installment savedInstallment = installmentRepository.save(installment);
         return savedInstallment;
+    }
+
+    private void validateInstallment(Installment installment) {
+        if (installment.getMember() == null)
+            throw new IllegalArgumentException("Member is required - no member associated with the product");
+        if (installment.getTotalAmountOfProduct() == null || installment.getTotalAmountOfProduct() < 0)
+            throw new IllegalArgumentException("Valid total amount is required");
+        if (installment.getInstallmentMonths() != null && installment.getInstallmentMonths() <= 0)
+            throw new IllegalArgumentException("Installment months must be greater than 0");
+        if (installment.getGiven_product_agent() == null)
+            throw new IllegalArgumentException("Agent is required");
+    }
+
+    private void calculateInstallmentAmounts(Installment installment) {
+        Double total = installment.getTotalAmountOfProduct() != null ? installment.getTotalAmountOfProduct() : 0.0;
+        Double other = installment.getOtherCost() != null ? installment.getOtherCost() : 0.0;
+        Double advance = installment.getAdvanced_paid() != null ? installment.getAdvanced_paid() : 0.0;
+        Double interest = installment.getInterestRate() != null ? installment.getInterestRate() : 15.0;
+
+        // Calculate total with interest
+        Double totalWithInterest = total + (total * interest / 100);
+        
+        // Calculate total amount needed to be paid (before advance)
+        Double totalAmountToPay = totalWithInterest + other;
+        
+        // Calculate monthly installment if months are specified
+        if (installment.getInstallmentMonths() != null && installment.getInstallmentMonths() > 0) {
+            // First calculate remaining after advance
+            Double remainingBeforeAdjustment = Math.max(totalAmountToPay - advance, 0.0);
+            
+            // Calculate monthly payment (rounded up to integer)
+            Integer monthlyPayment = (int) Math.ceil(remainingBeforeAdjustment / installment.getInstallmentMonths());
+            
+            // Calculate adjusted total (must be divisible by months)
+            Integer adjustedRemainingTotal = monthlyPayment * installment.getInstallmentMonths();
+            
+            // Calculate the difference
+            Double difference = adjustedRemainingTotal - remainingBeforeAdjustment;
+            
+            // Store the adjusted values
+            installment.setMonthlyInstallmentAmount(monthlyPayment.doubleValue());
+            installment.setNeedPaidAmount(adjustedRemainingTotal.doubleValue());
+            
+            // Important: Store the actual advance paid (not adjusted)
+            // The difference will be handled as "overpayment" or part of the calculation
+            // Don't modify advance_paid here as it's already processed in main balance
+            
+            log.info("Installment calculated - Original Total: {}, After Advance: {}, Monthly: {}, Adjusted Need to Pay: {}, Rounding Difference: {}", 
+                totalAmountToPay, remainingBeforeAdjustment, monthlyPayment, adjustedRemainingTotal, difference);
+        } else {
+            // No monthly installments, just set the remaining amount
+            Double remainingAmount = Math.max(totalAmountToPay - advance, 0.0);
+            installment.setNeedPaidAmount(remainingAmount);
+            installment.setMonthlyInstallmentAmount(0.0);
+            
+            log.info("Installment calculated (no monthly) - Total: {}, Need to Pay: {}", 
+                totalAmountToPay, remainingAmount);
+        }
+    }
+
+    private void setProductDeliveryRequired(Installment installment) {
+        Product product = installment.getProduct();
+        if (product != null) {
+            product.setIsDeliveryRequired(true);
+            productRepository.save(product);
+        }
+    }
+
+    private void logTransaction(String type, double amount, String desc, Long memberId) {
+        TransactionHistory txn = TransactionHistory.builder()
+                .type(type)
+                .amount(amount)
+                .description(desc)
+                .memberId(memberId)
+                .timestamp(LocalDateTime.now())
+                .build();
+        transactionHistoryRepository.save(txn);
     }
 
     public void uploadInstallmentImages(MultipartFile[] files, Long installmentId) {
@@ -115,6 +255,18 @@ public class InstallmentService {
         installmentRepository.save(installment);
     }
 
+    @Transactional
+    public InstallmentResponseDTO update(Long id, InstallmentUpdateDTO dto) {
+        Installment existing = installmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Installment not found with id: " + id));
+
+        updateFields(existing, dto);
+        calculateInstallmentAmounts(existing);
+
+        Installment updated = installmentRepository.save(existing);
+        return installmentMapper.toResponseDTO(updated);
+    }
+
     private void updateFields(Installment existing, InstallmentUpdateDTO dto) {
         if (dto.getTotalAmountOfProduct() != null)
             existing.setTotalAmountOfProduct(dto.getTotalAmountOfProduct());
@@ -128,60 +280,6 @@ public class InstallmentService {
             existing.setInterestRate(dto.getInterestRate());
         if (dto.getStatus() != null)
             existing.setStatus(dto.getStatus());
-    }
-
-    public void delete(Long id) {
-        Installment installment = installmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Installment not found with id: " + id));
-        installmentRepository.delete(installment);
-    }
-
-    public void deleteInstallmentImage(Long installmentId, String filePath) {
-        Installment installment = installmentRepository.findById(installmentId)
-                .orElseThrow(() -> new RuntimeException("Installment not found with id: " + installmentId));
-
-        List<String> paths = installment.getImageFilePaths();
-        if (paths != null && paths.remove(filePath)) {
-            installment.setImageFilePaths(paths);
-            installmentRepository.save(installment);
-        }
-    }
-
-    private void validateInstallment(Installment installment) {
-        if (installment.getMember() == null)
-            throw new IllegalArgumentException("Member is required - no member associated with the product");
-        if (installment.getTotalAmountOfProduct() == null || installment.getTotalAmountOfProduct() < 0)
-            throw new IllegalArgumentException("Valid total amount is required");
-        if (installment.getInstallmentMonths() != null && installment.getInstallmentMonths() <= 0)
-            throw new IllegalArgumentException("Installment months must be greater than 0");
-        if (installment.getGiven_product_agent() == null)
-            throw new IllegalArgumentException("Agent is required");
-    }
-
-    private void calculateInstallmentAmounts(Installment installment) {
-        Double total = installment.getTotalAmountOfProduct() != null ? installment.getTotalAmountOfProduct() : 0.0;
-        Double other = installment.getOtherCost() != null ? installment.getOtherCost() : 0.0;
-        Double advance = installment.getAdvanced_paid() != null ? installment.getAdvanced_paid() : 0.0;
-        Double interest = installment.getInterestRate() != null ? installment.getInterestRate() : 15.0;
-
-        Double totalWithInterest = total + (total * interest / 100);
-        installment.setNeedPaidAmount(Math.max(totalWithInterest + other - advance, 0.0));
-
-        // // Calculate monthly installment amount
-        // if (installment.getInstallmentMonths() != null && installment.getInstallmentMonths() > 0) {
-        //     Double monthlyAmount = installment.getNeedPaidAmount() / installment.getInstallmentMonths();
-        //     installment.setMonthlyInstallmentAmount(monthlyAmount);
-        // }
-
-        // installment.setTotalAmountWithInterest(totalWithInterest);
-    }
-
-    private void setProductDeliveryRequired(Installment installment) {
-        Product product = installment.getProduct();
-        if (product != null) {
-            product.setIsDeliveryRequired(true);
-            productRepository.save(product);
-        }
     }
 
     @Transactional(readOnly = true)
@@ -202,20 +300,24 @@ public class InstallmentService {
                 .map(installmentMapper::toResponseDTO);
     }
 
-    // Internal method - returns entity (for image operations)
     public Optional<Installment> findEntityById(Long id) {
         return installmentRepository.findById(id);
     }
 
-    @Transactional
-    public InstallmentResponseDTO update(Long id, InstallmentUpdateDTO installmentDTO) {
-        Installment existing = installmentRepository.findById(id)
+    public void delete(Long id) {
+        Installment installment = installmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Installment not found with id: " + id));
+        installmentRepository.delete(installment);
+    }
 
-        updateFields(existing, installmentDTO);
-        calculateInstallmentAmounts(existing);
+    public void deleteInstallmentImage(Long installmentId, String filePath) {
+        Installment installment = installmentRepository.findById(installmentId)
+                .orElseThrow(() -> new RuntimeException("Installment not found with id: " + installmentId));
 
-        Installment updated = installmentRepository.save(existing);
-        return installmentMapper.toResponseDTO(updated);
+        List<String> paths = installment.getImageFilePaths();
+        if (paths != null && paths.remove(filePath)) {
+            installment.setImageFilePaths(paths);
+            installmentRepository.save(installment);
+        }
     }
 }

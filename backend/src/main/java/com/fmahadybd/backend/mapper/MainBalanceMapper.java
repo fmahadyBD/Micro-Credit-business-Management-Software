@@ -22,7 +22,7 @@ public class MainBalanceMapper {
                 .totalProductCost(entity.getTotalProductCost())
                 .totalMaintenanceCost(entity.getTotalMaintenanceCost())
                 .totalInstallmentReturn(entity.getTotalInstallmentReturn())
-                .earnings(entity.getEarnings())
+                .earnings(entity.getTotalEarnings())
                 .lastUpdated(LocalDateTime.now())
                 .message("Success")
                 .build();
@@ -41,8 +41,8 @@ public class MainBalanceMapper {
                 .amount(entity.getAmount())
                 .description(entity.getDescription())
                 .timestamp(entity.getTimestamp())
-                .shareholderId(entity.getShareholder() != null ? entity.getShareholder().getId() : null)
-                .shareholderName(entity.getShareholder() != null ? entity.getShareholder().getName() : null)
+                // .shareholderId(entity.getShareholder() != null ? entity.getShareholder().getId() : null)
+                // .shareholderName(entity.getShareholder() != null ? entity.getShareholder().getName() : null)
                 .build();
     }
 

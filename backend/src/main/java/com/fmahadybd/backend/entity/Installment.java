@@ -72,6 +72,10 @@ public class Installment {
     @Column(nullable = false)
     private Double interestRate = 15.0;
 
+    // ✅ ADD THIS FIELD - Store monthly installment amount
+    @Column(name = "monthly_installment_amount")
+    private Double monthlyInstallmentAmount = 0.0;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -105,9 +109,6 @@ public class Installment {
 
     @PrePersist
     protected void onCreate() {
-        // Calculate amounts
-        calculateAmounts();
-        
         // Ensure status is set
         if (status == null) {
             status = InstallmentStatus.PENDING;
@@ -122,49 +123,15 @@ public class Installment {
         }
     }
 
-    @PreUpdate
-    protected void onUpdate() {
-        // Recalculate amounts when entity is updated
-        calculateAmounts();
-    }
-
-    private void calculateAmounts() {
-        double safeInterestRate = interestRate != null ? interestRate : 15.0;
+    @Transient
+    public Double getTotalAmountWithInterest() {
         double safeTotal = totalAmountOfProduct != null ? totalAmountOfProduct : 0.0;
-        double safeOtherCost = otherCost != null ? otherCost : 0.0;
-        double safeAdvanced = advanced_paid != null ? advanced_paid : 0.0;
-
-        double totalWithInterest = safeTotal + (safeTotal * safeInterestRate / 100);
-        this.needPaidAmount = Math.max(totalWithInterest + safeOtherCost - safeAdvanced, 0.0);
+        double safeInterest = interestRate != null ? interestRate : 15.0;
+        return safeTotal + (safeTotal * safeInterest / 100);
     }
 
     @Transient
-    public Double getMonthlyInstallmentAmount() {
-        if (installmentMonths == null || installmentMonths <= 0)
-            return 0.0;
-        if (needPaidAmount == null)
-            return 0.0;
-        return needPaidAmount / installmentMonths;
-    }
-
-    @AssertTrue(message = "Advanced payment cannot exceed total amount with interest")
-    private boolean isAdvancedPaymentValid() {
-        if (advanced_paid == null || totalAmountOfProduct == null)
-            return true;
-        Double totalWithInterest = getTotalAmountWithInterest() + (otherCost != null ? otherCost : 0.0);
-        return advanced_paid <= totalWithInterest;
-    }
-
-    @AssertTrue(message = "Need paid amount should match calculation")
-    private boolean isNeedPaidAmountValid() {
-        if (needPaidAmount == null || totalAmountOfProduct == null)
-            return true;
-        Double expected = getTotalAmountWithInterest() + (otherCost != null ? otherCost : 0.0)
-                - (advanced_paid != null ? advanced_paid : 0.0);
-        return Math.abs(needPaidAmount - Math.max(expected, 0.0)) < 0.01;
-    }
-
-    public Double getTotalAmountWithInterest() {
-        return totalAmountOfProduct + (totalAmountOfProduct * (interestRate != null ? interestRate : 15.0) / 100);
+    public Double getCalculatedTotalAmount() {
+        return getTotalAmountWithInterest() + (otherCost != null ? otherCost : 0.0);
     }
 }
