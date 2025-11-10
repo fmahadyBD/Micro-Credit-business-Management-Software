@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface RegistrationRequest {
   firstname: string;
@@ -29,10 +30,10 @@ interface JWTPayload {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/auth';
+  private apiUrl = `${environment.apiUrl}/auth`;
   private readonly TOKEN_KEY = 'token';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   register(request: RegistrationRequest): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/register`, request);
@@ -44,10 +45,10 @@ export class AuthService {
         tap(response => {
           // Clear storage first
           this.clearStorage();
-          
+
           // Store ONLY the token - nothing else!
           localStorage.setItem(this.TOKEN_KEY, response.token);
-          
+
           console.log('Token stored successfully');
         })
       );
@@ -67,7 +68,7 @@ export class AuthService {
     try {
       const parts = token.split('.');
       if (parts.length !== 3) return null;
-      
+
       const payload = parts[1];
       const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
       const decoded = atob(base64);
@@ -85,22 +86,22 @@ export class AuthService {
   getRole(): string | null {
     const token = this.getToken();
     if (!token) return null;
-    
+
     const decoded = this.decodeToken(token);
     if (!decoded?.authorities?.length) return null;
-    
+
     let role = decoded.authorities[0];
     if (role.startsWith('ROLE_')) {
       role = role.substring(5);
     }
-    
+
     return role;
   }
 
   getUserEmail(): string | null {
     const token = this.getToken();
     if (!token) return null;
-    
+
     const decoded = this.decodeToken(token);
     return decoded?.sub || null;
   }
@@ -112,13 +113,13 @@ export class AuthService {
     try {
       const decoded = this.decodeToken(token);
       if (!decoded) return false;
-      
+
       const currentTime = Math.floor(Date.now() / 1000);
       if (decoded.exp < currentTime) {
         this.clearStorage();
         return false;
       }
-      
+
       return true;
     } catch {
       return false;
@@ -126,16 +127,16 @@ export class AuthService {
   }
 
   getUserId(): number | null {
-  const token = this.getToken();
-  if (!token) return null;
+    const token = this.getToken();
+    if (!token) return null;
 
-  const decoded = this.decodeToken(token);
-  if (!decoded) return null;
+    const decoded = this.decodeToken(token);
+    if (!decoded) return null;
 
-  // 'sub' contains email; if you include userId in JWT claims, use that
-  // Example: decoded.userId or decoded.id depending on backend token payload
-  return (decoded as any).userId ?? null;
-}
+    // 'sub' contains email; if you include userId in JWT claims, use that
+    // Example: decoded.userId or decoded.id depending on backend token payload
+    return (decoded as any).userId ?? null;
+  }
 
   isAdmin(): boolean { return this.getRole() === 'ADMIN'; }
   isUser(): boolean { return this.getRole() === 'USER'; }

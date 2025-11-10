@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MembersService } from '../../../../services/services/members.service';
 import { Member } from '../../../../services/models/member';
 import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-member-details',
@@ -19,7 +20,7 @@ export class MemberDetailsComponent implements OnInit {
   isSidebarCollapsed = false;
 
   // Add base URL for images (adjust according to your API)
-  private baseUrl = 'http://localhost:8080'; // Change this to your actual backend URL
+  private baseUrl = environment.apiUrl;// Change this to your actual backend URL
 
   constructor(
     private membersService: MembersService,
@@ -60,12 +61,12 @@ export class MemberDetailsComponent implements OnInit {
     if (!relativePath) {
       return '';
     }
-    
+
     // If the path is already a full URL, return it as is
     if (relativePath.startsWith('http')) {
       return relativePath;
     }
-    
+
     // If it's a relative path, prepend the base URL
     // Remove leading slash if present to avoid double slashes
     const cleanPath = relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;

@@ -58,3 +58,29 @@ npm install ng-openapi-gen@0.53.0 --save-dev
 * Without these providers, standalone Angular components cannot inject OpenAPI services, resulting in `NullInjectorError`.
 
 ---
+
+
+frontend:
+docker build -t your-dockerhub-username/microcredit-backend:v2 .
+docker push your-dockerhub-username/microcredit-backend:v2
+
+
+
+
+
+
+
+
+## Delpoyment note for Frontend:
+in environments.ts
+// ✅ Correct
+export const environment = {
+  production: true,
+  apiUrl: 'https://your-backend-url.onrender.com',
+  apiBaseUrl: 'https://your-backend-url.onrender.com/api'
+};
+
+
+
+
+

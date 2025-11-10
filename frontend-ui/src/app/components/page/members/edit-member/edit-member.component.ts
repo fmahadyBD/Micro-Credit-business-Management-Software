@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MembersService } from '../../../../services/services/members.service';
 import { Member } from '../../../../services/models/member';
 import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-edit-member',
@@ -14,7 +15,7 @@ import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service
 })
 export class EditMemberComponent implements OnInit {
   @Input() memberId!: number;
-  
+
   member: Member = {
     name: '',
     phone: '',
@@ -42,12 +43,13 @@ export class EditMemberComponent implements OnInit {
   successMessage: string | null = null;
   isSidebarCollapsed = false;
 
-  private baseUrl = 'http://localhost:8080'; // Your backend URL
+  private baseUrl = environment.apiUrl;
+  // Your backend URL
 
   constructor(
     private membersService: MembersService,
     private sidebarService: SidebarTopbarService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.sidebarService.isCollapsed$.subscribe(collapsed => {
@@ -158,7 +160,7 @@ export class EditMemberComponent implements OnInit {
         console.log('Update successful:', response);
         this.successMessage = 'Member updated successfully!';
         this.saving = false;
-        
+
         // Clear file selections
         this.nidCardFile = undefined;
         this.photoFile = undefined;

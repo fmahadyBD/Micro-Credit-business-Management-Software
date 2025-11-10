@@ -10,6 +10,7 @@ import { MembersService } from '../../../../services/services/members.service';
 import { AgentsService } from '../../../../services/services/agents.service';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../../service/auth.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-all-products',
@@ -150,8 +151,9 @@ export class AllProductsComponent implements OnInit {
     if (imagePath.startsWith('http')) {
       return imagePath;
     }
-    const baseUrl = 'http://localhost:8080';
+    const baseUrl = environment.apiUrl;
     return `${baseUrl}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+
   }
 
   viewDetails(productId: number): void {
@@ -333,20 +335,20 @@ export class AllProductsComponent implements OnInit {
     // Add new images
     this.selectedFiles.forEach(file => formData.append('images', file, file.name));
 
-    this.http.put(`http://localhost:8080/api/products/${this.editingProduct.id}`, formData).subscribe({
-      next: (res: any) => {
-        this.editSaving = false;
-        this.successMessage = 'Product updated successfully!';
-        this.closeEditModal();
-        this.loadProducts();
-        setTimeout(() => this.successMessage = null, 3000);
-      },
-      error: (err) => {
-        this.editSaving = false;
-        this.error = err.error?.message || 'Failed to update product';
-        console.error('Error updating product:', err);
-      }
-    });
+    this.http.put(`${environment.apiBaseUrl}/products/${this.editingProduct.id}`, formData).subscribe({
+        next: (res: any) => {
+          this.editSaving = false;
+          this.successMessage = 'Product updated successfully!';
+          this.closeEditModal();
+          this.loadProducts();
+          setTimeout(() => this.successMessage = null, 3000);
+        },
+        error: (err) => {
+          this.editSaving = false;
+          this.error = err.error?.message || 'Failed to update product';
+          console.error('Error updating product:', err);
+        }
+      });
   }
 
   // Delete functionality

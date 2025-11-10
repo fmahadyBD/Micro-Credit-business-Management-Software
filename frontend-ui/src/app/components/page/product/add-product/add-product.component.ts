@@ -8,6 +8,7 @@ import { Member } from '../../../../services/models/member';
 import { Agent } from '../../../../services/models/agent';
 import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-add-product',
@@ -209,20 +210,21 @@ export class AddProductComponent implements OnInit {
     formData.append('product', JSON.stringify(productData));
     this.selectedFiles.forEach(file => formData.append('images', file, file.name));
 
-    this.http.post('http://localhost:8080/api/products/with-images', formData).subscribe({
-      next: (res: any) => {
-        this.loading = false;
-        this.successMessage = 'Product created successfully!';
-        console.log('Created Product:', res.product);
-        this.resetForm();
-        setTimeout(() => window.dispatchEvent(new CustomEvent('productAdded')), 1500);
-      },
-      error: (err) => {
-        this.loading = false;
-        console.error('Error creating product:', err);
-        this.error = err.error?.message || 'Failed to create product';
-      }
-    });
+    this.http.post(`${environment.apiBaseUrl}/products/with-images`, formData)
+      .subscribe({
+        next: (res: any) => {
+          this.loading = false;
+          this.successMessage = 'Product created successfully!';
+          console.log('Created Product:', res.product);
+          this.resetForm();
+          setTimeout(() => window.dispatchEvent(new CustomEvent('productAdded')), 1500);
+        },
+        error: (err) => {
+          this.loading = false;
+          console.error('Error creating product:', err);
+          this.error = err.error?.message || 'Failed to create product';
+        }
+      });
   }
 
   resetForm(): void {

@@ -24,8 +24,8 @@ export class ExtendedShareholdersService extends ShareholdersService {
    * Get shareholder by user ID
    * This method is not in the OpenAPI spec but exists in the backend
    */
-  getShareholderByUserId(userId: number): Observable<ShareholderDto> {
-    const url = `${this.rootUrl}/api/shareholders/by-user/${userId}`;
-    return this.httpClient.get<ShareholderDto>(url);
-  }
+  // getShareholderByUserId(userId: number): Observable<ShareholderDto> {
+  //   const url = `${this.rootUrl}/api/shareholders/by-user/${userId}`;
+  //   return this.httpClient.get<ShareholderDto>(url);
+  // }
 }

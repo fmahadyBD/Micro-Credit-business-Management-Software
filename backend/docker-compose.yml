@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:16
+    container_name: microcredit-db
+    environment:
+      POSTGRES_DB: microcredit
+      POSTGRES_USER: microcredit_user
+      POSTGRES_PASSWORD: iTIuXbH54Aa4UrF9wr8Qdb7mLGm6K8Qa
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    container_name: microcredit-backend
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_APPLICATION_NAME: backend
+      DB_DRIVER: org.postgresql.Driver
+      DB_URL: jdbc:postgresql://postgres:5432/microcredit
+      DB_USERNAME: microcredit_user
+      DB_PASSWORD: iTIuXbH54Aa4UrF9wr8Qdb7mLGm6K8Qa
+      JPA_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      JPA_HIBERNATE_DDL_AUTO: update
+    env_file:
+      - .env
+volumes:
+  postgres_data:

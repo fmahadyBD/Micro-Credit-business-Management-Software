@@ -10,6 +10,7 @@ import { Agent } from '../../../../services/models/agent';
 import { Member } from '../../../../services/models/member';
 import { InstallmentCreateDto } from '../../../../services/models/installment-create-dto';
 import { SidebarTopbarService } from '../../../../service/sidebar-topbar.service';
+import { environment } from '../../../../../environments/environment';
 
 // Extended Product interface to include member details from ProductResponseDTO
 interface ProductWithMemberDetails extends Product {
@@ -156,7 +157,7 @@ export class AddInstallmentComponent implements OnInit {
       this.selectedMember = product.whoRequest;
       this.memberName = `${product.whoRequest.name} (${product.whoRequest.phone})`;
       console.log('Member auto-selected from nested object:', this.selectedMember);
-    } 
+    }
     else {
       this.selectedMember = null;
       this.memberName = 'No member assigned';
@@ -291,31 +292,32 @@ export class AddInstallmentComponent implements OnInit {
 
     const formData = new FormData();
     formData.append('installment', JSON.stringify(installmentData));
-    
+
     // Add images if any
     this.selectedFiles.forEach(file => {
       formData.append('images', file, file.name);
     });
 
-    this.http.post('http://localhost:8080/api/installments/with-images', formData).subscribe({
-      next: (res: any) => {
-        this.loading = false;
-        this.successMessage = 'Installment created successfully!';
-        console.log('Created Installment:', res);
-        this.resetForm();
-        
-        // Notify parent component or refresh list
-        setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('installmentAdded'));
-        }, 1500);
-      },
-      error: (err) => {
-        this.loading = false;
-        console.error('Error creating installment:', err);
-        console.error('Error details:', err.error);
-        this.error = err.error?.message || 'Failed to create installment. Please check the console for details.';
-      }
-    });
+    this.http.post(`${environment.apiBaseUrl}/installments/with-images`, formData)
+      .subscribe({
+        next: (res: any) => {
+          this.loading = false;
+          this.successMessage = 'Installment created successfully!';
+          console.log('Created Installment:', res);
+          this.resetForm();
+
+          // Notify parent component or refresh list
+          setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('installmentAdded'));
+          }, 1500);
+        },
+        error: (err) => {
+          this.loading = false;
+          console.error('Error creating installment:', err);
+          console.error('Error details:', err.error);
+          this.error = err.error?.message || 'Failed to create installment. Please check the console for details.';
+        }
+      });
   }
 
   resetForm(): void {

@@ -7,8 +7,8 @@ import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
+import { User } from '../../../service/models/user.model';
 
-import { User } from '../../models/user';
 
 export interface CreateUser$Params {
       body: User
