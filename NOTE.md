@@ -61,8 +61,8 @@ npm install ng-openapi-gen@0.53.0 --save-dev
 
 
 frontend:
-docker build -t your-dockerhub-username/microcredit-backend:v2 .
-docker push your-dockerhub-username/microcredit-backend:v2
+docker build -t fmahadybd/microcredit-backend:v1 .
+docker push fmahadybd/microcredit-backend:v1
 
 
 
