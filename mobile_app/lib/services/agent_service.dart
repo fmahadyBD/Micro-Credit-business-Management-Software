@@ -59,26 +59,108 @@ class AgentService {
   }
 
   /// Create new agent
-  Future<AgentModel> createAgent(AgentModel agent) async {
-    try {
-      final headers = await _getHeaders();
-      final response = await http.post(
-        Uri.parse(baseUrl),
-        headers: headers,
-        body: jsonEncode(agent.toJson()),
-      );
+  // Future<AgentModel> createAgent(AgentModel agent) async {
+  //   try {
+  //     final headers = await _getHeaders();
+  //     final response = await http.post(
+  //       Uri.parse(baseUrl),
+  //       headers: headers,
+  //       body: jsonEncode(agent.toJson()),
+  //     );
 
-      if (response.statusCode == 200) {
-        return AgentModel.fromJson(jsonDecode(response.body));
-      } else {
-        final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Failed to create agent: ${response.statusCode}');
+  //     if (response.statusCode == 200) {
+  //       return AgentModel.fromJson(jsonDecode(response.body));
+  //     } else {
+  //       final error = jsonDecode(response.body);
+  //       throw Exception(error['message'] ?? 'Failed to create agent: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     throw Exception('Error creating agent: $e');
+  //   }
+  // }
+
+
+// lib/services/agent_service.dart
+/// Create new agent
+Future<AgentModel> createAgent(AgentModel agent) async {
+  try {
+    final headers = await _getHeaders();
+    
+    // Prepare the request body according to your backend expectations
+    final requestBody = {
+      'name': agent.name,
+      'phone': agent.phone,
+      'email': agent.email,
+      'zila': agent.zila,
+      'village': agent.village,
+      'nidCard': agent.nidCard,
+      'nominee': agent.nominee,
+      'role': agent.role,
+      'status': agent.status,
+      // Note: joinDate is set by backend, so we don't send it
+      // Note: photo is handled separately in with-photo endpoint
+    };
+
+    print('Creating agent with data: $requestBody');
+
+    final response = await http.post(
+      Uri.parse(baseUrl),
+      headers: headers,
+      body: jsonEncode(requestBody),
+    );
+
+    print('Create agent response status: ${response.statusCode}');
+    print('Create agent response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      // Handle empty response
+      if (response.body.isEmpty) {
+        throw Exception('Server returned empty response');
       }
-    } catch (e) {
-      throw Exception('Error creating agent: $e');
-    }
-  }
 
+      try {
+        final responseData = jsonDecode(response.body);
+        
+        // Check if response contains success: false
+        if (responseData is Map<String, dynamic> && 
+            responseData.containsKey('success') && 
+            responseData['success'] == false) {
+          throw Exception(responseData['message'] ?? 'Failed to create agent');
+        }
+
+        return AgentModel.fromJson(responseData);
+      } catch (e) {
+        print('JSON parsing error: $e');
+        throw Exception('Failed to parse server response: $e');
+      }
+    } else {
+      // Handle non-200 responses
+      final errorMessage = _parseErrorResponse(response);
+      throw Exception(errorMessage);
+    }
+  } catch (e) {
+    print('Create agent error: $e');
+    throw Exception('Error creating agent: $e');
+  }
+}
+
+/// Helper method to parse error responses
+String _parseErrorResponse(http.Response response) {
+  try {
+    if (response.body.isNotEmpty) {
+      final errorData = jsonDecode(response.body);
+      if (errorData is Map<String, dynamic>) {
+        return errorData['message'] ?? 
+               errorData['error'] ?? 
+               'Failed to create agent: ${response.statusCode}';
+      }
+    }
+  } catch (e) {
+    // If we can't parse the error response, fall back to status code
+  }
+  
+  return 'Failed to create agent: ${response.statusCode}';
+}
   /// Update agent
   Future<AgentModel> updateAgent(AgentModel agent) async {
     try {
