@@ -1,10 +1,16 @@
+// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:mobile_app/pages/login_page.dart';
+import 'package:provider/provider.dart';
+import 'providers/theme_provider.dart';
+import 'pages/login_page.dart';
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Load environment variables
   await dotenv.load(fileName: ".env");
+  
   runApp(const MyApp());
 }
 
@@ -13,11 +19,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'MicroCredit App',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const LoginPage(),
-      debugShowCheckedModeBanner: false,
+    return ChangeNotifierProvider<ThemeProvider>(
+      create: (_) => ThemeProvider(),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            title: 'Admin Panel',
+            debugShowCheckedModeBanner: false,
+            theme: themeProvider.lightTheme,
+            darkTheme: themeProvider.darkTheme,
+            themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            home: const LoginPage(),
+          );
+        },
+      ),
     );
   }
 }
