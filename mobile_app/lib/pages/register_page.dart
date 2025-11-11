@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/pages/login_page.dart';
 import 'package:mobile_app/services/auth_service.dart';
@@ -15,8 +16,10 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
   bool _isLoading = false;
   bool _obscurePassword = true;
+
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -24,15 +27,13 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-
+    _fadeAnimation = CurvedAnimation(parent: _animationController, curve: Curves.easeInOut);
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
@@ -53,7 +54,6 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
 
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() => _isLoading = true);
 
     try {
@@ -68,27 +68,25 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
       if (mounted) {
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Registration successful! Please log in.'),
+            const SnackBar(
+              content: Text('Registration successful! Please log in.'),
               backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
             ),
           );
+
           Navigator.pushReplacement(
             context,
             PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => const LoginPage(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                return FadeTransition(opacity: animation, child: child);
-              },
+              pageBuilder: (context, _, __) => const LoginPage(),
+              transitionsBuilder: (context, animation, _, child) =>
+                  FadeTransition(opacity: animation, child: child),
             ),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Registration failed. Please try again.'),
+            const SnackBar(
+              content: Text('Registration failed. Please try again.'),
               backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
             ),
           );
         }
@@ -100,61 +98,69 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    final gradientColors = [
+      Colors.purple.shade900,
+      Colors.indigo.shade700,
+      Colors.blue.shade500,
+    ];
+
     return Scaffold(
-      body: Container(
+      body: AnimatedContainer(
+        duration: const Duration(seconds: 5),
+        curve: Curves.easeInOut,
         decoration: BoxDecoration(
           gradient: LinearGradient(
+            colors: gradientColors,
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Colors.purple.shade900,
-              Colors.purple.shade600,
-              Colors.blue.shade400,
-            ],
           ),
         ),
         child: SafeArea(
           child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: Card(
-                    elevation: 12,
-                    shape: RoundedRectangleBorder(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 400),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: SlideTransition(
+                    position: _slideAnimation,
+                    child: ClipRRect(
                       borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(32.0),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Logo/Icon
-                            TweenAnimationBuilder(
-                              tween: Tween<double>(begin: 0, end: 1),
-                              duration: const Duration(milliseconds: 800),
-                              builder: (context, double value, child) {
-                                return Transform.scale(
-                                  scale: value,
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                        child: Container(
+                          padding: const EdgeInsets.all(32.0),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(color: Colors.white.withOpacity(0.2)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 15,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // Logo/Icon
+                                AnimatedScale(
+                                  duration: const Duration(milliseconds: 800),
+                                  scale: 1,
+                                  curve: Curves.easeOutBack,
                                   child: Container(
                                     width: 80,
                                     height: 80,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [Colors.purple.shade600, Colors.blue.shade400],
-                                      ),
+                                    decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.purple.withOpacity(0.3),
-                                          blurRadius: 20,
-                                          spreadRadius: 5,
-                                        ),
-                                      ],
+                                      gradient: LinearGradient(
+                                        colors: [Colors.purple, Colors.blueAccent],
+                                      ),
                                     ),
                                     child: const Icon(
                                       Icons.person_add_outlined,
@@ -162,209 +168,141 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
                                       color: Colors.white,
                                     ),
                                   ),
-                                );
-                              },
-                            ),
-                            const SizedBox(height: 24),
-                            Text(
-                              'Create Account',
-                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                ),
+                                const SizedBox(height: 24),
+                                Text(
+                                  'Create Account',
+                                  style: TextStyle(
+                                    fontSize: 28,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.grey.shade800,
+                                    color: Colors.white.withOpacity(0.9),
                                   ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Sign up to get started',
-                              style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
-                            ),
-                            const SizedBox(height: 32),
-                            // First Name Field
-                            TextFormField(
-                              controller: _firstNameController,
-                              textCapitalization: TextCapitalization.words,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your first name';
-                                }
-                                return null;
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'First Name',
-                                prefixIcon: const Icon(Icons.person_outline),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.grey.shade300),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.purple.shade600, width: 2),
-                                ),
-                                filled: true,
-                                fillColor: Colors.grey.shade50,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            // Last Name Field
-                            TextFormField(
-                              controller: _lastNameController,
-                              textCapitalization: TextCapitalization.words,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your last name';
-                                }
-                                return null;
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'Last Name',
-                                prefixIcon: const Icon(Icons.person_outline),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.grey.shade300),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.purple.shade600, width: 2),
-                                ),
-                                filled: true,
-                                fillColor: Colors.grey.shade50,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            // Email Field
-                            TextFormField(
-                              controller: _emailController,
-                              keyboardType: TextInputType.emailAddress,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your email';
-                                }
-                                if (!value.contains('@')) {
-                                  return 'Please enter a valid email';
-                                }
-                                return null;
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'Email',
-                                prefixIcon: const Icon(Icons.email_outlined),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.grey.shade300),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.purple.shade600, width: 2),
-                                ),
-                                filled: true,
-                                fillColor: Colors.grey.shade50,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            // Password Field
-                            TextFormField(
-                              controller: _passwordController,
-                              obscureText: _obscurePassword,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a password';
-                                }
-                                if (value.length < 6) {
-                                  return 'Password must be at least 6 characters';
-                                }
-                                return null;
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'Password',
-                                prefixIcon: const Icon(Icons.lock_outline),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Sign up to get started',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.7),
+                                    fontSize: 16,
                                   ),
-                                  onPressed: () {
-                                    setState(() => _obscurePassword = !_obscurePassword);
+                                ),
+                                const SizedBox(height: 32),
+
+                                // First Name
+                                _buildTextField(
+                                  controller: _firstNameController,
+                                  label: 'First Name',
+                                  icon: Icons.person_outline,
+                                  validator: (v) =>
+                                      v == null || v.isEmpty ? 'Please enter your first name' : null,
+                                ),
+                                const SizedBox(height: 16),
+
+                                // Last Name
+                                _buildTextField(
+                                  controller: _lastNameController,
+                                  label: 'Last Name',
+                                  icon: Icons.person_outline,
+                                  validator: (v) =>
+                                      v == null || v.isEmpty ? 'Please enter your last name' : null,
+                                ),
+                                const SizedBox(height: 16),
+
+                                // Email
+                                _buildTextField(
+                                  controller: _emailController,
+                                  label: 'Email',
+                                  icon: Icons.email_outlined,
+                                  keyboardType: TextInputType.emailAddress,
+                                  validator: (v) {
+                                    if (v == null || v.isEmpty) return 'Please enter your email';
+                                    if (!v.contains('@')) return 'Please enter a valid email';
+                                    return null;
                                   },
                                 ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.grey.shade300),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.purple.shade600, width: 2),
-                                ),
-                                filled: true,
-                                fillColor: Colors.grey.shade50,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            // Register Button
-                            SizedBox(
-                              width: double.infinity,
-                              height: 56,
-                              child: ElevatedButton(
-                                onPressed: _isLoading ? null : _handleRegister,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.purple.shade600,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                const SizedBox(height: 16),
+
+                                // Password
+                                _buildTextField(
+                                  controller: _passwordController,
+                                  label: 'Password',
+                                  icon: Icons.lock_outline,
+                                  obscure: _obscurePassword,
+                                  validator: (v) {
+                                    if (v == null || v.isEmpty) return 'Please enter a password';
+                                    if (v.length < 6) {
+                                      return 'Password must be at least 6 characters';
+                                    }
+                                    return null;
+                                  },
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscurePassword
+                                          ? Icons.visibility_outlined
+                                          : Icons.visibility_off_outlined,
+                                      color: Colors.white70,
+                                    ),
+                                    onPressed: () =>
+                                        setState(() => _obscurePassword = !_obscurePassword),
                                   ),
-                                  elevation: 4,
                                 ),
-                                child: _isLoading
-                                    ? const SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.5,
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                        ),
-                                      )
-                                    : const Text(
-                                        'Register',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                const SizedBox(height: 24),
+
+                                // Register Button
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 56,
+                                  child: ElevatedButton(
+                                    onPressed: _isLoading ? null : _handleRegister,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white.withOpacity(0.2),
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
                                       ),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            // Login Link
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  PageRouteBuilder(
-                                    pageBuilder: (context, animation, secondaryAnimation) =>
-                                        const LoginPage(),
-                                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                      return FadeTransition(opacity: animation, child: child);
-                                    },
+                                      elevation: 8,
+                                      shadowColor: Colors.black26,
+                                    ),
+                                    child: _isLoading
+                                        ? const CircularProgressIndicator(
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(Colors.white),
+                                          )
+                                        : const Text(
+                                            'Register',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                   ),
-                                );
-                              },
-                              child: Text(
-                                'Already have an account? Login',
-                                style: TextStyle(
-                                  color: Colors.purple.shade600,
-                                  fontWeight: FontWeight.w600,
                                 ),
-                              ),
+                                const SizedBox(height: 20),
+
+                                // Login Link
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      PageRouteBuilder(
+                                        pageBuilder: (context, _, __) => const LoginPage(),
+                                        transitionsBuilder:
+                                            (context, animation, _, child) =>
+                                                FadeTransition(opacity: animation, child: child),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    'Already have an account? Login',
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.9),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
@@ -373,6 +311,42 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  // Reusable text field builder
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool obscure = false,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
+    Widget? suffixIcon,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      obscureText: obscure,
+      style: const TextStyle(color: Colors.white, fontSize: 16),
+      validator: validator,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
+        prefixIcon: Icon(icon, color: Colors.white70),
+        suffixIcon: suffixIcon,
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.1),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.white, width: 1.5),
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
     );

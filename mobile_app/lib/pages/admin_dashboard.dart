@@ -4,6 +4,7 @@ import 'package:mobile_app/widgets/sidebar.dart';
 import 'package:mobile_app/widgets/topbar.dart';
 import 'package:mobile_app/pages/all_users_page.dart';
 import 'products_page.dart';
+import 'package:mobile_app/pages/all_agents_page.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -99,7 +100,8 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
         pageContent = _buildPlaceholder('Record Payment', Icons.receipt_long, Colors.indigo);
         break;
       case 'all_agents':
-        pageContent = _buildPlaceholder('All Agents', Icons.support_agent, Colors.cyan);
+        // pageContent = _buildPlaceholder('All Agents', Icons.support_agent, Colors.cyan);
+        pageContent = const AllAgentsPage();
         break;
       case 'new_agent':
         pageContent = _buildPlaceholder('New Agent', Icons.person_add_alt_1, Colors.lightBlue);
