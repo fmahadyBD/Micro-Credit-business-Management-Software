@@ -1,0 +1,40 @@
+After add the login and Register and connected to the backend:
+
+problem: It show the back screen.
+Here’s a short version you can copy into a `.txt` file 👇
+
+---
+
+**Flutter .env Fix — Quick Note**
+
+**Problem:**
+App crashed: `.env` not found (black screen).
+
+**Cause:**
+Wrong YAML indentation → `.env` not included as asset.
+
+**Fix:**
+In `pubspec.yaml`:
+
+```
+flutter:
+  uses-material-design: true
+  assets:
+    - .env
+```
+
+Place `.env` in project root and run:
+
+```
+flutter clean
+flutter pub get
+flutter run -d linux
+```
+
+**Result:**
+.env loads, app runs fine ✅
+
+---
+
+
+
