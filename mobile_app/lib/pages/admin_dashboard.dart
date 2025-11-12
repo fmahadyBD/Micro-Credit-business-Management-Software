@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/widgets/sidebar.dart';
 import 'package:mobile_app/widgets/topbar.dart';
 import 'package:mobile_app/pages/all_users_page.dart';
-import 'products_page.dart';
+import 'package:mobile_app/pages/products_page.dart';
 import 'package:mobile_app/pages/all_agents_page.dart';
+import 'package:mobile_app/pages/all_members_page.dart';
+import 'package:mobile_app/pages/new_member_page.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -26,11 +28,9 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
-
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
-
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.1),
       end: Offset.zero,
@@ -38,7 +38,6 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
       parent: _animationController,
       curve: Curves.easeOutCubic,
     ));
-
     _animationController.forward();
   }
 
@@ -75,39 +74,25 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
       case 'add_product':
         pageContent = const ProductsPage();
         break;
+      
       case 'all_users':
         pageContent = const AllUsersPage();
         break;
-      case 'all_members':
-        pageContent = _buildPlaceholder('All Members', Icons.card_membership, Colors.green);
-        break;
-      case 'new_member':
-        pageContent = _buildPlaceholder('New Member', Icons.person_add, Colors.teal);
-        break;
-      case 'all_shareholders':
-        pageContent = _buildPlaceholder('All Shareholders', Icons.business, Colors.orange);
-        break;
-      case 'add_shareholder':
-        pageContent = _buildPlaceholder('Add Shareholder', Icons.business_center, Colors.deepOrange);
-        break;
-      case 'manage_installment':
-        pageContent = _buildPlaceholder('Manage Installment', Icons.payment, Colors.purple);
-        break;
-      case 'add_installment':
-        pageContent = _buildPlaceholder('Add Installment', Icons.add_card, Colors.deepPurple);
-        break;
-      case 'record_payment':
-        pageContent = _buildPlaceholder('Record Payment', Icons.receipt_long, Colors.indigo);
-        break;
+      
       case 'all_agents':
-        // pageContent = _buildPlaceholder('All Agents', Icons.support_agent, Colors.cyan);
         pageContent = const AllAgentsPage();
         break;
-      case 'new_agent':
-        pageContent = _buildPlaceholder('New Agent', Icons.person_add_alt_1, Colors.lightBlue);
+      
+      case 'all_members':
+        pageContent = const AllMembersPage();
         break;
+      
+      case 'new_member':
+        pageContent = const NewMemberPage();
+        break;
+      
       default:
-        pageContent = _buildDashboardHome();
+        pageContent = _buildBlankDashboard();
     }
 
     return FadeTransition(
@@ -119,265 +104,36 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
     );
   }
 
-  Widget _buildPlaceholder(String title, IconData icon, Color color) {
+  /// Blank placeholder for now
+  Widget _buildBlankDashboard() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          TweenAnimationBuilder(
-            tween: Tween<double>(begin: 0, end: 1),
-            duration: const Duration(milliseconds: 600),
-            builder: (context, double value, child) {
-              return Transform.scale(
-                scale: value,
-                child: Container(
-                  padding: const EdgeInsets.all(32),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, size: 80, color: color),
-                ),
-              );
-            },
+          Icon(
+            Icons.dashboard_outlined,
+            size: 100,
+            color: Colors.grey.shade300,
           ),
           const SizedBox(height: 24),
           Text(
-            title,
+            'Dashboard is currently empty',
             style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'This page is under development',
-            style: TextStyle(
-              fontSize: 16,
+              fontSize: 20,
               color: Colors.grey.shade600,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 24),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.construction, color: color, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  'Coming Soon',
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
+          const SizedBox(height: 8),
+          Text(
+            'Select an item from the sidebar to get started',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade500,
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildDashboardHome() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Welcome Header
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.deepPurple.shade400, Colors.deepPurple.shade700],
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.deepPurple.withOpacity(0.3),
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: const Icon(Icons.dashboard, color: Colors.white, size: 32),
-              ),
-              const SizedBox(width: 16),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Welcome Back!',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Here\'s what\'s happening today',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 32),
-          
-          // Stats Cards
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: 1.1,
-            children: [
-              _buildDashboardCard(
-                'Users',
-                '1,234',
-                Icons.people,
-                Colors.blue,
-                '+12%',
-              ),
-              _buildDashboardCard(
-                'Members',
-                '567',
-                Icons.card_membership,
-                Colors.green,
-                '+8%',
-              ),
-              _buildDashboardCard(
-                'Shareholders',
-                '89',
-                Icons.business,
-                Colors.orange,
-                '+5%',
-              ),
-              _buildDashboardCard(
-                'Agents',
-                '45',
-                Icons.support_agent,
-                Colors.purple,
-                '+15%',
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDashboardCard(
-    String title,
-    String count,
-    IconData icon,
-    Color color,
-    String percentage,
-  ) {
-    return TweenAnimationBuilder(
-      tween: Tween<double>(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 500),
-      builder: (context, double value, child) {
-        return Transform.scale(
-          scale: value,
-          child: Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    color.withOpacity(0.1),
-                    color.withOpacity(0.05),
-                  ],
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: color.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(icon, color: color, size: 28),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          percentage,
-                          style: TextStyle(
-                            color: Colors.green.shade700,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        count,
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: color,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 
@@ -392,7 +148,7 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
             _animationController.reset();
             _animationController.forward();
           });
-          Navigator.pop(context);
+          Navigator.pop(context); // Close drawer
         },
       ),
       body: _buildPageContent(),

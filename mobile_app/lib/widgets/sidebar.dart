@@ -171,7 +171,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                     ],
                   ),
 
-                  // Members Section
+                  // Members Section - UPDATED with correct page names
                   _buildExpansionTile(
                     icon: Icons.card_membership_outlined,
                     title: 'Members',
