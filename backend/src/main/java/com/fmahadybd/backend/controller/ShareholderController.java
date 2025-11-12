@@ -30,11 +30,22 @@ public class ShareholderController {
     @Operation(summary = "Create a new shareholder")
     public ResponseEntity<?> createShareholder(@Valid @RequestBody ShareholderCreateDTO shareholderDTO) {
         try {
+            // 🔍 DEBUG: Log the incoming DTO
+            System.out.println("📥 Received ShareholderCreateDTO:");
+            System.out.println("   Name: " + shareholderDTO.getName());
+            System.out.println("   Email: " + shareholderDTO.getEmail());
+            System.out.println("   Investment: " + shareholderDTO.getInvestment());
+            System.out.println("   TotalShare: " + shareholderDTO.getTotalShare());
+            System.out.println("   TotalEarning: " + shareholderDTO.getTotalEarning());
+            System.out.println("   CurrentBalance: " + shareholderDTO.getCurrentBalance());
+            System.out.println("   Status: " + shareholderDTO.getStatus());
+
             ShareholderDTO saved = shareholderService.saveShareholder(shareholderDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(saved);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
+            e.printStackTrace(); // Print full stack trace
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to create shareholder: " + e.getMessage()));
         }
@@ -109,28 +120,17 @@ public class ShareholderController {
     }
 
     @GetMapping("/{id}/dashboard")
-    @Operation(summary = "Get shareholder dashboard",
-        responses = @ApiResponse(
-            responseCode = "200",
-            description = "Shareholder dashboard data",
-            content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ShareholderDashboardDTO.class))
-        )
-    )
+    @Operation(summary = "Get shareholder dashboard", responses = @ApiResponse(responseCode = "200", description = "Shareholder dashboard data", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ShareholderDashboardDTO.class))))
     public ResponseEntity<ShareholderDashboardDTO> getShareholderDashboard(@PathVariable Long id) {
         ShareholderDashboardDTO dashboard = shareholderService.getShareholderDashboard(id);
         return ResponseEntity.ok(dashboard);
     }
 
     @GetMapping("/by-user/{userId}")
-    @Operation(summary = "Get shareholder by user ID",
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Shareholder fetched successfully",
-                content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = ShareholderDTO.class))),
+    @Operation(summary = "Get shareholder by user ID", responses = {
+            @ApiResponse(responseCode = "200", description = "Shareholder fetched successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ShareholderDTO.class))),
             @ApiResponse(responseCode = "404", description = "Shareholder not found")
-        }
-    )
+    })
     public ResponseEntity<?> getShareholderByUserId(@PathVariable Long userId) {
         try {
             ShareholderDTO shareholder = shareholderService.getShareholderByUserId(userId);
@@ -180,27 +180,20 @@ public class ShareholderController {
     }
 
     @GetMapping("/by-email/{email}")
-@Operation(
-    summary = "Get shareholder by email",
-    responses = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Shareholder fetched successfully",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ShareholderDTO.class))
-        ),
-        @ApiResponse(responseCode = "404", description = "Shareholder not found")
+    @Operation(summary = "Get shareholder by email", responses = {
+            @ApiResponse(responseCode = "200", description = "Shareholder fetched successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ShareholderDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Shareholder not found")
+    })
+    public ResponseEntity<?> getShareholderByEmail(@PathVariable String email) {
+        try {
+            ShareholderDTO shareholder = shareholderService.getShareholderByEmail(email);
+            return ResponseEntity.ok(shareholder);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to fetch shareholder: " + e.getMessage()));
+        }
     }
-)
-public ResponseEntity<?> getShareholderByEmail(@PathVariable String email) {
-    try {
-        ShareholderDTO shareholder = shareholderService.getShareholderByEmail(email);
-        return ResponseEntity.ok(shareholder);
-    } catch (RuntimeException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", "Failed to fetch shareholder: " + e.getMessage()));
-    }
-}
 
 }

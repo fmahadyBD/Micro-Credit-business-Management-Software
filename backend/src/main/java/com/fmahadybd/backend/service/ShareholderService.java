@@ -33,6 +33,33 @@ public class ShareholderService {
     private final MainBalanceService mainBalanceService;
     private final MainBalanceRepository mainBalanceRepository;
 
+    // @Transactional
+    // public ShareholderDTO saveShareholder(ShareholderCreateDTO shareholderDTO) {
+    // if (shareholderDTO == null) {
+    // throw new IllegalArgumentException("Shareholder data cannot be null");
+    // }
+
+    // log.info("Saving shareholder: {}", shareholderDTO.getName());
+
+    // // Convert DTO to entity
+    // Shareholder shareholder = shareholderMapper.toEntity(shareholderDTO);
+
+    // // Save shareholder
+    // Shareholder savedShareholder = shareholderRepository.save(shareholder);
+    // log.info("Successfully saved shareholder with id: {}",
+    // savedShareholder.getId());
+
+    // // Update MainBalance totals
+    // MainBalance mb = getMainBalance();
+    // double investment = savedShareholder.getInvestment();
+
+    // mb.setTotalInvestment(mb.getTotalInvestment() + investment);
+    // mb.setTotalBalance(mb.getTotalBalance() + investment);
+    // mainBalanceRepository.save(mb);
+
+    // // Return DTO
+    // return shareholderMapper.toDTO(savedShareholder);
+    // }
     @Transactional
     public ShareholderDTO saveShareholder(ShareholderCreateDTO shareholderDTO) {
         if (shareholderDTO == null) {
@@ -43,6 +70,24 @@ public class ShareholderService {
 
         // Convert DTO to entity
         Shareholder shareholder = shareholderMapper.toEntity(shareholderDTO);
+
+        // ✅ FORCEFUL NULL CHECK - Add this right before save
+        if (shareholder.getTotalEarning() == null) {
+            shareholder.setTotalEarning(0.0);
+            log.warn("totalEarning was null, forced to 0.0");
+        }
+        if (shareholder.getTotalShare() == null) {
+            shareholder.setTotalShare(0);
+            log.warn("totalShare was null, forced to 0");
+        }
+        if (shareholder.getCurrentBalance() == null) {
+            shareholder.setCurrentBalance(0.0);
+            log.warn("currentBalance was null, forced to 0.0");
+        }
+
+        // Debug log to verify values
+        log.debug("Before save - totalEarning: {}, totalShare: {}, currentBalance: {}",
+                shareholder.getTotalEarning(), shareholder.getTotalShare(), shareholder.getCurrentBalance());
 
         // Save shareholder
         Shareholder savedShareholder = shareholderRepository.save(shareholder);
@@ -56,7 +101,6 @@ public class ShareholderService {
         mb.setTotalBalance(mb.getTotalBalance() + investment);
         mainBalanceRepository.save(mb);
 
-        // Return DTO
         return shareholderMapper.toDTO(savedShareholder);
     }
 
@@ -225,6 +269,7 @@ public class ShareholderService {
                                 .totalProductCost(0.0)
                                 .totalMaintenanceCost(0.0)
                                 .totalInstallmentReturn(0.0)
+                                .totalEarnings(0.0) 
                                 .build()));
     }
 
@@ -254,20 +299,18 @@ public class ShareholderService {
         return shareholderMapper.toDTO(shareholder);
     }
 
-
     @Transactional(readOnly = true)
-public ShareholderDTO getShareholderByEmail(String email) {
-    if (email == null || email.isBlank()) {
-        throw new IllegalArgumentException("Email cannot be null or empty");
+    public ShareholderDTO getShareholderByEmail(String email) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email cannot be null or empty");
+        }
+
+        log.info("Fetching shareholder for email: {}", email);
+
+        Shareholder shareholder = shareholderRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Shareholder not found with email: " + email));
+
+        return shareholderMapper.toDTO(shareholder);
     }
-
-    log.info("Fetching shareholder for email: {}", email);
-
-    Shareholder shareholder = shareholderRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("Shareholder not found with email: " + email));
-
-    return shareholderMapper.toDTO(shareholder);
-}
-
 
 }

@@ -6,68 +6,59 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-public class CorsConfig implements WebMvcConfigurer {
+public class CorsConfig {
 
-    @Value("${CORS_ALLOWED_ORIGINS:http://localhost:4200}")
+    @Value("${cors.allowed.origins}")
     private String allowedOrigins;
 
-    @Value("${CORS_ALLOWED_METHODS:GET,POST,DELETE,PUT,OPTIONS,PATCH}")
+    @Value("${cors.allowed.methods}")
     private String allowedMethods;
 
-    @Value("${CORS_ALLOWED_HEADERS:Origin,Content-Type,Accept,Authorization}")
+    @Value("${cors.allowed.headers}")
     private String allowedHeaders;
 
-    @Value("${CORS_ALLOW_CREDENTIALS:true}")
+    @Value("${cors.exposed.headers:Authorization,Content-Type}")
+    private String exposedHeaders;
+
+    @Value("${cors.allow.credentials:true}")
     private boolean allowCredentials;
+
+    @Value("${cors.max.age:3600}")
+    private long maxAge;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
-        // Split comma-separated values
+
         List<String> origins = Arrays.asList(allowedOrigins.split("\\s*,\\s*"));
         List<String> methods = Arrays.asList(allowedMethods.split("\\s*,\\s*"));
         List<String> headers = Arrays.asList(allowedHeaders.split("\\s*,\\s*"));
-        
-        // CRITICAL FIX: Use setAllowedOriginPatterns instead of setAllowedOrigins
-        // when allowCredentials is true
-        configuration.setAllowedOriginPatterns(origins); // Changed from setAllowedOrigins
+        List<String> exposed = Arrays.asList(exposedHeaders.split("\\s*,\\s*"));
+
+        // ✅ use allowedOriginPatterns, never allowedOrigins
+        configuration.setAllowedOriginPatterns(origins);
         configuration.setAllowedMethods(methods);
         configuration.setAllowedHeaders(headers);
+        configuration.setExposedHeaders(exposed);
         configuration.setAllowCredentials(allowCredentials);
-        configuration.setMaxAge(3600L); // 1 hour
-        
-        // Add exposed headers for Authorization token
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setMaxAge(maxAge);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
 
-        System.out.println("✅ CORS Configuration:");
-        System.out.println("   Allowed Origins: " + origins);
-        System.out.println("   Allowed Methods: " + methods);
-        System.out.println("   Allowed Headers: " + headers);
-        System.out.println("   Allow Credentials: " + allowCredentials);
-        
-        return source;
-    }
+        System.out.println("✅ CORS Config Loaded:");
+        System.out.println("   Origins: " + origins);
+        System.out.println("   Methods: " + methods);
+        System.out.println("   Headers: " + headers);
+        System.out.println("   Exposed: " + exposed);
+        System.out.println("   AllowCredentials: " + allowCredentials);
+        System.out.println("   MaxAge: " + maxAge);
 
-    // Additional CORS configuration for WebMvc
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOriginPatterns(allowedOrigins.split("\\s*,\\s*")) // Changed from allowedOrigins
-                .allowedMethods(allowedMethods.split("\\s*,\\s*"))
-                .allowedHeaders(allowedHeaders.split("\\s*,\\s*"))
-                .exposedHeaders("Authorization", "Content-Type")
-                .allowCredentials(allowCredentials)
-                .maxAge(3600);
+        return source;
     }
 }

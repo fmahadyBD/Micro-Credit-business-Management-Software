@@ -148,7 +148,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                     title: 'Dashboard',
                     page: 'dashboard',
                   ),
-                  
+
                   const Divider(height: 1, indent: 16, endIndent: 16),
                   const SizedBox(height: 8),
 
@@ -157,8 +157,10 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                     icon: Icons.inventory_2_outlined,
                     title: 'Products',
                     children: [
-                      _buildSubMenuItem('All Products', 'all_products', Icons.list_alt),
-                      _buildSubMenuItem('Add Product', 'add_product', Icons.add_box),
+                      _buildSubMenuItem(
+                          'All Products', 'all_products', Icons.list_alt),
+                      _buildSubMenuItem(
+                          'Add Product', 'add_product', Icons.add_box),
                     ],
                   ),
 
@@ -167,7 +169,8 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                     icon: Icons.people_outline,
                     title: 'Users',
                     children: [
-                      _buildSubMenuItem('All Users', 'all_users', Icons.people_alt_outlined),
+                      _buildSubMenuItem(
+                          'All Users', 'all_users', Icons.people_alt_outlined),
                     ],
                   ),
 
@@ -176,8 +179,10 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                     icon: Icons.card_membership_outlined,
                     title: 'Members',
                     children: [
-                      _buildSubMenuItem('All Members', 'all_members', Icons.group),
-                      _buildSubMenuItem('New Member', 'new_member', Icons.person_add_alt),
+                      _buildSubMenuItem(
+                          'All Members', 'all_members', Icons.group),
+                      _buildSubMenuItem(
+                          'New Member', 'new_member', Icons.person_add_alt),
                     ],
                   ),
 
@@ -186,8 +191,10 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                     icon: Icons.business_center_outlined,
                     title: 'Shareholders',
                     children: [
-                      _buildSubMenuItem('All Shareholders', 'all_shareholders', Icons.business),
-                      _buildSubMenuItem('Add Shareholder', 'add_shareholder', Icons.add_business),
+                      _buildSubMenuItem('All Shareholders', 'all_shareholders',
+                          Icons.business),
+                      _buildSubMenuItem('Add Shareholder', 'add_shareholder',
+                          Icons.add_business),
                     ],
                   ),
 
@@ -196,8 +203,12 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                     icon: Icons.payment_outlined,
                     title: 'Installments',
                     children: [
-                      _buildSubMenuItem('Manage Installment', 'manage_installment', Icons.account_balance_wallet_outlined),
-                      _buildSubMenuItem('Add Installment', 'add_installment', Icons.add_card),
+                      _buildSubMenuItem(
+                          'Manage Installment',
+                          'manage_installment',
+                          Icons.account_balance_wallet_outlined),
+                      _buildSubMenuItem(
+                          'Add Installment', 'add_installment', Icons.add_card),
                     ],
                   ),
 
@@ -206,7 +217,8 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                     icon: Icons.schedule_outlined,
                     title: 'Schedule Payment',
                     children: [
-                      _buildSubMenuItem('Record Payment', 'record_payment', Icons.receipt_long),
+                      _buildSubMenuItem('Record Payment', 'record_payment',
+                          Icons.receipt_long),
                     ],
                   ),
 
@@ -215,8 +227,21 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                     icon: Icons.support_agent_outlined,
                     title: 'Agents',
                     children: [
-                      _buildSubMenuItem('All Agents', 'all_agents', Icons.people_alt),
-                      _buildSubMenuItem('New Agent', 'new_agent', Icons.person_add_alt_1),
+                      _buildSubMenuItem(
+                          'All Agents', 'all_agents', Icons.people_alt),
+                      _buildSubMenuItem(
+                          'New Agent', 'new_agent', Icons.person_add_alt_1),
+                    ],
+                  ),
+                  // In the _buildExpansionTile section, add:
+                  _buildExpansionTile(
+                    icon: Icons.business_center_outlined,
+                    title: 'Shareholders',
+                    children: [
+                      _buildSubMenuItem('All Shareholders', 'all_shareholders',
+                          Icons.business),
+                      _buildSubMenuItem('Add Shareholder', 'add_shareholder',
+                          Icons.add_business),
                     ],
                   ),
                 ],
@@ -228,7 +253,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
           const Divider(height: 1),
           Container(
             decoration: BoxDecoration(
-              color: isDark 
+              color: isDark
                   ? Colors.grey.shade800.withOpacity(0.3)
                   : Colors.grey.shade100,
             ),
@@ -260,7 +285,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
     required String page,
   }) {
     final isSelected = _selectedItem == page;
-    
+
     return TweenAnimationBuilder(
       tween: Tween<double>(begin: 0, end: 1),
       duration: const Duration(milliseconds: 200),
@@ -281,7 +306,8 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                     )
                   : null,
               border: isSelected
-                  ? Border.all(color: Colors.deepPurple.withOpacity(0.3), width: 1)
+                  ? Border.all(
+                      color: Colors.deepPurple.withOpacity(0.3), width: 1)
                   : null,
             ),
             child: ListTile(
@@ -345,7 +371,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
 
   Widget _buildSubMenuItem(String title, String page, IconData icon) {
     final isSelected = _selectedItem == page;
-    
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),

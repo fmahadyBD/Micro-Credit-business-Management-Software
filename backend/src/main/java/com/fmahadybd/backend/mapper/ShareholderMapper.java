@@ -3,6 +3,9 @@ package com.fmahadybd.backend.mapper;
 
 import com.fmahadybd.backend.dto.*;
 import com.fmahadybd.backend.entity.Shareholder;
+
+import java.time.LocalDate;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -48,12 +51,12 @@ public class ShareholderMapper {
                 .zila(dto.getZila())
                 .house(dto.getHouse())
                 .investment(dto.getInvestment() != null ? dto.getInvestment() : 0.0)
-                .totalShare(0)
-                .totalEarning(0.0)
-                .currentBalance(0.0)
+                .totalShare(dto.getTotalShare() != null ? dto.getTotalShare() : 0)
+                .totalEarning(dto.getTotalEarning() != null ? dto.getTotalEarning() : 0.0) // ✅ Fixed
+                .currentBalance(dto.getCurrentBalance() != null ? dto.getCurrentBalance() : 0.0)
                 .role(dto.getRole())
                 .status(dto.getStatus() != null ? dto.getStatus() : "Active")
-                .joinDate(dto.getJoinDate())
+                .joinDate(dto.getJoinDate() != null ? dto.getJoinDate() : LocalDate.now())
                 .build();
     }
 

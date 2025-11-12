@@ -1,5 +1,7 @@
 // lib/pages/admin_dashboard.dart
 import 'package:flutter/material.dart';
+import 'package:mobile_app/pages/all_shareholders_page.dart';
+import 'package:mobile_app/pages/new_shareholder_page.dart';
 import 'package:mobile_app/widgets/sidebar.dart';
 import 'package:mobile_app/widgets/topbar.dart';
 import 'package:mobile_app/pages/all_users_page.dart';
@@ -15,7 +17,8 @@ class AdminDashboard extends StatefulWidget {
   State<AdminDashboard> createState() => _AdminDashboardState();
 }
 
-class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProviderStateMixin {
+class _AdminDashboardState extends State<AdminDashboard>
+    with SingleTickerProviderStateMixin {
   String currentPage = 'dashboard';
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -68,29 +71,36 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
 
   Widget _buildPageContent() {
     Widget pageContent;
-    
+
     switch (currentPage) {
       case 'all_products':
       case 'add_product':
         pageContent = const ProductsPage();
         break;
-      
+
       case 'all_users':
         pageContent = const AllUsersPage();
         break;
-      
+
       case 'all_agents':
         pageContent = const AllAgentsPage();
         break;
-      
+
       case 'all_members':
         pageContent = const AllMembersPage();
         break;
-      
+
       case 'new_member':
         pageContent = const NewMemberPage();
         break;
-      
+      case 'all_shareholders':
+        pageContent = const AllShareholdersPage();
+        break;
+
+      case 'add_shareholder':
+        pageContent = const NewShareholderPage();
+        break;
+
       default:
         pageContent = _buildBlankDashboard();
     }

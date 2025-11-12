@@ -9,12 +9,18 @@ import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true) 
 @Schema(description = "Shareholder update DTO")
 public class ShareholderUpdateDTO {
+    
+    @Schema(description = "Shareholder ID", example = "1")
+    private Long id;  // ✅ ADD THIS FIELD
     
     @Schema(description = "Shareholder full name", example = "John Doe")
     private String name;
