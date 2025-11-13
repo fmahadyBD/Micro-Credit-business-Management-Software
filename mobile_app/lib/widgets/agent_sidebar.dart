@@ -195,6 +195,16 @@ class _AgentSideBarState extends State<AgentSideBar>
                     title: 'Record Payment',
                     page: 'record_payment',
                   ),
+
+                  const Divider(height: 1, indent: 16, endIndent: 16),
+                  const SizedBox(height: 8),
+
+                  // Profile Section
+                  _buildMenuItem(
+                    icon: Icons.person_outline,
+                    title: 'My Profile',
+                    page: 'profile',
+                  ),
                 ],
               ),
             ),

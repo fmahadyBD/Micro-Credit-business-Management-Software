@@ -12,7 +12,7 @@ import 'package:mobile_app/pages/all_members_page.dart';
 import 'package:mobile_app/pages/new_member_page.dart';
 import 'package:mobile_app/pages/all_products_page.dart';
 import 'package:mobile_app/pages/new_product_page.dart';
-
+import 'package:mobile_app/pages/profile_page.dart'; // Add this import
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -54,6 +54,16 @@ class _AdminDashboardState extends State<AdminDashboard>
     super.dispose();
   }
 
+  // Add this method to handle profile navigation
+  void _navigateToProfile() {
+    print('🔵 AdminDashboard: Navigating to profile page');
+    setState(() {
+      currentPage = 'profile';
+      _animationController.reset();
+      _animationController.forward();
+    });
+  }
+
   String _getPageTitle() {
     final titles = {
       'dashboard': 'Dashboard',
@@ -69,6 +79,7 @@ class _AdminDashboardState extends State<AdminDashboard>
       'record_payment': 'Record Payment',
       'all_agents': 'All Agents',
       'new_agent': 'New Agent',
+      'profile': 'My Profile', // Add profile title
     };
     return titles[currentPage] ?? 'Dashboard';
   }
@@ -121,9 +132,13 @@ class _AdminDashboardState extends State<AdminDashboard>
         pageContent = const InstallmentAddScreen();
         break;
 
-      // ✅ NEW: Payment Record Screen
       case 'record_payment':
         pageContent = const PaymentRecordScreen();
+        break;
+
+      // Add Profile Page case
+      case 'profile':
+        pageContent = const ProfilePage();
         break;
 
       default:
@@ -175,7 +190,10 @@ class _AdminDashboardState extends State<AdminDashboard>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: TopBar(title: _getPageTitle()),
+      appBar: TopBar(
+        title: _getPageTitle(),
+        onProfileTap: _navigateToProfile, // ✅ Fixed: Added the callback
+      ),
       drawer: SideBar(
         onItemSelected: (page) {
           setState(() {

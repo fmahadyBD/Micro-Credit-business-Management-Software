@@ -1,17 +1,19 @@
-// lib/widgets/topbar.dart
 import 'package:flutter/material.dart';
 import 'package:mobile_app/providers/theme_provider.dart';
 import 'package:mobile_app/pages/login_page.dart';
 import 'package:mobile_app/services/auth_service.dart';
-// import 'package:mobile_app/providers/theme_provider.dart';
+import 'package:mobile_app/services/profile_service.dart';
+import 'package:mobile_app/models/profile_model.dart';
 import 'package:provider/provider.dart';
 
 class TopBar extends StatefulWidget implements PreferredSizeWidget {
   final String title;
+  final VoidCallback? onProfileTap;
 
   const TopBar({
     super.key,
     required this.title,
+    this.onProfileTap,
   });
 
   @override
@@ -24,23 +26,58 @@ class TopBar extends StatefulWidget implements PreferredSizeWidget {
 class _TopBarState extends State<TopBar> with SingleTickerProviderStateMixin {
   int notificationCount = 5;
   late AnimationController _pulseController;
+  ProfileModel? _profile;
+  bool _isLoadingProfile = true;
 
   @override
   void initState() {
     super.initState();
+    print('🔵 TopBar: initState called');
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     )..repeat(reverse: true);
+    
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    print('🔵 TopBar: _loadProfile started');
+    setState(() => _isLoadingProfile = true);
+    
+    try {
+      final profileService = ProfileService();
+      final profile = await profileService.getMyProfile();
+      
+      print('✅ TopBar: Profile loaded successfully');
+      print('   - Name: ${profile.fullName}');
+      print('   - Email: ${profile.username}');
+      print('   - Role: ${profile.role}');
+      
+      if (mounted) {
+        setState(() {
+          _profile = profile;
+          _isLoadingProfile = false;
+        });
+      }
+    } catch (e) {
+      print('❌ TopBar: Error loading profile: $e');
+      if (mounted) {
+        setState(() => _isLoadingProfile = false);
+      }
+    }
   }
 
   @override
   void dispose() {
+    print('🔴 TopBar: dispose called');
     _pulseController.dispose();
     super.dispose();
   }
 
   Future<void> _handleLogout() async {
+    print('🔵 TopBar: _handleLogout called');
+    
     final shouldLogout = await showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -59,14 +96,20 @@ class _TopBarState extends State<TopBar> with SingleTickerProviderStateMixin {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
+              onPressed: () {
+                print('🔵 TopBar: Logout cancelled');
+                Navigator.of(dialogContext).pop(false);
+              },
               child: Text(
                 'Cancel',
                 style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
               ),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
+              onPressed: () {
+                print('🔵 TopBar: Logout confirmed');
+                Navigator.of(dialogContext).pop(true);
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
@@ -83,7 +126,8 @@ class _TopBarState extends State<TopBar> with SingleTickerProviderStateMixin {
     );
 
     if (shouldLogout == true && mounted) {
-      // Show loading indicator
+      print('🔵 TopBar: Processing logout...');
+      
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -95,16 +139,18 @@ class _TopBarState extends State<TopBar> with SingleTickerProviderStateMixin {
       final authService = AuthService();
       final success = await authService.logout();
 
+      print('🔵 TopBar: Logout result: $success');
+
       if (mounted) {
-        Navigator.of(context).pop(); // Close loading dialog
+        Navigator.of(context).pop();
 
         if (success) {
+          print('✅ TopBar: Logout successful, navigating to login');
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => const LoginPage()),
             (route) => false,
           );
           
-          // Show success message
           Future.delayed(const Duration(milliseconds: 300), () {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -132,6 +178,7 @@ class _TopBarState extends State<TopBar> with SingleTickerProviderStateMixin {
   }
 
   void _showNotifications() {
+    print('🔵 TopBar: _showNotifications called');
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -145,7 +192,6 @@ class _TopBarState extends State<TopBar> with SingleTickerProviderStateMixin {
           ),
           child: Column(
             children: [
-              // Handle bar
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 12),
                 width: 40,
@@ -156,7 +202,6 @@ class _TopBarState extends State<TopBar> with SingleTickerProviderStateMixin {
                 ),
               ),
               
-              // Header
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
@@ -182,7 +227,6 @@ class _TopBarState extends State<TopBar> with SingleTickerProviderStateMixin {
               
               const Divider(),
               
-              // Notifications List
               Expanded(
                 child: notificationCount == 0
                     ? Center(
@@ -272,6 +316,7 @@ class _TopBarState extends State<TopBar> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    print('🔵 TopBar: build called, profile loaded: ${_profile != null}');
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return AppBar(
@@ -354,19 +399,16 @@ class _TopBarState extends State<TopBar> with SingleTickerProviderStateMixin {
             ),
           ),
           onSelected: (value) {
+            print('🔵 TopBar: Menu item selected: $value');
             if (value == 'logout') {
               _handleLogout();
             } else if (value == 'profile') {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Profile page coming soon...'),
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  margin: const EdgeInsets.all(16),
-                ),
-              );
+              print('🔵 TopBar: Navigating to profile');
+              if (widget.onProfileTap != null) {
+                widget.onProfileTap!();
+              } else {
+                print('⚠️ TopBar: onProfileTap is null!');
+              }
             } else if (value == 'settings') {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -387,30 +429,45 @@ class _TopBarState extends State<TopBar> with SingleTickerProviderStateMixin {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
                       CircleAvatar(
                         radius: 24,
                         backgroundColor: Colors.deepPurple,
-                        child: Icon(Icons.person, color: Colors.white, size: 28),
+                        child: _isLoadingProfile
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : const Icon(Icons.person, color: Colors.white, size: 28),
                       ),
-                      SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Admin User',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _profile?.fullName ?? 'Loading...',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            'admin@example.com',
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
-                          ),
-                        ],
+                            const SizedBox(height: 2),
+                            Text(
+                              _profile?.username ?? 'Loading...',
+                              style: const TextStyle(fontSize: 12, color: Colors.grey),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),

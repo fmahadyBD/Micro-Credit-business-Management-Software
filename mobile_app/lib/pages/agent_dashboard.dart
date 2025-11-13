@@ -3,6 +3,7 @@ import 'package:mobile_app/pages/all_products_page.dart';
 import 'package:mobile_app/pages/new_product_page.dart';
 import 'package:mobile_app/pages/all_members_page.dart';
 import 'package:mobile_app/pages/new_member_page.dart';
+import 'package:mobile_app/pages/profile_page.dart';
 import 'package:mobile_app/screens/installment/installment_add_screen.dart';
 import 'package:mobile_app/screens/installment/installment_list_screen.dart';
 import 'package:mobile_app/screens/payment/payment_record_screen.dart';
@@ -49,6 +50,16 @@ class _AgentDashboardState extends State<AgentDashboard>
     super.dispose();
   }
 
+  // Add this method to handle profile navigation
+  void _navigateToProfile() {
+    print('🔵 AgentDashboard: Navigating to profile page');
+    setState(() {
+      currentPage = 'profile';
+      _animationController.reset();
+      _animationController.forward();
+    });
+  }
+
   String _getPageTitle() {
     final titles = {
       'dashboard': 'Agent Dashboard',
@@ -59,6 +70,7 @@ class _AgentDashboardState extends State<AgentDashboard>
       'manage_installment': 'Manage Installment',
       'add_installment': 'Add Installment',
       'record_payment': 'Record Payment',
+      'profile': 'My Profile',
     };
     return titles[currentPage] ?? 'Agent Dashboard';
   }
@@ -97,6 +109,11 @@ class _AgentDashboardState extends State<AgentDashboard>
 
       case 'record_payment':
         pageContent = const PaymentRecordScreen();
+        break;
+
+      // Profile Page
+      case 'profile':
+        pageContent = const ProfilePage();
         break;
 
       default:
@@ -428,7 +445,10 @@ class _AgentDashboardState extends State<AgentDashboard>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: TopBar(title: _getPageTitle()),
+      appBar: TopBar(
+        title: _getPageTitle(),
+        onProfileTap: _navigateToProfile, // ✅ Fixed: Added the callback
+      ),
       drawer: AgentSideBar(
         onItemSelected: (page) {
           setState(() {
