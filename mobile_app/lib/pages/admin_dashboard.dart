@@ -3,6 +3,7 @@ import 'package:mobile_app/pages/all_shareholders_page.dart';
 import 'package:mobile_app/pages/new_shareholder_page.dart';
 import 'package:mobile_app/screens/installment/installment_add_screen.dart';
 import 'package:mobile_app/screens/installment/installment_list_screen.dart';
+import 'package:mobile_app/screens/payment/payment_record_screen.dart';
 import 'package:mobile_app/widgets/sidebar.dart';
 import 'package:mobile_app/widgets/topbar.dart';
 import 'package:mobile_app/pages/all_users_page.dart';
@@ -63,7 +64,7 @@ class _AdminDashboardState extends State<AdminDashboard>
       'new_member': 'New Member',
       'all_shareholders': 'All Shareholders',
       'add_shareholder': 'Add Shareholder',
-      'manage_installment': 'Manage Installment',   // UPDATED
+      'manage_installment': 'Manage Installment',
       'add_installment': 'Add Installment',
       'record_payment': 'Record Payment',
       'all_agents': 'All Agents',
@@ -112,13 +113,17 @@ class _AdminDashboardState extends State<AdminDashboard>
         pageContent = const NewShareholderPage();
         break;
 
-      // ADD THESE CASES
       case 'manage_installment':
-        pageContent = const InstallmentListScreen ();
+        pageContent = const InstallmentListScreen();
         break;
 
       case 'add_installment':
-        pageContent = const  InstallmentAddScreen();
+        pageContent = const InstallmentAddScreen();
+        break;
+
+      // ✅ NEW: Payment Record Screen
+      case 'record_payment':
+        pageContent = const PaymentRecordScreen();
         break;
 
       default:
