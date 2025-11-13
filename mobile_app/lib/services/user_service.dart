@@ -1,4 +1,3 @@
-// lib/services/user_service.dart
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -57,27 +56,37 @@ class UserService {
     }
   }
 
-  /// Update user
+  /// Update user (with optional password change)
   Future<UserModel> updateUser(
     int id,
     String firstname,
     String lastname,
     String username,
     String role,
-    String status,
-  ) async {
+    String status, {
+    String? password, // Optional password parameter
+  }) async {
     try {
       final headers = await _getHeaders();
+      
+      // Build the request body
+      final Map<String, dynamic> requestBody = {
+        'firstname': firstname,
+        'lastname': lastname,
+        'username': username,
+        'role': role,
+        'status': status,
+      };
+
+      // Only include password if it's provided and not empty
+      if (password != null && password.isNotEmpty) {
+        requestBody['password'] = password;
+      }
+
       final response = await http.put(
         Uri.parse('$baseUrl/$id'),
         headers: headers,
-        body: jsonEncode({
-          'firstname': firstname,
-          'lastname': lastname,
-          'username': username,
-          'role': role,
-          'status': status,
-        }),
+        body: jsonEncode(requestBody),
       );
 
       if (response.statusCode == 200) {
