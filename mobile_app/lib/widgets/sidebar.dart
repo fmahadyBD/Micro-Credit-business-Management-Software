@@ -1,8 +1,6 @@
-// lib/widgets/sidebar.dart
 import 'package:flutter/material.dart';
 import 'package:mobile_app/providers/theme_provider.dart';
 import 'package:provider/provider.dart';
-// import 'package:mobile_app/providers/theme_provider.dart';
 
 class SideBar extends StatefulWidget {
   final Function(String) onItemSelected;
@@ -152,7 +150,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                   const Divider(height: 1, indent: 16, endIndent: 16),
                   const SizedBox(height: 8),
 
-                  // Products Section
+                  // Products Section - UPDATED with correct page names
                   _buildExpansionTile(
                     icon: Icons.inventory_2_outlined,
                     title: 'Products',
@@ -174,7 +172,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                     ],
                   ),
 
-                  // Members Section - UPDATED with correct page names
+                  // Members Section
                   _buildExpansionTile(
                     icon: Icons.card_membership_outlined,
                     title: 'Members',
@@ -231,17 +229,6 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                           'All Agents', 'all_agents', Icons.people_alt),
                       _buildSubMenuItem(
                           'New Agent', 'new_agent', Icons.person_add_alt_1),
-                    ],
-                  ),
-                  // In the _buildExpansionTile section, add:
-                  _buildExpansionTile(
-                    icon: Icons.business_center_outlined,
-                    title: 'Shareholders',
-                    children: [
-                      _buildSubMenuItem('All Shareholders', 'all_shareholders',
-                          Icons.business),
-                      _buildSubMenuItem('Add Shareholder', 'add_shareholder',
-                          Icons.add_business),
                     ],
                   ),
                 ],

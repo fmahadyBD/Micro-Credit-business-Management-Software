@@ -1,14 +1,14 @@
-// lib/pages/admin_dashboard.dart
 import 'package:flutter/material.dart';
 import 'package:mobile_app/pages/all_shareholders_page.dart';
 import 'package:mobile_app/pages/new_shareholder_page.dart';
 import 'package:mobile_app/widgets/sidebar.dart';
 import 'package:mobile_app/widgets/topbar.dart';
 import 'package:mobile_app/pages/all_users_page.dart';
-import 'package:mobile_app/pages/products_page.dart';
 import 'package:mobile_app/pages/all_agents_page.dart';
 import 'package:mobile_app/pages/all_members_page.dart';
 import 'package:mobile_app/pages/new_member_page.dart';
+import 'package:mobile_app/pages/all_products_page.dart'; // Add this import
+import 'package:mobile_app/pages/new_product_page.dart'; // Add this import
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -74,8 +74,19 @@ class _AdminDashboardState extends State<AdminDashboard>
 
     switch (currentPage) {
       case 'all_products':
+        pageContent = const AllProductsPage();
+        break;
+
+      // case 'add_product':
+      //   pageContent = const NewProductPage();
+      //   break;
+
       case 'add_product':
-        pageContent = const ProductsPage();
+        pageContent = Builder(
+          builder: (context) => NewProductPage(
+            key: ValueKey(DateTime.now().millisecondsSinceEpoch),
+          ),
+        );
         break;
 
       case 'all_users':
@@ -93,6 +104,7 @@ class _AdminDashboardState extends State<AdminDashboard>
       case 'new_member':
         pageContent = const NewMemberPage();
         break;
+
       case 'all_shareholders':
         pageContent = const AllShareholdersPage();
         break;

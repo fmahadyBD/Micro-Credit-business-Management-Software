@@ -113,12 +113,16 @@ public class ProductController {
 
     // ---------------- READ ----------------
 
-    @GetMapping
-    @Operation(summary = "Get all products")
-    // @PreAuthorize("hasAuthority('USER')")
-    public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+   @GetMapping
+@Operation(summary = "Get all products")
+public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
+    try {
+        List<ProductResponseDTO> products = productService.getAllProducts();
+        return ResponseEntity.ok(products);
+    } catch (Exception e) {
+        return ResponseEntity.badRequest().body(List.of());
     }
+}
 
     @GetMapping("/{id}")
     @Operation(summary = "Get product by ID")
