@@ -163,6 +163,44 @@ class InstallmentService {
     }
   }
 
+
+//   // Get all installments
+// Future<List<InstallmentModel>> getAllInstallments() async {
+//   try {
+//     final headers = await _getHeaders();
+//     final response = await http.get(
+//       Uri.parse(baseUrl),
+//       headers: headers,
+//     );
+
+//     print('Get all installments response: ${response.statusCode}');
+//     print('Raw response body: ${response.body}'); // Add this line
+
+//     if (response.statusCode == 200) {
+//       final List<dynamic> data = jsonDecode(response.body);
+      
+//       // Print each item to see which fields are null
+//       for (int i = 0; i < data.length; i++) {
+//         print('Item $i: ${data[i]}');
+        
+//         // Check for null fields in each item
+//         data[i].forEach((key, value) {
+//           if (value == null) {
+//             print('NULL FIELD: $key is null in item $i');
+//           }
+//         });
+//       }
+      
+//       return data.map((json) => InstallmentModel.fromJson(json)).toList();
+//     } else {
+//       throw Exception('Failed to load installments: ${response.statusCode}');
+//     }
+//   } catch (e) {
+//     print('Get all installments error: $e');
+//     throw Exception('Error fetching installments: $e');
+//   }
+// }
+
   // Get installment by ID
   Future<InstallmentModel> getInstallmentById(int id) async {
     try {

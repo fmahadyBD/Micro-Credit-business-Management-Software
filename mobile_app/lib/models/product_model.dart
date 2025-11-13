@@ -1,3 +1,4 @@
+// lib/models/product_model.dart
 class ProductModel {
   final int id;
   final String name;
@@ -7,7 +8,7 @@ class ProductModel {
   final double costPrice;
   final double totalPrice;
   final bool isDeliveryRequired;
-  final DateTime dateAdded;
+  final DateTime? dateAdded;
   final List<String> imageFilePaths;
   final String? soldByAgentName;
   final int? soldByAgentId;
@@ -27,7 +28,7 @@ class ProductModel {
     required this.costPrice,
     required this.totalPrice,
     required this.isDeliveryRequired,
-    required this.dateAdded,
+    this.dateAdded,
     required this.imageFilePaths,
     this.soldByAgentName,
     this.soldByAgentId,
@@ -40,46 +41,49 @@ class ProductModel {
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
-    // Parse dateAdded which comes as [year, month, day] array from backend
-    DateTime parsedDate = DateTime.now();
+    // Safe date parsing
+    DateTime? parsedDate;
     if (json['dateAdded'] != null) {
       if (json['dateAdded'] is List) {
-        // Backend sends [2025, 11, 13] format
         final dateList = json['dateAdded'] as List;
         if (dateList.length >= 3) {
           parsedDate = DateTime(
-            dateList[0] as int,
-            dateList[1] as int,
-            dateList[2] as int,
+            (dateList[0] ?? DateTime.now().year) as int,
+            (dateList[1] ?? 1) as int,
+            (dateList[2] ?? 1) as int,
           );
         }
       } else if (json['dateAdded'] is String) {
-        // Fallback for string format
-        parsedDate = DateTime.parse(json['dateAdded']);
+        try {
+          parsedDate = DateTime.parse(json['dateAdded']);
+        } catch (e) {
+          print('Error parsing date: $e');
+          parsedDate = DateTime.now();
+        }
       }
     }
 
     return ProductModel(
       id: json['id'] ?? 0,
-      name: json['name'] ?? '',
-      category: json['category'] ?? '',
-      description: json['description'] ?? '',
-      price: (json['price'] ?? 0.0).toDouble(),
-      costPrice: (json['costPrice'] ?? 0.0).toDouble(),
-      totalPrice: (json['totalPrice'] ?? 0.0).toDouble(),
+      name: (json['name'] ?? '').toString(),
+      category: (json['category'] ?? '').toString(),
+      description: (json['description'] ?? '').toString(),
+      price: ((json['price'] ?? 0.0) as num).toDouble(),
+      costPrice: ((json['costPrice'] ?? 0.0) as num).toDouble(),
+      totalPrice: ((json['totalPrice'] ?? 0.0) as num).toDouble(),
       isDeliveryRequired: json['isDeliveryRequired'] ?? false,
       dateAdded: parsedDate,
       imageFilePaths: json['imageFilePaths'] != null 
-          ? List<String>.from(json['imageFilePaths'])
+          ? List<String>.from(json['imageFilePaths'].map((x) => x?.toString() ?? ''))
           : [],
-      soldByAgentName: json['soldByAgentName'],
+      soldByAgentName: json['soldByAgentName']?.toString(),
       soldByAgentId: json['soldByAgentId'],
       whoRequestId: json['whoRequestId'],
-      whoRequestName: json['whoRequestName'],
-      whoRequestPhone: json['whoRequestPhone'],
-      whoRequestNidCardNumber: json['whoRequestNidCardNumber'],
-      whoRequestVillage: json['whoRequestVillage'],
-      whoRequestZila: json['whoRequestZila'],
+      whoRequestName: json['whoRequestName']?.toString(),
+      whoRequestPhone: json['whoRequestPhone']?.toString(),
+      whoRequestNidCardNumber: json['whoRequestNidCardNumber']?.toString(),
+      whoRequestVillage: json['whoRequestVillage']?.toString(),
+      whoRequestZila: json['whoRequestZila']?.toString(),
     );
   }
 
@@ -93,7 +97,10 @@ class ProductModel {
       'isDeliveryRequired': isDeliveryRequired,
     };
 
-    // Use the correct field names that match your backend DTO
+    if (!forCreate) {
+      data['id'] = id;
+    }
+
     if (soldByAgentId != null) {
       data['soldByAgentId'] = soldByAgentId;
     }
@@ -160,6 +167,7 @@ class ProductModel {
   }
 
   String getFormattedDate() {
-    return '${dateAdded.day.toString().padLeft(2, '0')}/${dateAdded.month.toString().padLeft(2, '0')}/${dateAdded.year}';
+    if (dateAdded == null) return 'N/A';
+    return '${dateAdded!.day.toString().padLeft(2, '0')}/${dateAdded!.month.toString().padLeft(2, '0')}/${dateAdded!.year}';
   }
 }

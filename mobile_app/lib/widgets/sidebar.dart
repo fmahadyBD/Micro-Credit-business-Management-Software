@@ -150,7 +150,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                   const Divider(height: 1, indent: 16, endIndent: 16),
                   const SizedBox(height: 8),
 
-                  // Products Section - UPDATED with correct page names
+                  // Products Section
                   _buildExpansionTile(
                     icon: Icons.inventory_2_outlined,
                     title: 'Products',
@@ -210,14 +210,11 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                     ],
                   ),
 
-                  // Schedule Payment Section
-                  _buildExpansionTile(
-                    icon: Icons.schedule_outlined,
-                    title: 'Schedule Payment',
-                    children: [
-                      _buildSubMenuItem('Record Payment', 'record_payment',
-                          Icons.receipt_long),
-                    ],
+                  // ✅ UPDATED: Payment Section (Standalone, not nested)
+                  _buildMenuItem(
+                    icon: Icons.receipt_long,
+                    title: 'Record Payment',
+                    page: 'record_payment',
                   ),
 
                   // Agent Section
