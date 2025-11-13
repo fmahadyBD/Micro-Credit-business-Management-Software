@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/pages/all_shareholders_page.dart';
 import 'package:mobile_app/pages/new_shareholder_page.dart';
+import 'package:mobile_app/screens/installment/installment_add_screen.dart';
+import 'package:mobile_app/screens/installment/installment_list_screen.dart';
 import 'package:mobile_app/widgets/sidebar.dart';
 import 'package:mobile_app/widgets/topbar.dart';
 import 'package:mobile_app/pages/all_users_page.dart';
 import 'package:mobile_app/pages/all_agents_page.dart';
 import 'package:mobile_app/pages/all_members_page.dart';
 import 'package:mobile_app/pages/new_member_page.dart';
-import 'package:mobile_app/pages/all_products_page.dart'; // Add this import
-import 'package:mobile_app/pages/new_product_page.dart'; // Add this import
+import 'package:mobile_app/pages/all_products_page.dart';
+import 'package:mobile_app/pages/new_product_page.dart';
+
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -60,7 +63,7 @@ class _AdminDashboardState extends State<AdminDashboard>
       'new_member': 'New Member',
       'all_shareholders': 'All Shareholders',
       'add_shareholder': 'Add Shareholder',
-      'manage_installment': 'Manage Installment',
+      'manage_installment': 'Manage Installment',   // UPDATED
       'add_installment': 'Add Installment',
       'record_payment': 'Record Payment',
       'all_agents': 'All Agents',
@@ -76,10 +79,6 @@ class _AdminDashboardState extends State<AdminDashboard>
       case 'all_products':
         pageContent = const AllProductsPage();
         break;
-
-      // case 'add_product':
-      //   pageContent = const NewProductPage();
-      //   break;
 
       case 'add_product':
         pageContent = Builder(
@@ -111,6 +110,15 @@ class _AdminDashboardState extends State<AdminDashboard>
 
       case 'add_shareholder':
         pageContent = const NewShareholderPage();
+        break;
+
+      // ADD THESE CASES
+      case 'manage_installment':
+        pageContent = const InstallmentListScreen ();
+        break;
+
+      case 'add_installment':
+        pageContent = const  InstallmentAddScreen();
         break;
 
       default:
