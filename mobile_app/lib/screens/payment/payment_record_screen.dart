@@ -1,11 +1,9 @@
 // lib/screens/payment/payment_record_screen.dart
 import 'package:flutter/material.dart';
-
 import 'package:mobile_app/models/payment_schedule_model.dart';
 import 'package:mobile_app/models/agent_model.dart';
 import 'package:mobile_app/screens/installment/installment_model.dart';
 import 'package:mobile_app/screens/installment/installment_service.dart';
-
 import 'package:mobile_app/services/payment_schedule_service.dart';
 import 'package:mobile_app/services/agent_service.dart';
 import 'package:mobile_app/screens/payment/payment_history_screen.dart';
@@ -262,7 +260,7 @@ class _PaymentRecordScreenState extends State<PaymentRecordScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildConfirmationRow('Member', _selectedInstallment!.member!.name!),
+            _buildConfirmationRow('Member', _selectedInstallment!.member?.name ?? 'N/A'),
             _buildConfirmationRow('Amount', '৳${_amountController.text}'),
             _buildConfirmationRow('Agent', _selectedAgent!.name),
             if (_hasPaymentThisMonth)
@@ -533,9 +531,10 @@ class _PaymentRecordScreenState extends State<PaymentRecordScreen> {
             ),
             Divider(height: 24),
             
-            _buildInfoRow('Member', _selectedInstallment!.member!.name!),
-            _buildInfoRow('Phone', _selectedInstallment!.member!.phone!),
-            _buildInfoRow('Product', _selectedInstallment!.product!.name),
+            _buildInfoRow('Member', _selectedInstallment!.member?.name ?? 'N/A'),
+            _buildInfoRow('Phone', _selectedInstallment!.member?.phone ?? 'N/A'),
+            // _buildInfoRow('Address', _selectedInstallment!.member?.address ?? 'N/A'),
+            _buildInfoRow('Product', _selectedInstallment!.product?.name ?? 'N/A'),
             
             if (_balance != null) ...[
               SizedBox(height: 16),
@@ -641,6 +640,7 @@ class _PaymentRecordScreenState extends State<PaymentRecordScreen> {
                   MaterialPageRoute(
                     builder: (context) => PaymentHistoryScreen(
                       installmentId: _selectedInstallment!.id!,
+                      installment: _selectedInstallment,
                     ),
                   ),
                 );
