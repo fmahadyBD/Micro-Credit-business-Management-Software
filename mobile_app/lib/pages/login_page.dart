@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mobile_app/pages/admin_dashboard.dart';
+import 'package:mobile_app/pages/agent_dashboard.dart';
+import 'package:mobile_app/pages/shareholder_welcome_page.dart';
 import 'package:mobile_app/pages/register_page.dart';
 import 'package:mobile_app/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -55,12 +57,39 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     final token = prefs.getString('jwt_token');
     if (token != null && !JwtDecoder.isExpired(token)) {
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const AdminDashboard()),
-        );
+        final decodedToken = JwtDecoder.decode(token);
+        final String role = decodedToken['role'] ?? 'USER';
+        
+        _navigateBasedOnRole(role);
       }
     }
+  }
+
+  void _navigateBasedOnRole(String role) {
+    Widget destination;
+    
+    switch (role.toUpperCase()) {
+      case 'ADMIN':
+        destination = const AdminDashboard();
+        break;
+      case 'AGENT':
+        destination = const AgentDashboard();
+        break;
+      case 'SHAREHOLDER':
+        destination = const ShareholderWelcomePage();
+        break;
+      default:
+        // For unknown roles, show a message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User dashboard coming soon...')),
+        );
+        return;
+    }
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => destination),
+    );
   }
 
   Future<void> _handleLogin() async {
@@ -77,7 +106,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
       if (token != null) {
         final prefs = await SharedPreferences.getInstance();
-        // await prefs.setString('jwt_token', token);
+        await prefs.setString('jwt_token', token);
         final decodedToken = JwtDecoder.decode(token);
         final String role = decodedToken['role'] ?? 'USER';
 
@@ -89,16 +118,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             ),
           );
 
-          if (role == 'ADMIN') {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const AdminDashboard()),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('User dashboard coming soon...')),
-            );
-          }
+          _navigateBasedOnRole(role);
         }
       } else {
         if (mounted) {
