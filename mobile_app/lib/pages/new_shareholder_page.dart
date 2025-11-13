@@ -69,6 +69,24 @@ class _NewShareholderPageState extends State<NewShareholderPage> with SingleTick
     }
   }
 
+  void _clearForm() {
+    _formKey.currentState?.reset();
+    _nameController.clear();
+    _emailController.clear();
+    _phoneController.clear();
+    _nidController.clear();
+    _nomineeController.clear();
+    _zilaController.clear();
+    _houseController.clear();
+    _investmentController.clear();
+    _roleController.clear();
+    
+    setState(() {
+      _selectedStatus = 'Active';
+      _selectedDate = DateTime.now();
+    });
+  }
+
   Future<void> _createShareholder() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -111,10 +129,20 @@ class _NewShareholderPageState extends State<NewShareholderPage> with SingleTick
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          duration: const Duration(seconds: 3),
+          action: SnackBarAction(
+            label: 'Add Another',
+            textColor: Colors.white,
+            onPressed: () {
+              // Optionally do something when they tap "Add Another"
+            },
+          ),
         ),
       );
 
-      Navigator.pop(context);
+      // Clear the form instead of navigating back
+      _clearForm();
+
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -182,6 +210,14 @@ class _NewShareholderPageState extends State<NewShareholderPage> with SingleTick
           onPressed: () => Navigator.pop(context),
         ),
         elevation: 0,
+        actions: [
+          // Optional: Add a clear form button in app bar
+          IconButton(
+            icon: const Icon(Icons.clear_all),
+            onPressed: _clearForm,
+            tooltip: 'Clear Form',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
