@@ -65,8 +65,9 @@ docker build -t fmahadybd/microcredit-backend:v1 .
 docker push fmahadybd/microcredit-backend:v1
 
 
-
-
+flutter clean
+flutter pub get
+flutter build apk --release
 
 
 
