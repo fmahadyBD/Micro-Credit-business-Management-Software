@@ -1,16 +1,13 @@
 package com.fmahadybd.backend.dto;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 @Builder
 public class EarningsResponseDTO {
-    private Double earnings; // Net earnings
-    private Double totalEarningsFromInterest; // 15% interest earnings
-    private Double totalRevenue; // Total income
-    private Double totalExpenses; // Total costs
-    private String message;
+    private Double totalEarnings;
+    private Double thisMonthEarnings;
+    private Double thisYearEarnings;
+    private Double averageMonthlyEarnings;
 }

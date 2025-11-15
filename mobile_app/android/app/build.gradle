@@ -7,10 +7,13 @@ plugins {
 
 android {
     namespace = "com.example.mobile_app"
-    compileSdk = flutter.compileSdkVersion
+
+    // ✅ Compile with Android SDK 35 to match plugin requirements
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        // ✅ Use Java 8 compatibility for Android builds
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -20,18 +23,29 @@ android {
     }
 
     defaultConfig {
+        // ✅ Use your unique app ID (important before Play Store upload)
         applicationId = "com.example.mobile_app"
 
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        // ✅ Minimum supported SDK for Flutter
+        minSdk = 23
 
+        // ✅ Target and compile SDK set to 35
+        targetSdk = 35
+
+        // ✅ Version controlled by pubspec.yaml
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
     buildTypes {
         release {
+            // ⚠️ Replace this with your real signing config before publishing
             signingConfig = signingConfigs.debug
+
+            // ✅ Enables code shrinking & obfuscation (optional)
+            // minifyEnabled true
+            // shrinkResources true
+            // proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }

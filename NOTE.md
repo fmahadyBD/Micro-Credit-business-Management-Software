@@ -65,10 +65,38 @@ docker build -t fmahadybd/microcredit-backend:v1 .
 docker push fmahadybd/microcredit-backend:v1
 
 
+
+sudo update-alternatives --config java
+sudo update-alternatives --config java
+
+rm -rf ~/.gradle/caches
+rm -rf android/.gradle
+rm -rf ~/.gradle
+rm -rf android/.gradle
+rm -rf android/gradle
+rm -rf android/build
+rm -rf gradle/
+rm -f gradlew
+rm -f gradlew.bat
+
+flutter clean
+flutter pub get
+
+cd ..
+flutter clean
+flutter pub get
+flutter build apk
+
+
+
 flutter clean
 flutter pub get
 flutter build apk --release
 
+sudo update-alternatives --config javac
+sudo update-alternatives --config jar
+sudo update-alternatives --config javap
+sudo update-alternatives --config jlink
 
 
 

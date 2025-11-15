@@ -12,7 +12,8 @@ import 'package:mobile_app/pages/all_members_page.dart';
 import 'package:mobile_app/pages/new_member_page.dart';
 import 'package:mobile_app/pages/all_products_page.dart';
 import 'package:mobile_app/pages/new_product_page.dart';
-import 'package:mobile_app/pages/profile_page.dart'; // Add this import
+import 'package:mobile_app/pages/profile_page.dart';
+import 'package:mobile_app/pages/dashboard_page.dart'; 
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -23,7 +24,7 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard>
     with SingleTickerProviderStateMixin {
-  String currentPage = 'dashboard';
+  String currentPage = 'dashboard'; // Set default to dashboard
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -66,7 +67,7 @@ class _AdminDashboardState extends State<AdminDashboard>
 
   String _getPageTitle() {
     final titles = {
-      'dashboard': 'Dashboard',
+      'dashboard': 'Dashboard', // Add dashboard title
       'all_products': 'All Products',
       'add_product': 'Add Product',
       'all_users': 'All Users',
@@ -79,7 +80,7 @@ class _AdminDashboardState extends State<AdminDashboard>
       'record_payment': 'Record Payment',
       'all_agents': 'All Agents',
       'new_agent': 'New Agent',
-      'profile': 'My Profile', // Add profile title
+      'profile': 'My Profile',
     };
     return titles[currentPage] ?? 'Dashboard';
   }
@@ -88,10 +89,12 @@ class _AdminDashboardState extends State<AdminDashboard>
     Widget pageContent;
 
     switch (currentPage) {
+      case 'dashboard': // Add dashboard case
+        pageContent = const DashboardPage();
+        break;
       case 'all_products':
         pageContent = const AllProductsPage();
         break;
-
       case 'add_product':
         pageContent = Builder(
           builder: (context) => NewProductPage(
@@ -99,50 +102,38 @@ class _AdminDashboardState extends State<AdminDashboard>
           ),
         );
         break;
-
       case 'all_users':
         pageContent = const AllUsersPage();
         break;
-
       case 'all_agents':
         pageContent = const AllAgentsPage();
         break;
-
       case 'all_members':
         pageContent = const AllMembersPage();
         break;
-
       case 'new_member':
         pageContent = const NewMemberPage();
         break;
-
       case 'all_shareholders':
         pageContent = const AllShareholdersPage();
         break;
-
       case 'add_shareholder':
         pageContent = const NewShareholderPage();
         break;
-
       case 'manage_installment':
         pageContent = const InstallmentListScreen();
         break;
-
       case 'add_installment':
         pageContent = const InstallmentAddScreen();
         break;
-
       case 'record_payment':
         pageContent = const PaymentRecordScreen();
         break;
-
-      // Add Profile Page case
       case 'profile':
         pageContent = const ProfilePage();
         break;
-
       default:
-        pageContent = _buildBlankDashboard();
+        pageContent = const DashboardPage(); // Default to dashboard
     }
 
     return FadeTransition(
@@ -154,45 +145,12 @@ class _AdminDashboardState extends State<AdminDashboard>
     );
   }
 
-  /// Blank placeholder for now
-  Widget _buildBlankDashboard() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.dashboard_outlined,
-            size: 100,
-            color: Colors.grey.shade300,
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'Dashboard is currently empty',
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Select an item from the sidebar to get started',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: TopBar(
         title: _getPageTitle(),
-        onProfileTap: _navigateToProfile, // ✅ Fixed: Added the callback
+        onProfileTap: _navigateToProfile,
       ),
       drawer: SideBar(
         onItemSelected: (page) {

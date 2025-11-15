@@ -29,24 +29,11 @@ public class InstallmentService {
     private final InstallmentMapper installmentMapper;
     private final ProductRepository productRepository;
     private final AgentRepository agentRepository;
-    private final MainBalanceRepository mainBalanceRepository;
     private final TransactionHistoryRepository transactionHistoryRepository;
 
     private final String folder = "installment";
 
-    private MainBalance getMainBalance() {
-        return mainBalanceRepository.findAll().stream().findFirst()
-                .orElseGet(() -> mainBalanceRepository.save(
-                        MainBalance.builder()
-                                .totalBalance(0.0)
-                                .totalInvestment(0.0)
-                                .totalWithdrawal(0.0)
-                                .totalProductCost(0.0)
-                                .totalMaintenanceCost(0.0)
-                                .totalInstallmentReturn(0.0)
-                                .totalEarnings(0.0)
-                                .build()));
-    }
+  
 
     @Transactional
     public InstallmentResponseDTO createInstallment(InstallmentCreateDTO dto) {
@@ -57,23 +44,7 @@ public class InstallmentService {
             throw new IllegalArgumentException("Advanced payment cannot be negative");
         }
 
-        // Add advanced payment to main balance
-        if (installment.getAdvanced_paid() > 0) {
-            MainBalance mb = getMainBalance();
-            mb.setTotalBalance(mb.getTotalBalance() + installment.getAdvanced_paid());
-            
-            // Calculate 15% earnings on advanced payment
-            double earnings = installment.getAdvanced_paid() * 0.15;
-            mb.setTotalEarnings(mb.getTotalEarnings() + earnings);
-            mb.setTotalInstallmentReturn(mb.getTotalInstallmentReturn() + installment.getAdvanced_paid());
-            
-            mainBalanceRepository.save(mb);
-
-            // Log transaction
-            logTransaction("ADVANCED_PAYMENT", installment.getAdvanced_paid(), 
-                "Advanced payment for installment - Earnings: " + earnings, 
-                installment.getMember().getId());
-        }
+      
 
         Installment savedInstallment = save(installment);
         log.info("Installment created with ID: {}", savedInstallment.getId());
@@ -94,23 +65,7 @@ public class InstallmentService {
         // Save installment first
         Installment savedInstallment = save(installment);
 
-        // Add advanced payment to main balance
-        if (installment.getAdvanced_paid() > 0) {
-            MainBalance mb = getMainBalance();
-            mb.setTotalBalance(mb.getTotalBalance() + installment.getAdvanced_paid());
-            
-            // Calculate 15% earnings on advanced payment
-            double earnings = installment.getAdvanced_paid() * 0.15;
-            mb.setTotalEarnings(mb.getTotalEarnings() + earnings);
-            mb.setTotalInstallmentReturn(mb.getTotalInstallmentReturn() + installment.getAdvanced_paid());
-            
-            mainBalanceRepository.save(mb);
-
-            // Log transaction
-            logTransaction("ADVANCED_PAYMENT", installment.getAdvanced_paid(), 
-                "Advanced payment for installment - Earnings: " + earnings, 
-                installment.getMember().getId());
-        }
+      
 
         // Upload images if any
         if (images != null && images.length > 0) {

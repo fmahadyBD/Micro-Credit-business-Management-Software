@@ -30,36 +30,10 @@ public class ShareholderService {
 
     private final ShareholderRepository shareholderRepository;
     private final ShareholderMapper shareholderMapper;
-    private final MainBalanceService mainBalanceService;
+
     private final MainBalanceRepository mainBalanceRepository;
 
-    // @Transactional
-    // public ShareholderDTO saveShareholder(ShareholderCreateDTO shareholderDTO) {
-    // if (shareholderDTO == null) {
-    // throw new IllegalArgumentException("Shareholder data cannot be null");
-    // }
-
-    // log.info("Saving shareholder: {}", shareholderDTO.getName());
-
-    // // Convert DTO to entity
-    // Shareholder shareholder = shareholderMapper.toEntity(shareholderDTO);
-
-    // // Save shareholder
-    // Shareholder savedShareholder = shareholderRepository.save(shareholder);
-    // log.info("Successfully saved shareholder with id: {}",
-    // savedShareholder.getId());
-
-    // // Update MainBalance totals
-    // MainBalance mb = getMainBalance();
-    // double investment = savedShareholder.getInvestment();
-
-    // mb.setTotalInvestment(mb.getTotalInvestment() + investment);
-    // mb.setTotalBalance(mb.getTotalBalance() + investment);
-    // mainBalanceRepository.save(mb);
-
-    // // Return DTO
-    // return shareholderMapper.toDTO(savedShareholder);
-    // }
+    
     @Transactional
     public ShareholderDTO saveShareholder(ShareholderCreateDTO shareholderDTO) {
         if (shareholderDTO == null) {
@@ -93,13 +67,7 @@ public class ShareholderService {
         Shareholder savedShareholder = shareholderRepository.save(shareholder);
         log.info("Successfully saved shareholder with id: {}", savedShareholder.getId());
 
-        // Update MainBalance totals
-        MainBalance mb = getMainBalance();
-        double investment = savedShareholder.getInvestment();
-
-        mb.setTotalInvestment(mb.getTotalInvestment() + investment);
-        mb.setTotalBalance(mb.getTotalBalance() + investment);
-        mainBalanceRepository.save(mb);
+   
 
         return shareholderMapper.toDTO(savedShareholder);
     }
@@ -138,17 +106,7 @@ public class ShareholderService {
         Shareholder shareholder = shareholderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Shareholder not found with id: " + id));
 
-        MainBalance mb = getMainBalance();
-        double oldInvestment = shareholder.getInvestment();
-        double newInvestment = shareholderDTO.getInvestment();
-
-        // Calculate the difference
-        double difference = newInvestment - oldInvestment;
-
-        // Update MainBalance totals based on change
-        mb.setTotalInvestment(mb.getTotalInvestment() + difference);
-        mb.setTotalBalance(mb.getTotalBalance() + difference);
-        mainBalanceRepository.save(mb);
+        
 
         // Update shareholder entity
         Shareholder updatedEntity = shareholderMapper.toEntity(shareholderDTO, shareholder);
@@ -259,19 +217,7 @@ public class ShareholderService {
                 .build();
     }
 
-    private MainBalance getMainBalance() {
-        return mainBalanceRepository.findAll().stream().findFirst()
-                .orElseGet(() -> mainBalanceRepository.save(
-                        MainBalance.builder()
-                                .totalBalance(0.0)
-                                .totalInvestment(0.0)
-                                .totalWithdrawal(0.0)
-                                .totalProductCost(0.0)
-                                .totalMaintenanceCost(0.0)
-                                .totalInstallmentReturn(0.0)
-                                .totalEarnings(0.0) 
-                                .build()));
-    }
+   
 
     @Transactional(readOnly = true)
     public ShareholderDTO getShareholderByUserId(Long userId) {
@@ -281,18 +227,7 @@ public class ShareholderService {
 
         log.info("Fetching shareholder for user ID: {}", userId);
 
-        // If you have a userId field in Shareholder entity:
-        // Shareholder shareholder = shareholderRepository.findByUserId(userId)
-        // .orElseThrow(() -> new RuntimeException("Shareholder not found for user ID: "
-        // + userId));
-
-        // If you need to add userId field to Shareholder entity:
-        // Add this to Shareholder.java:
-        // @Column(name = "user_id", unique = true)
-        // private Long userId;
-
-        // For now, using a workaround if you don't have userId field:
-        // You'll need to add this query to ShareholderRepository
+      
         Shareholder shareholder = shareholderRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Shareholder not found for user ID: " + userId));
 

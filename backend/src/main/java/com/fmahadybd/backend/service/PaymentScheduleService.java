@@ -23,7 +23,7 @@ public class PaymentScheduleService {
     private final PaymentScheduleRepository paymentScheduleRepository;
     private final InstallmentRepository installmentRepository;
     private final AgentRepository agentRepository;
-    private final MainBalanceRepository mainBalanceRepository;
+
     private final TransactionHistoryRepository transactionHistoryRepository;
 
     public Double perMonth(long id) {
@@ -82,25 +82,10 @@ public class PaymentScheduleService {
 
         PaymentSchedule savedSchedule = paymentScheduleRepository.save(schedule);
 
-        // Update main balance
-        MainBalance mb = getMainBalance();
-        mb.setTotalBalance(mb.getTotalBalance() + request.getAmount());
-        mb.setTotalInstallmentReturn(mb.getTotalInstallmentReturn() + request.getAmount());
-        
-        // Calculate 15% earnings on the payment
-        double earnings = request.getAmount() * 0.15;
-        mb.setTotalEarnings(mb.getTotalEarnings() + earnings);
-        
-        mainBalanceRepository.save(mb);
+     
+    
 
-        // Log transaction
-        logTransaction("INSTALLMENT_PAYMENT", request.getAmount(), 
-            "Payment for installment ID: " + installment.getId() + " - Earnings: " + earnings + 
-            " - Collected by: " + agent.getName(), 
-            installment.getMember().getId());
-
-        log.info("Payment saved: {} for installment: {} (Earnings: {})", 
-            request.getAmount(), installment.getId(), earnings);
+     
 
         return mapToResponseDTO(savedSchedule, previousRemaining);
     }
@@ -183,16 +168,7 @@ public class PaymentScheduleService {
         Installment installment = schedule.getInstallment();
         double deletedAmount = schedule.getPaidAmount();
 
-        // Reverse the main balance changes
-        MainBalance mb = getMainBalance();
-        mb.setTotalBalance(mb.getTotalBalance() - deletedAmount);
-        mb.setTotalInstallmentReturn(mb.getTotalInstallmentReturn() - deletedAmount);
-        
-        // Reverse 15% earnings
-        double earnings = deletedAmount * 0.15;
-        mb.setTotalEarnings(mb.getTotalEarnings() - earnings);
-        
-        mainBalanceRepository.save(mb);
+      
 
         // Delete the payment
         paymentScheduleRepository.delete(schedule);
@@ -252,19 +228,6 @@ public class PaymentScheduleService {
                 .build();
     }
 
-    private MainBalance getMainBalance() {
-        return mainBalanceRepository.findAll().stream().findFirst()
-                .orElseGet(() -> mainBalanceRepository.save(
-                        MainBalance.builder()
-                                .totalBalance(0.0)
-                                .totalInvestment(0.0)
-                                .totalWithdrawal(0.0)
-                                .totalProductCost(0.0)
-                                .totalMaintenanceCost(0.0)
-                                .totalInstallmentReturn(0.0)
-                                .totalEarnings(0.0)
-                                .build()));
-    }
 
     private void logTransaction(String type, double amount, String desc, Long memberId) {
         TransactionHistory txn = TransactionHistory.builder()
