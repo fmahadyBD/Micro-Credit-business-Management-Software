@@ -59,36 +59,43 @@ class ShareholderService {
       throw Exception('Error fetching shareholder: $e');
     }
   }
+Future<ShareholderModel> createShareholder(ShareholderModel shareholder) async {
+  try {
+    final headers = await _getHeaders();
+    final jsonPayload = shareholder.toJson(forCreate: true);
+    
+    print('🚀 Creating shareholder with JSON:');
+    print(jsonEncode(jsonPayload));
+    
+    final response = await http.post(
+      Uri.parse(baseUrl),
+      headers: headers,
+      body: jsonEncode(jsonPayload),
+    );
 
-  Future<ShareholderModel> createShareholder(ShareholderModel shareholder) async {
-    try {
-      final headers = await _getHeaders();
-      final jsonPayload = shareholder.toJson(forCreate: true);
-      
-      // 🔍 DEBUG: Print the exact JSON being sent
-      print('🚀 Creating shareholder with JSON:');
-      print(jsonEncode(jsonPayload));
-      
-      final response = await http.post(
-        Uri.parse(baseUrl),
-        headers: headers,
-        body: jsonEncode(jsonPayload),
-      );
+    print('📥 Response status: ${response.statusCode}');
+    print('📥 Response body: ${response.body}');
 
-      print('📥 Response status: ${response.statusCode}');
-      print('📥 Response body: ${response.body}');
-
-      if (response.statusCode == 201) {
-        return ShareholderModel.fromJson(jsonDecode(response.body));
-      } else {
-        final errorData = jsonDecode(response.body);
-        throw Exception(errorData['error'] ?? 'Failed to create shareholder');
+    if (response.statusCode == 201) {
+      return ShareholderModel.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 403) {
+      throw Exception('Access Denied: You do not have permission to create shareholders');
+    } else if (response.statusCode == 401) {
+      throw Exception('Unauthorized: Please login again');
+    } else {
+      // ✅ Handle empty body
+      if (response.body.isEmpty) {
+        throw Exception('Server error: Empty response (Status: ${response.statusCode})');
       }
-    } catch (e) {
-      print('❌ Error in createShareholder: $e');
-      throw Exception('Error creating shareholder: $e');
+      final errorData = jsonDecode(response.body);
+      throw Exception(errorData['error'] ?? 'Failed to create shareholder');
     }
+  } catch (e) {
+    print('❌ Error in createShareholder: $e');
+    rethrow;
   }
+}
+
 
   Future<ShareholderModel> updateShareholder(int id, ShareholderModel shareholder) async {
     try {

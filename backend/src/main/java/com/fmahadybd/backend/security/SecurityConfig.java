@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req -> req
                         // CRITICAL: Allow all OPTIONS requests (preflight)
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/shareholders/**").hasRole("ADMIN")
                         .requestMatchers(
                                 "/auth/**",
                                 "/api/v1/api-docs",
