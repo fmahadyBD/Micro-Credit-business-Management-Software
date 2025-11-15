@@ -13,7 +13,8 @@ class DashboardPage extends StatefulWidget {
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> with SingleTickerProviderStateMixin {
+class _DashboardPageState extends State<DashboardPage>
+    with SingleTickerProviderStateMixin {
   final TransactionService _transactionService = TransactionService();
   List<TransactionModel> _transactions = [];
   List<TransactionModel> _filteredTransactions = [];
@@ -23,15 +24,16 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
   String _filterType = 'ALL';
   String _searchQuery = '';
   late AnimationController _animationController;
-  
+
   // Pagination
   int _currentPage = 0;
   final int _itemsPerPage = 10;
-  
+
   int get _totalPages => (_filteredTransactions.length / _itemsPerPage).ceil();
   List<TransactionModel> get _currentPageTransactions {
     final startIndex = _currentPage * _itemsPerPage;
-    final endIndex = (startIndex + _itemsPerPage).clamp(0, _filteredTransactions.length);
+    final endIndex =
+        (startIndex + _itemsPerPage).clamp(0, _filteredTransactions.length);
     if (startIndex >= _filteredTransactions.length) return [];
     return _filteredTransactions.sublist(startIndex, endIndex);
   }
@@ -44,6 +46,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     'INSTALLMENT_RETURN': const Color(0xFF3B82F6),
     'ADVANCED_PAYMENT': const Color(0xFF14B8A6),
     'EARNINGS': const Color(0xFF6366F1),
+    'INSTALLMENT_PAYMENT': const Color(0xFF10B981), // Green for adding money
   };
 
   final Map<String, IconData> _typeIcons = {
@@ -54,6 +57,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     'INSTALLMENT_RETURN': Icons.assignment_return,
     'ADVANCED_PAYMENT': Icons.payment,
     'EARNINGS': Icons.attach_money,
+    'INSTALLMENT_PAYMENT': Icons.payment, // Same as advanced payment
   };
 
   // Bengali translations
@@ -65,13 +69,24 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     'INSTALLMENT_RETURN': 'কিস্তি ফেরত',
     'ADVANCED_PAYMENT': 'অগ্রিম পেমেন্ট',
     'EARNINGS': 'মুনাফা',
+    'INSTALLMENT_PAYMENT': 'কিস্তি পেমেন্ট',
     'ALL': 'সব ধরনের',
+  };
+
+  // Define which transaction types add money (green/positive)
+  final Set<String> _positiveTransactionTypes = {
+    'INVESTMENT',
+    'INSTALLMENT_RETURN',
+    'ADVANCED_PAYMENT',
+    'EARNINGS',
+    'INSTALLMENT_PAYMENT', // This adds money, so it's positive
   };
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
+    _animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 500));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadDashboardData();
     });
@@ -122,7 +137,8 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
             transaction.type.toLowerCase().contains(q) ||
             (transaction.shareholderName?.toLowerCase().contains(q) ?? false) ||
             (transaction.memberName?.toLowerCase().contains(q) ?? false);
-        final matchesType = _filterType == 'ALL' || transaction.type == _filterType;
+        final matchesType =
+            _filterType == 'ALL' || transaction.type == _filterType;
         return matchesSearch && matchesType;
       }).toList();
       _currentPage = 0; // Reset to first page when filtering
@@ -161,9 +177,9 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF1E3A8A), // Deep blue
-              Color(0xFF3B82F6), // Bright blue
-              Color(0xFF60A5FA), // Light blue
+              Color(0xFFE6F3FF), // Very light blue
+              Color(0xFFB3D9FF), // Light blue
+              Color(0xFF80BFFF), // Medium light blue
             ],
           ),
           borderRadius: BorderRadius.circular(20),
@@ -176,16 +192,17 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.account_balance_wallet, color: Colors.white, size: 24),
+                  child: const Icon(Icons.account_balance_wallet,
+                      color: Color(0xFF1E3A8A), size: 24),
                 ),
                 const SizedBox(width: 12),
                 const Text(
                   'মোট ব্যালেন্স',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Color(0xFF1E3A8A), // Dark blue text
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                   ),
@@ -196,7 +213,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
             Text(
               '৳${_currentBalance!.totalBalance.toStringAsFixed(2)}',
               style: const TextStyle(
-                color: Colors.white,
+                color: Color(0xFF1E3A8A), // Dark blue text
                 fontSize: 36,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.2,
@@ -206,30 +223,48 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withOpacity(0.4),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withOpacity(0.2)),
+                border: Border.all(color: Colors.white.withOpacity(0.6)),
               ),
               child: Column(
                 children: [
+                  // First row - Main metrics
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildMiniStat('বিনিয়োগ', _currentBalance!.totalInvestment, const Color.fromARGB(255, 255, 255, 255)),
-                      _buildMiniStat('মুনাফা', _currentBalance!.totalEarnings, const Color.fromARGB(255, 238, 238, 238)),
-                      _buildMiniStat('খরচ', _currentBalance!.totalExpenses, const Color(0xFFEF4444)),
+                      _buildMiniStat('মোট বিনিয়োগ',
+                          _currentBalance!.totalInvestment, Color(0xFF1E3A8A)),
+                      _buildMiniStat(
+                          'মোট মুনাফা',
+                          _currentBalance!.totalEarnings,
+                          Color.fromARGB(255, 31, 121, 0)),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Divider(color: Colors.white.withOpacity(0.3), thickness: 1),
+                  // Second row - Cost metrics
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildMiniStat('পণ্য খরচ',
+                          _currentBalance!.totalProductCost, Color.fromARGB(255, 213, 0, 0)),
+                      _buildMiniStat(
+                          'রক্ষণাবেক্ষণ',
+                          _currentBalance!.totalMaintenanceCost,
+                          Color.fromARGB(255, 213, 0, 0)),
+                    ],
+                  ),
                   const SizedBox(height: 12),
+                  Divider(color: const Color.fromARGB(255, 0, 0, 0).withOpacity(0.6), thickness: 2),
+                  const SizedBox(height: 12),
+                  // Net profit row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
                         'নিট লাভ',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Color(0xFF1E3A8A), // Dark blue text
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
@@ -237,8 +272,10 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                       Text(
                         '৳${_currentBalance!.netProfit.toStringAsFixed(2)}',
                         style: TextStyle(
-                          color: _currentBalance!.netProfit >= 0 ? const Color.fromARGB(255, 255, 252, 252) : const Color(0xFFEF4444),
-                          fontSize: 16,
+                          color: _currentBalance!.netProfit >= 0
+                              ? Color.fromARGB(255, 1, 3, 88) // Light green for positive
+                              : Color(0xFFEF4444), // Red for negative
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -250,13 +287,41 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
             const SizedBox(height: 12),
             Text(
               'সর্বশেষ আপডেট: ${_formatDateTime(_currentBalance!.lastUpdated)}',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+              style: const TextStyle(
+                color: Color(0xFF1E3A8A), // Dark blue text
                 fontSize: 12,
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildMiniStat(String title, double value, Color color) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: Color(0xFF1E3A8A), // Dark blue text
+              fontSize: 23,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '৳ ${value.toStringAsFixed(0)}',
+            style: TextStyle(
+              color:
+                  color, // Use the passed color (light green for earnings, dark blue for others)
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -273,55 +338,29 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF1E3A8A),
-              Color(0xFF3B82F6),
-              Color(0xFF60A5FA),
+              Color(0xFFE6F3FF), // Very light blue
+              Color(0xFFB3D9FF), // Light blue
+              Color(0xFF80BFFF), // Medium light blue
             ],
           ),
           borderRadius: BorderRadius.circular(20),
         ),
         child: const Column(
           children: [
-            CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+            CircularProgressIndicator(color: Color(0xFF1E3A8A), strokeWidth: 3),
             SizedBox(height: 16),
-            Text('ব্যালেন্স লোড হচ্ছে...', style: TextStyle(color: Colors.white, fontSize: 16)),
+            Text('ব্যালেন্স লোড হচ্ছে...',
+                style: TextStyle(color: Color(0xFF1E3A8A), fontSize: 16)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMiniStat(String title, double value, Color color) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '৳${value.toStringAsFixed(0)}',
-            style: TextStyle(
-              color: color,
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCharts() {
+  Widget _buildBarChart() {
     if (_transactions.isEmpty) {
       return Container(
-        height: 200,
+        height: 300,
         decoration: BoxDecoration(
           color: Colors.grey.shade50,
           borderRadius: BorderRadius.circular(12),
@@ -340,62 +379,147 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
       );
     }
 
+    // Group transactions by type and calculate totals
     final Map<String, double> typeTotals = {};
     for (var transaction in _transactions) {
-      typeTotals.update(transaction.type, (value) => value + transaction.amount, ifAbsent: () => transaction.amount);
+      typeTotals.update(
+        transaction.type,
+        (value) => value + transaction.amount,
+        ifAbsent: () => transaction.amount,
+      );
     }
 
-    final sections = typeTotals.entries.map((entry) {
-      final color = _typeColors[entry.key] ?? Colors.grey;
-      return PieChartSectionData(
-        value: entry.value,
-        title: '৳${entry.value.toStringAsFixed(0)}',
-        color: color,
-        radius: 60,
-        titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+    // Prepare data for bar chart
+    final bars = typeTotals.entries.map((entry) {
+      final isPositive = _positiveTransactionTypes.contains(entry.key);
+      return BarChartGroupData(
+        x: typeTotals.keys.toList().indexOf(entry.key),
+        barRods: [
+          BarChartRodData(
+            toY: entry.value,
+            color: _typeColors[entry.key] ?? Colors.grey,
+            width: 20,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ],
       );
     }).toList();
 
-    return Column(
-      children: [
-        Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('লেনদেন বিতরণ', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 16),
-                SizedBox(
-                  height: 250,
-                  child: PieChart(PieChartData(sections: sections, sectionsSpace: 2, centerSpaceRadius: 40)),
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 8,
-                  children: typeTotals.entries.map((entry) {
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(color: _typeColors[entry.key], shape: BoxShape.circle),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(_typeBengali[entry.key] ?? entry.key, style: const TextStyle(fontSize: 12)),
-                      ],
-                    );
-                  }).toList(),
-                ),
-              ],
+    // Find max value for Y axis
+    final maxY = typeTotals.values.reduce((a, b) => a > b ? a : b) * 1.1;
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'লেনদেনের পরিমাণ (ধরন অনুযায়ী)',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-          ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 250,
+              child: BarChart(
+                BarChartData(
+                  barGroups: bars,
+                  borderData: FlBorderData(show: false),
+                  gridData: const FlGridData(show: false),
+                  titlesData: FlTitlesData(
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          final type = typeTotals.keys.elementAt(value.toInt());
+                          final bengaliName = _typeBengali[type] ?? type;
+                          // Show abbreviated names for bottom titles
+                          final displayName = bengaliName.length > 8
+                              ? '${bengaliName.substring(0, 8)}...'
+                              : bengaliName;
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Text(
+                              displayName,
+                              style: const TextStyle(fontSize: 10),
+                              textAlign: TextAlign.center,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            '৳${value.toInt()}',
+                            style: const TextStyle(fontSize: 10),
+                          );
+                        },
+                        reservedSize: 40,
+                      ),
+                    ),
+                    topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                  ),
+                  maxY: maxY,
+                  alignment: BarChartAlignment.spaceAround,
+                  barTouchData: BarTouchData(
+                    touchTooltipData: BarTouchTooltipData(
+                      tooltipRoundedRadius: 8,
+                      tooltipMargin: 0,
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        final type = typeTotals.keys.elementAt(group.x);
+                        final bengaliName = _typeBengali[type] ?? type;
+                        return BarTooltipItem(
+                          '$bengaliName\n৳${rod.toY.toStringAsFixed(2)}',
+                          const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Legend
+            Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              children: typeTotals.entries.map((entry) {
+                final bengaliName = _typeBengali[entry.key] ?? entry.key;
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: _typeColors[entry.key],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      bengaliName,
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -407,7 +531,8 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
           children: [
             Icon(Icons.receipt_long, size: 64, color: Colors.grey),
             SizedBox(height: 16),
-            Text('কোন লেনদেন পাওয়া যায়নি', style: TextStyle(color: Colors.grey)),
+            Text('কোন লেনদেন পাওয়া যায়নি',
+                style: TextStyle(color: Colors.grey)),
           ],
         ),
       );
@@ -419,7 +544,8 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: _currentPageTransactions.length,
-          itemBuilder: (context, index) => _buildTransactionItem(_currentPageTransactions[index]),
+          itemBuilder: (context, index) =>
+              _buildTransactionItem(_currentPageTransactions[index]),
         ),
         if (_totalPages > 1) _buildPagination(),
       ],
@@ -569,7 +695,8 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     // Priority: memberName > shareholderName > displayName
     if (transaction.memberName != null && transaction.memberName!.isNotEmpty) {
       return transaction.memberName!;
-    } else if (transaction.shareholderName != null && transaction.shareholderName!.isNotEmpty) {
+    } else if (transaction.shareholderName != null &&
+        transaction.shareholderName!.isNotEmpty) {
       return transaction.shareholderName!;
     }
     return transaction.displayName;
@@ -579,7 +706,12 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     final color = _typeColors[transaction.type] ?? Colors.grey;
     final icon = _typeIcons[transaction.type] ?? Icons.receipt;
     final displayName = _getTransactionDisplayName(transaction);
-    
+
+    // Determine if this transaction adds money (positive) or subtracts money (negative)
+    final isPositive = _positiveTransactionTypes.contains(transaction.type);
+    final amountColor = isPositive ? Colors.green : Colors.red;
+    final amountPrefix = isPositive ? '+' : '-';
+
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       elevation: 1,
@@ -587,10 +719,13 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
         leading: Container(
           width: 40,
           height: 40,
-          decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+          decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8)),
           child: Icon(icon, color: color, size: 20),
         ),
-        title: Text(displayName, style: const TextStyle(fontWeight: FontWeight.w500)),
+        title: Text(displayName,
+            style: const TextStyle(fontWeight: FontWeight.w500)),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -612,14 +747,15 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              transaction.formattedAmount,
+              '$amountPrefix৳${transaction.amount.toStringAsFixed(2)}',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: transaction.isPositive ? Colors.green : Colors.red,
+                color: amountColor,
               ),
             ),
-            Text(_formatDate(transaction.timestamp), style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+            Text(_formatDate(transaction.timestamp),
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
           ],
         ),
         onTap: () => _showTransactionDetails(transaction),
@@ -629,7 +765,9 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
 
   void _showTransactionDetails(TransactionModel transaction) {
     final displayName = _getTransactionDisplayName(transaction);
-    
+    final isPositive = _positiveTransactionTypes.contains(transaction.type);
+    final amountPrefix = isPositive ? '+' : '-';
+
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -651,32 +789,45 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                         color: _typeColors[transaction.type]?.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(_typeIcons[transaction.type] ?? Icons.receipt, color: _typeColors[transaction.type]),
+                      child: Icon(_typeIcons[transaction.type] ?? Icons.receipt,
+                          color: _typeColors[transaction.type]),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        _typeBengali[transaction.type] ?? transaction.typeDisplayName,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        _typeBengali[transaction.type] ??
+                            transaction.typeDisplayName,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                    IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context)),
                   ],
                 ),
                 const SizedBox(height: 20),
-                _buildDetailRow('পরিমাণ', transaction.formattedAmount,
-                    color: transaction.isPositive ? Colors.green : Colors.red),
+                _buildDetailRow('পরিমাণ',
+                    '$amountPrefix৳${transaction.amount.toStringAsFixed(2)}',
+                    color: isPositive ? Colors.green : Colors.red),
                 _buildDetailRow('নাম', displayName),
-                if (transaction.shareholderName != null && transaction.shareholderName!.isNotEmpty)
-                  _buildDetailRow('শেয়ারহোল্ডার', transaction.shareholderName!),
-                if (transaction.memberName != null && transaction.memberName!.isNotEmpty)
+                if (transaction.shareholderName != null &&
+                    transaction.shareholderName!.isNotEmpty)
+                  _buildDetailRow(
+                      'শেয়ারহোল্ডার', transaction.shareholderName!),
+                if (transaction.memberName != null &&
+                    transaction.memberName!.isNotEmpty)
                   _buildDetailRow('সদস্য', transaction.memberName!),
-                if (transaction.description.isNotEmpty) _buildDetailRow('বিবরণ', transaction.description),
+                if (transaction.description.isNotEmpty)
+                  _buildDetailRow('বিবরণ', transaction.description),
                 _buildDetailRow('তারিখ', _formatDate(transaction.timestamp)),
                 _buildDetailRow('সময়', transaction.formattedTime),
-                if (transaction.memberId != null) _buildDetailRow('সদস্য আইডি', transaction.memberId.toString()),
+                if (transaction.memberId != null)
+                  _buildDetailRow(
+                      'সদস্য আইডি', transaction.memberId.toString()),
                 if (transaction.shareholderId != null)
-                  _buildDetailRow('শেয়ারহোল্ডার আইডি', transaction.shareholderId.toString()),
+                  _buildDetailRow('শেয়ারহোল্ডার আইডি',
+                      transaction.shareholderId.toString()),
               ],
             ),
           ),
@@ -693,12 +844,17 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
         children: [
           SizedBox(
             width: 120,
-            child: Text('$label:', style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.w500)),
+            child: Text('$label:',
+                style: TextStyle(
+                    color: Colors.grey.shade700, fontWeight: FontWeight.w500)),
           ),
           Expanded(
             child: Text(
               value,
-              style: TextStyle(color: color ?? Colors.black, fontWeight: color != null ? FontWeight.bold : FontWeight.normal),
+              style: TextStyle(
+                  color: color ?? Colors.black,
+                  fontWeight:
+                      color != null ? FontWeight.bold : FontWeight.normal),
             ),
           ),
         ],
@@ -716,11 +872,15 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                      const Icon(Icons.error_outline,
+                          size: 64, color: Colors.red),
                       const SizedBox(height: 16),
-                      Text('ত্রুটি: $_errorMessage', textAlign: TextAlign.center),
+                      Text('ত্রুটি: $_errorMessage',
+                          textAlign: TextAlign.center),
                       const SizedBox(height: 16),
-                      ElevatedButton(onPressed: _loadDashboardData, child: const Text('পুনরায় চেষ্টা করুন')),
+                      ElevatedButton(
+                          onPressed: _loadDashboardData,
+                          child: const Text('পুনরায় চেষ্টা করুন')),
                     ],
                   ),
                 )
@@ -746,12 +906,18 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                           children: [
                             Row(
                               children: [
-                                const Icon(Icons.dashboard, color: Colors.white, size: 28),
+                                const Icon(Icons.dashboard,
+                                    color: Colors.white, size: 28),
                                 const SizedBox(width: 12),
-                                const Text('ড্যাশবোর্ড', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                                const Text('ড্যাশবোর্ড',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold)),
                                 const Spacer(),
                                 IconButton(
-                                  icon: const Icon(Icons.refresh, color: Colors.white),
+                                  icon: const Icon(Icons.refresh,
+                                      color: Colors.white),
                                   onPressed: _loadDashboardData,
                                   tooltip: 'রিফ্রেশ',
                                 ),
@@ -771,7 +937,8 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                           children: [
                             Card(
                               elevation: 2,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
                               child: Padding(
                                 padding: const EdgeInsets.all(16),
                                 child: Column(
@@ -784,7 +951,9 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                                       decoration: InputDecoration(
                                         hintText: 'লেনদেন খুঁজুন...',
                                         prefixIcon: const Icon(Icons.search),
-                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                        border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12)),
                                       ),
                                     ),
                                     const SizedBox(height: 12),
@@ -792,14 +961,22 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                                       value: _filterType,
                                       decoration: InputDecoration(
                                         labelText: 'ধরন অনুসারে ফিল্টার',
-                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                        border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12)),
                                       ),
-                                      items: ['ALL', ..._typeColors.keys.toList()].map((type) {
+                                      items: [
+                                        'ALL',
+                                        ..._typeColors.keys.toList()
+                                      ].map((type) {
                                         return DropdownMenuItem(
                                           value: type,
                                           child: Row(
                                             children: [
-                                              if (type != 'ALL') Icon(_typeIcons[type], color: _typeColors[type], size: 16),
+                                              if (type != 'ALL')
+                                                Icon(_typeIcons[type],
+                                                    color: _typeColors[type],
+                                                    size: 16),
                                               const SizedBox(width: 8),
                                               Text(_typeBengali[type] ?? type),
                                             ],
@@ -817,13 +994,16 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                               ),
                             ),
                             const SizedBox(height: 20),
-                            _buildCharts(),
+                            _buildBarChart(),
                             const SizedBox(height: 20),
                             const Row(
                               children: [
                                 Icon(Icons.history, size: 20),
                                 SizedBox(width: 8),
-                                Text('সাম্প্রতিক লেনদেন', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                Text('সাম্প্রতিক লেনদেন',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold)),
                               ],
                             ),
                             const SizedBox(height: 12),

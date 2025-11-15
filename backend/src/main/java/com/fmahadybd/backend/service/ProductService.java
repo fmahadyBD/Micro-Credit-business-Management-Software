@@ -40,7 +40,7 @@ public class ProductService {
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO dto, String performedBy) {
         if (dto == null) {
-            throw new IllegalArgumentException("Product data cannot be null");
+            throw new IllegalArgumentException("পণ্যের ডেটা খালি হতে পারে না");
         }
 
         Product product = mapToEntity(dto);
@@ -53,8 +53,8 @@ public class ProductService {
 
         // Check available balance before creating product
         if (requestedAmount > balance) {
-            throw new RuntimeException("Insufficient main balance to create product. Available: "
-                    + balance + ", Required: " + requestedAmount);
+            throw new RuntimeException("পণ্য তৈরি করার জন্য পর্যাপ্ত ব্যালেন্স নেই। উপলব্ধ: "
+                    + balance + ", প্রয়োজন: " + requestedAmount);
         }
 
         // Create new MainBalance record instead of updating existing one
@@ -64,7 +64,7 @@ public class ProductService {
         newBalance.setTotalBalance(balance - requestedAmount);
         newBalance.setTotalProductCost(currentBalance.getTotalProductCost() + requestedAmount);
         newBalance.setWhoChanged(performedBy);
-        newBalance.setReason("Product creation: " + product.getName());
+        newBalance.setReason("নতুন পণ্য তৈরি: " + product.getName());
         
         // Save new balance record
         MainBalance savedBalance = mainBalanceRepository.save(newBalance);
@@ -76,7 +76,7 @@ public class ProductService {
         createTransactionHistory(
             "PRODUCT_COST",
             requestedAmount,
-            "Product purchase: " + product.getName() + " | Cost: " + requestedAmount,
+            "পণ্য ক্রয়: " + product.getName() + " | খরচ: " + requestedAmount + " টাকা",
             null,
             null,
             performedBy
@@ -106,8 +106,8 @@ public class ProductService {
 
         // Check available balance before creating product
         if (requestedAmount > balance) {
-            throw new RuntimeException("Insufficient main balance to create product. Available: "
-                    + balance + ", Required: " + requestedAmount);
+            throw new RuntimeException("পণ্য তৈরি করার জন্য পর্যাপ্ত ব্যালেন্স নেই। উপলব্ধ: "
+                    + balance + ", প্রয়োজন: " + requestedAmount);
         }
 
         // Create new MainBalance record
@@ -117,7 +117,7 @@ public class ProductService {
         newBalance.setTotalBalance(balance - requestedAmount);
         newBalance.setTotalProductCost(currentBalance.getTotalProductCost() + requestedAmount);
         newBalance.setWhoChanged(performedBy);
-        newBalance.setReason("Product creation with images: " + product.getName());
+        newBalance.setReason("ছবিসহ নতুন পণ্য তৈরি: " + product.getName());
         
         // Save new balance record
         mainBalanceRepository.save(newBalance);
@@ -128,7 +128,7 @@ public class ProductService {
         createTransactionHistory(
             "PRODUCT_COST",
             requestedAmount,
-            "Product purchase with images: " + product.getName() + " | Cost: " + requestedAmount,
+            "ছবিসহ পণ্য ক্রয়: " + product.getName() + " | খরচ: " + requestedAmount + " টাকা",
             null,
             null,
             performedBy
@@ -140,7 +140,7 @@ public class ProductService {
     /** Upload additional images for existing product */
     public void uploadProductImages(MultipartFile[] images, Long productId, String performedBy) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + productId));
+                .orElseThrow(() -> new RuntimeException("পণ্য খুঁজে পাওয়া যায়নি ID: " + productId));
 
         if (images != null && images.length > 0) {
             Arrays.stream(images)
@@ -156,7 +156,7 @@ public class ProductService {
             createTransactionHistory(
                 "MAINTENANCE", // or create new type "PRODUCT_MAINTENANCE"
                 0.0, // or actual cost if images have storage cost
-                "Uploaded images for product: " + product.getName(),
+                "পণ্যের ছবি আপলোড করা হয়েছে: " + product.getName(),
                 null,
                 null,
                 performedBy
@@ -167,7 +167,7 @@ public class ProductService {
     /** Delete specific image from product */
     public void deleteProductImage(Long productId, String filePath, String performedBy) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + productId));
+                .orElseThrow(() -> new RuntimeException("পণ্য খুঁজে পাওয়া যায়নি ID: " + productId));
 
         if (product.getImageFilePaths().remove(filePath)) {
             fileStorageService.deleteFile(filePath);
@@ -177,20 +177,21 @@ public class ProductService {
             createTransactionHistory(
                 "MAINTENANCE",
                 0.0,
-                "Deleted image from product: " + product.getName() + " | File: " + filePath,
+                "পণ্য থেকে ছবি ডিলিট করা হয়েছে: " + product.getName() + " | ফাইল: " + filePath,
                 null,
                 null,
                 performedBy
             );
         } else {
-            throw new RuntimeException("Image not found for this product: " + filePath);
+            throw new RuntimeException("এই পণ্যের জন্য ছবি খুঁজে পাওয়া যায়নি: " + filePath);
         }
     }
 
     /** Get all products */
     public List<ProductResponseDTO> getAllProducts() {
-        return productRepository.findAll()
-                .stream()
+        List<Product> products = productRepository.findAll();
+        System.out.println("সমস্ত পণ্য পাওয়া গেছে: " + products.size() + " টি");
+        return products.stream()
                 .map(ProductMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -198,14 +199,15 @@ public class ProductService {
     /** Get product by ID */
     public ProductResponseDTO getProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
+                .orElseThrow(() -> new RuntimeException("পণ্য খুঁজে পাওয়া যায়নি ID: " + id));
+        System.out.println("পণ্য পাওয়া গেছে ID: " + id + " - " + product.getName());
         return ProductMapper.toResponseDTO(product);
     }
 
     @Transactional
     public ProductResponseDTO updateProduct(Long id, ProductRequestDTO dto, String performedBy) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
+                .orElseThrow(() -> new RuntimeException("পণ্য খুঁজে পাওয়া যায়নি ID: " + id));
 
         // Store old cost for balance adjustment
         Double oldCostPrice = product.getCostPrice() + product.getPrice();
@@ -221,8 +223,8 @@ public class ProductService {
 
         // Check if adjustment can be covered
         if (balanceAdjustment > 0 && balanceAdjustment > currentTotalBalance) {
-            throw new RuntimeException("Insufficient main balance to update product. Available: "
-                    + currentTotalBalance + ", Required adjustment: " + balanceAdjustment);
+            throw new RuntimeException("পণ্য আপডেট করার জন্য পর্যাপ্ত ব্যালেন্স নেই। উপলব্ধ: "
+                    + currentTotalBalance + ", প্রয়োজনীয় সমন্বয়: " + balanceAdjustment);
         }
 
         // Create new MainBalance record
@@ -232,7 +234,7 @@ public class ProductService {
         newBalance.setTotalBalance(currentTotalBalance - balanceAdjustment);
         newBalance.setTotalProductCost(currentTotalProductCost + balanceAdjustment);
         newBalance.setWhoChanged(performedBy);
-        newBalance.setReason("Product update: " + product.getName() + " -> " + dto.getName());
+        newBalance.setReason("পণ্য আপডেট: " + product.getName() + " -> " + dto.getName());
         
         // Save new balance record
         mainBalanceRepository.save(newBalance);
@@ -265,7 +267,7 @@ public class ProductService {
         if (balanceAdjustment != 0) {
             String transactionType = balanceAdjustment > 0 ? "PRODUCT_COST" : "ADJUSTMENT";
             String description = String.format(
-                "Product cost adjustment: %s | Old cost: %.2f | New cost: %.2f | Adjustment: %.2f",
+                "পণ্য খরচ সমন্বয়: %s | পুরানো খরচ: %.2f টাকা | নতুন খরচ: %.2f টাকা | সমন্বয়: %.2f টাকা",
                 product.getName(), oldCostPrice, newCostPrice, balanceAdjustment
             );
             
@@ -279,6 +281,7 @@ public class ProductService {
             );
         }
 
+        System.out.println("পণ্য আপডেট করা হয়েছে ID: " + id);
         return ProductMapper.toResponseDTO(updated);
     }
 
@@ -286,7 +289,7 @@ public class ProductService {
     @Transactional
     public void deleteProduct(Long id, String performedBy) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
+                .orElseThrow(() -> new RuntimeException("পণ্য খুঁজে পাওয়া যায়নি ID: " + id));
 
         // Calculate refund amount
         Double refundAmount = product.getCostPrice() + product.getPrice();
@@ -299,7 +302,7 @@ public class ProductService {
         newBalance.setTotalBalance(currentBalance.getTotalBalance() + refundAmount);
         newBalance.setTotalProductCost(currentBalance.getTotalProductCost() - refundAmount);
         newBalance.setWhoChanged(performedBy);
-        newBalance.setReason("Product deletion: " + product.getName() + " | Refund: " + refundAmount);
+        newBalance.setReason("পণ্য ডিলিট: " + product.getName() + " | ফেরত: " + refundAmount + " টাকা");
         
         // Save new balance record
         mainBalanceRepository.save(newBalance);
@@ -313,7 +316,7 @@ public class ProductService {
         createTransactionHistory(
             "ADJUSTMENT",
             refundAmount,
-            "Product deletion refund: " + product.getName() + " | Amount: " + refundAmount,
+            "পণ্য ডিলিট ফেরত: " + product.getName() + " | Amount: " + refundAmount + " টাকা",
             null,
             null,
             performedBy
@@ -321,6 +324,7 @@ public class ProductService {
 
         // Delete product
         productRepository.deleteById(id);
+        System.out.println("পণ্য ডিলিট করা হয়েছে ID: " + id + " - " + product.getName());
     }
 
     /** Helper method to create new MainBalance record */
@@ -333,7 +337,7 @@ public class ProductService {
                 .totalInstallmentReturn(currentBalance.getTotalInstallmentReturn())
                 .totalEarnings(currentBalance.getTotalEarnings())
                 .whoChanged(currentBalance.getWhoChanged())
-                .reason("New record created from previous balance")
+                .reason("পূর্ববর্তী ব্যালেন্স থেকে নতুন রেকর্ড তৈরি করা হয়েছে")
                 .build();
     }
 
@@ -363,7 +367,7 @@ public class ProductService {
                         .totalInstallmentReturn(0.0)
                         .totalEarnings(0.0)
                         .whoChanged("system")
-                        .reason("Initial balance")
+                        .reason("প্রাথমিক ব্যালেন্স")
                         .build());
     }
 

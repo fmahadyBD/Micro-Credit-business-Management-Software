@@ -23,12 +23,13 @@ public class PaymentScheduleService {
     private final PaymentScheduleRepository paymentScheduleRepository;
     private final InstallmentRepository installmentRepository;
     private final AgentRepository agentRepository;
-
+    private final MainBalanceRepository mainBalanceRepository;
     private final TransactionHistoryRepository transactionHistoryRepository;
+    private final MemberRepository memberRepository;
 
     public Double perMonth(long id) {
         Installment installment = installmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Installment not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("ইন্সটলমেন্ট খুঁজে পাওয়া যায়নি ID: " + id));
         return installment.getMonthlyInstallmentAmount();
     }
 
@@ -36,12 +37,10 @@ public class PaymentScheduleService {
     public PaymentScheduleResponseDTO savePayment(PaymentScheduleRequestDTO request) {
         // Validate installment and agent exist
         Installment installment = installmentRepository.findById(request.getInstallmentId())
-                .orElseThrow(() -> new RuntimeException("Installment not found with id: "
-                        + request.getInstallmentId()));
+                .orElseThrow(() -> new RuntimeException("ইন্সটলমেন্ট খুঁজে পাওয়া যায়নি ID: " + request.getInstallmentId()));
 
         Agent agent = agentRepository.findById(request.getAgentId())
-                .orElseThrow(() -> new RuntimeException("Agent not found with id: "
-                        + request.getAgentId()));
+                .orElseThrow(() -> new RuntimeException("এজেন্ট খুঁজে পাওয়া যায়নি ID: " + request.getAgentId()));
 
         // Calculate payment details
         double totalPaid = installment.getPaymentSchedules()
@@ -51,6 +50,22 @@ public class PaymentScheduleService {
 
         double previousRemaining = Math.max(installment.getNeedPaidAmount() - totalPaid, 0.0);
         double newRemaining = Math.max(previousRemaining - request.getAmount(), 0.0);
+
+        // Update Main Balance
+        MainBalance currentBalance = getMainBalance();
+        MainBalance newBalance = createNewMainBalanceRecord(currentBalance);
+        
+        newBalance.setTotalBalance(currentBalance.getTotalBalance() + request.getAmount());
+        newBalance.setTotalInstallmentReturn(currentBalance.getTotalInstallmentReturn() + request.getAmount());
+        newBalance.setTotalEarnings(currentBalance.getTotalEarnings() + (request.getAmount() * 0.15));
+        newBalance.setWhoChanged("system");
+        
+        String memberName = memberRepository.findById(installment.getMember().getId())
+                .map(Member::getName)
+                .orElse("অজানা সদস্য");
+        newBalance.setReason("ইন্সটলমেন্ট পেমেন্ট গ্রহণ করা হয়েছে: " + memberName + " | Amount: " + request.getAmount() + " টাকা");
+        
+        mainBalanceRepository.save(newBalance);
 
         // Create payment schedule
         PaymentSchedule schedule = PaymentSchedule.builder()
@@ -70,23 +85,29 @@ public class PaymentScheduleService {
             schedule.setStatus(PaymentStatus.COMPLETED);
             installment.setStatus(InstallmentStatus.COMPLETED);
             installmentRepository.save(installment);
-            log.info("Installment {} marked as COMPLETED", installment.getId());
+            log.info("ইন্সটলমেন্ট {} কমপ্লিট হিসেবে মার্ক করা হয়েছে", installment.getId());
         } else {
             schedule.setStatus(PaymentStatus.PAID);
             if (installment.getStatus() == InstallmentStatus.PENDING) {
                 installment.setStatus(InstallmentStatus.ACTIVE);
                 installmentRepository.save(installment);
-                log.info("Installment {} marked as ACTIVE", installment.getId());
+                log.info("ইন্সটলমেন্ট {} একটিভ হিসেবে মার্ক করা হয়েছে", installment.getId());
             }
         }
 
         PaymentSchedule savedSchedule = paymentScheduleRepository.save(schedule);
 
-     
-    
+        // Create transaction history
+        createTransactionHistory(
+            "INSTALLMENT_PAYMENT",
+            request.getAmount(),
+            "ইন্সটলমেন্ট পেমেন্ট গ্রহণ: " + memberName + " | পরিশোধিত: " + request.getAmount() + " টাকা | বাকি: " + newRemaining + " টাকা",
+            null,
+            installment.getMember().getId(),
+            "system"
+        );
 
-     
-
+        log.info("ইন্সটলমেন্ট পেমেন্ট সফলভাবে সংরক্ষণ করা হয়েছে ID: {}", savedSchedule.getId());
         return mapToResponseDTO(savedSchedule, previousRemaining);
     }
 
@@ -95,6 +116,7 @@ public class PaymentScheduleService {
         List<PaymentSchedule> schedules = paymentScheduleRepository
                 .findByInstallmentIdOrderByCreatedTimeDesc(installmentId);
 
+        log.info("ইন্সটলমেন্ট ID {} এর জন্য {} টি পেমেন্ট পাওয়া গেছে", installmentId, schedules.size());
         return schedules.stream()
                 .map(s -> mapToResponseDTO(s, null))
                 .collect(Collectors.toList());
@@ -103,8 +125,7 @@ public class PaymentScheduleService {
     @Transactional(readOnly = true)
     public InstallmentBalanceDTO getRemainingBalanceByInstallmentId(Long installmentId) {
         Installment installment = installmentRepository.findById(installmentId)
-                .orElseThrow(() -> new RuntimeException(
-                        "Installment not found with id: " + installmentId));
+                .orElseThrow(() -> new RuntimeException("ইন্সটলমেন্ট খুঁজে পাওয়া যায়নি ID: " + installmentId));
 
         // Calculate total paid amount
         Double totalPaid = paymentScheduleRepository.findTotalPaidAmountByInstallmentId(installmentId);
@@ -118,6 +139,7 @@ public class PaymentScheduleService {
         // Calculate remaining balance
         Double remainingBalance = Math.max(installment.getNeedPaidAmount() - totalPaid, 0.0);
 
+        log.info("ইন্সটলমেন্ট ব্যালেন্স চেক করা হয়েছে ID: {} | বাকি: {} টাকা", installmentId, remainingBalance);
         return InstallmentBalanceDTO.builder()
                 .installmentId(installmentId)
                 .totalAmount(installment.getNeedPaidAmount())
@@ -132,7 +154,7 @@ public class PaymentScheduleService {
     @Transactional(readOnly = true)
     public PaymentScheduleResponseDTO getPaymentById(Long id) {
         PaymentSchedule schedule = paymentScheduleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Payment schedule not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("পেমেন্ট শিডিউল খুঁজে পাওয়া যায়নি ID: " + id));
 
         return mapToResponseDTO(schedule, null);
     }
@@ -140,11 +162,12 @@ public class PaymentScheduleService {
     @Transactional(readOnly = true)
     public List<PaymentScheduleResponseDTO> getPaymentsByAgentId(Long agentId) {
         agentRepository.findById(agentId)
-                .orElseThrow(() -> new RuntimeException("Agent not found with id: " + agentId));
+                .orElseThrow(() -> new RuntimeException("এজেন্ট খুঁজে পাওয়া যায়নি ID: " + agentId));
 
         List<PaymentSchedule> schedules = paymentScheduleRepository
                 .findByCollectingAgentIdOrderByCreatedTimeDesc(agentId);
 
+        log.info("এজেন্ট ID {} এর জন্য {} টি পেমেন্ট পাওয়া গেছে", agentId, schedules.size());
         return schedules.stream()
                 .map(s -> mapToResponseDTO(s, null))
                 .collect(Collectors.toList());
@@ -155,6 +178,7 @@ public class PaymentScheduleService {
         List<PaymentSchedule> schedules = paymentScheduleRepository
                 .findByInstallmentMemberIdOrderByCreatedTimeDesc(memberId);
 
+        log.info("সদস্য ID {} এর জন্য {} টি পেমেন্ট পাওয়া গেছে", memberId, schedules.size());
         return schedules.stream()
                 .map(s -> mapToResponseDTO(s, null))
                 .collect(Collectors.toList());
@@ -163,12 +187,26 @@ public class PaymentScheduleService {
     @Transactional
     public void deletePayment(Long id) {
         PaymentSchedule schedule = paymentScheduleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Payment schedule not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("পেমেন্ট শিডিউল খুঁজে পাওয়া যায়নি ID: " + id));
 
         Installment installment = schedule.getInstallment();
         double deletedAmount = schedule.getPaidAmount();
 
-      
+        // Update Main Balance for deleted payment
+        MainBalance currentBalance = getMainBalance();
+        MainBalance newBalance = createNewMainBalanceRecord(currentBalance);
+        
+        newBalance.setTotalBalance(currentBalance.getTotalBalance() - deletedAmount);
+        newBalance.setTotalInstallmentReturn(currentBalance.getTotalInstallmentReturn() - deletedAmount);
+        newBalance.setTotalEarnings(currentBalance.getTotalEarnings() - (deletedAmount * 0.15));
+        newBalance.setWhoChanged("system");
+        
+        String memberName = memberRepository.findById(installment.getMember().getId())
+                .map(Member::getName)
+                .orElse("অজানা সদস্য");
+        newBalance.setReason("ইন্সটলমেন্ট পেমেন্ট ডিলিট করা হয়েছে: " + memberName + " | Amount: " + deletedAmount + " টাকা");
+        
+        mainBalanceRepository.save(newBalance);
 
         // Delete the payment
         paymentScheduleRepository.delete(schedule);
@@ -191,12 +229,17 @@ public class PaymentScheduleService {
             installmentRepository.save(installment);
         }
 
-        // Log transaction
-        logTransaction("PAYMENT_DELETED", deletedAmount, 
-            "Payment deleted for installment ID: " + installment.getId(), 
-            installment.getMember().getId());
+        // Create transaction history for deletion
+        createTransactionHistory(
+            "PAYMENT_DELETED",
+            deletedAmount,
+            "ইন্সটলমেন্ট পেমেন্ট ডিলিট: " + memberName + " | Amount: " + deletedAmount + " টাকা | নতুন বাকি: " + remaining + " টাকা",
+            null,
+            installment.getMember().getId(),
+            "system"
+        );
 
-        log.info("Payment deleted: {} from installment: {}", deletedAmount, installment.getId());
+        log.info("পেমেন্ট ডিলিট করা হয়েছে: {} টাকা ইন্সটলমেন্ট ID: {} থেকে", deletedAmount, installment.getId());
     }
 
     private PaymentScheduleResponseDTO mapToResponseDTO(PaymentSchedule schedule,
@@ -228,6 +271,49 @@ public class PaymentScheduleService {
                 .build();
     }
 
+    /** Helper method to create new MainBalance record */
+    private MainBalance createNewMainBalanceRecord(MainBalance currentBalance) {
+        return MainBalance.builder()
+                .totalBalance(currentBalance.getTotalBalance())
+                .totalInvestment(currentBalance.getTotalInvestment())
+                .totalProductCost(currentBalance.getTotalProductCost())
+                .totalMaintenanceCost(currentBalance.getTotalMaintenanceCost())
+                .totalInstallmentReturn(currentBalance.getTotalInstallmentReturn())
+                .totalEarnings(currentBalance.getTotalEarnings())
+                .whoChanged(currentBalance.getWhoChanged())
+                .reason("পূর্ববর্তী ব্যালেন্স থেকে নতুন রেকর্ড তৈরি করা হয়েছে")
+                .build();
+    }
+
+    /** Helper method to create transaction history */
+    private void createTransactionHistory(String type, Double amount, String description,
+            Long shareholderId, Long memberId, String performedBy) {
+        TransactionHistory transaction = TransactionHistory.builder()
+                .type(type)
+                .amount(amount)
+                .description(description)
+                .shareholderId(shareholderId)
+                .memberId(memberId)
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        transactionHistoryRepository.save(transaction);
+    }
+
+    /** Helper method to get current main balance */
+    private MainBalance getMainBalance() {
+        return mainBalanceRepository.findTopByOrderByIdDesc()
+                .orElseGet(() -> MainBalance.builder()
+                        .totalBalance(0.0)
+                        .totalInvestment(0.0)
+                        .totalProductCost(0.0)
+                        .totalMaintenanceCost(0.0)
+                        .totalInstallmentReturn(0.0)
+                        .totalEarnings(0.0)
+                        .whoChanged("system")
+                        .reason("প্রাথমিক ব্যালেন্স")
+                        .build());
+    }
 
     private void logTransaction(String type, double amount, String desc, Long memberId) {
         TransactionHistory txn = TransactionHistory.builder()

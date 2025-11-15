@@ -100,7 +100,7 @@ class _NewProductPageState extends State<NewProductPage>
   // Reset the form to initial state for new product entry
   void _resetForm() {
     _formKey.currentState?.reset();
-    
+
     _nameController.clear();
     _categoryController.clear();
     _descriptionController.clear();
@@ -108,18 +108,18 @@ class _NewProductPageState extends State<NewProductPage>
     _costPriceController.clear();
     _agentSearchController.clear();
     _memberSearchController.clear();
-    
+
     setState(() {
       _selectedImages.clear();
       _selectedAgent = null;
       _selectedMember = null;
       _isDeliveryRequired = false;
-      
+
       // Reset filtered lists to show all items
       _filteredAgents = List.from(_agents);
       _filteredMembers = List.from(_members);
     });
-    
+
     // Restart animations for better UX
     _animationController.reset();
     _animationController.forward();
@@ -141,9 +141,11 @@ class _NewProductPageState extends State<NewProductPage>
         _members = members;
         _filteredMembers = members;
 
-        // Set selected agent and member if editing
+        // Set selected agent and member if editing - IMPROVED with null safety
         if (widget.product != null) {
           final product = widget.product!;
+
+          // Set agent with better error handling
           if (product.soldByAgentId != null) {
             try {
               _selectedAgent = _agents.firstWhere(
@@ -152,8 +154,25 @@ class _NewProductPageState extends State<NewProductPage>
               _agentSearchController.text = _selectedAgent?.name ?? '';
             } catch (e) {
               print('Agent not found with ID: ${product.soldByAgentId}');
+              // Try to find by name as fallback
+              if (product.soldByAgentName != null &&
+                  product.soldByAgentName!.isNotEmpty) {
+                try {
+                  _selectedAgent = _agents.firstWhere(
+                    (agent) => agent.name == product.soldByAgentName,
+                  );
+                  _agentSearchController.text = _selectedAgent?.name ?? '';
+                } catch (e) {
+                  print(
+                      'Agent not found with name: ${product.soldByAgentName}');
+                  _showInfoSnackbar(
+                      'Original agent not found. Please reselect agent.');
+                }
+              }
             }
           }
+
+          // Set member with better error handling
           if (product.whoRequestId != null) {
             try {
               _selectedMember = _members.firstWhere(
@@ -162,8 +181,31 @@ class _NewProductPageState extends State<NewProductPage>
               _memberSearchController.text = _selectedMember?.name ?? '';
             } catch (e) {
               print('Member not found with ID: ${product.whoRequestId}');
+              // Try to find by name as fallback
+              if (product.whoRequestName != null &&
+                  product.whoRequestName!.isNotEmpty) {
+                try {
+                  _selectedMember = _members.firstWhere(
+                    (member) => member.name == product.whoRequestName,
+                  );
+                  _memberSearchController.text = _selectedMember?.name ?? '';
+                } catch (e) {
+                  print(
+                      'Member not found with name: ${product.whoRequestName}');
+                  _showInfoSnackbar(
+                      'Original member not found. Please reselect member.');
+                }
+              }
             }
           }
+
+          // Debug logging
+          print(
+              'Selected Agent: ${_selectedAgent?.name} (ID: ${_selectedAgent?.id})');
+          print(
+              'Selected Member: ${_selectedMember?.name} (ID: ${_selectedMember?.id})');
+          print('Product Agent ID: ${product.soldByAgentId}');
+          print('Product Member ID: ${product.whoRequestId}');
         }
 
         _isLoading = false;
@@ -260,32 +302,40 @@ class _NewProductPageState extends State<NewProductPage>
         totalPrice: (double.tryParse(_priceController.text) ?? 0.0) +
             (double.tryParse(_costPriceController.text) ?? 0.0),
         isDeliveryRequired: _isDeliveryRequired,
-        dateAdded: DateTime.now(),
-        imageFilePaths: [],
+        dateAdded: widget.product?.dateAdded ?? DateTime.now(),
+        imageFilePaths: widget.product?.imageFilePaths ?? [],
         soldByAgentId: _selectedAgent!.id,
         whoRequestId: _selectedMember!.id,
+        soldByAgentName: _selectedAgent!.name,
+        whoRequestName: _selectedMember!.name,
       );
 
       ProductModel savedProduct;
 
-      if (_selectedImages.isNotEmpty) {
-        // Convert images to MultipartFile
-        final imageFiles = await Future.wait(
-          _selectedImages.map((file) async {
-            final fileBytes = await file.readAsBytes();
-            return ProductService.createMultipartFile(
-              fileBytes,
-              'product_${DateTime.now().millisecondsSinceEpoch}.jpg',
-            );
-          }),
-        );
-
-        savedProduct = await _productService.createProductWithImages(
-          product: product,
-          images: imageFiles,
-        );
+      if (widget.product != null) {
+        // UPDATE existing product
+        savedProduct = await _productService.updateProduct(product);
       } else {
-        savedProduct = await _productService.createProduct(product);
+        // CREATE new product
+        if (_selectedImages.isNotEmpty) {
+          // Convert images to MultipartFile
+          final imageFiles = await Future.wait(
+            _selectedImages.map((file) async {
+              final fileBytes = await file.readAsBytes();
+              return ProductService.createMultipartFile(
+                fileBytes,
+                'product_${DateTime.now().millisecondsSinceEpoch}.jpg',
+              );
+            }),
+          );
+
+          savedProduct = await _productService.createProductWithImages(
+            product: product,
+            images: imageFiles,
+          );
+        } else {
+          savedProduct = await _productService.createProduct(product);
+        }
       }
 
       if (mounted) {
@@ -302,9 +352,9 @@ class _NewProductPageState extends State<NewProductPage>
           _resetForm();
           _showInfoSnackbar('Form reset. Ready to add another product.');
         } else {
-          // If editing, we can optionally navigate back or stay
-          // For now, we'll stay on the page but keep the edited data
+          // If editing, navigate back to products list
           await Future.delayed(const Duration(milliseconds: 500));
+          Navigator.pop(context);
         }
       }
     } catch (e) {

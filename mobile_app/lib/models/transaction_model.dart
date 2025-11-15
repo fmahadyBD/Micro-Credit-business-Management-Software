@@ -28,10 +28,12 @@ class TransactionModel {
     DateTime parseTimestamp(dynamic ts) {
       try {
         if (ts == null) return DateTime.now();
+
         // case: ISO string
         if (ts is String) {
           return DateTime.parse(ts);
         }
+
         // case: list like [2025,11,15,16,28,31]
         if (ts is List) {
           final parts = ts.cast<int>();
@@ -43,13 +45,12 @@ class TransactionModel {
           final ss = parts.length > 5 ? parts[5] : 0;
           return DateTime(y, mo, d, hh, mm, ss);
         }
+
         // case: millis since epoch
         if (ts is int) {
           return DateTime.fromMillisecondsSinceEpoch(ts);
         }
-      } catch (e) {
-        // fallback
-      }
+      } catch (_) {}
       return DateTime.now();
     }
 
@@ -69,45 +70,84 @@ class TransactionModel {
       return null;
     }
 
+    // Helper function to parse and clean string fields
+    String? parseString(dynamic value) {
+      if (value == null) return null;
+      final str = value.toString().trim();
+      return str.isEmpty ? null : str;
+    }
+
     return TransactionModel(
-      id: (json['id'] is int) ? json['id'] as int : (json['id'] is String ? int.tryParse(json['id']) ?? 0 : 0),
+      id: (json['id'] is int)
+          ? json['id']
+          : (json['id'] is String ? int.tryParse(json['id']) ?? 0 : 0),
       type: (json['type'] ?? '').toString(),
       amount: parseDouble(json['amount']),
       description: (json['description'] ?? '').toString(),
       timestamp: parseTimestamp(json['timestamp']),
       shareholderId: parseInt(json['shareholderId']),
-      shareholderName: json['shareholderName']?.toString(),
+      shareholderName: parseString(json['shareholderName']),
       memberId: parseInt(json['memberId']),
-      memberName: json['memberName']?.toString(),
+      memberName: parseString(json['memberName']),
     );
   }
 
-  // Display-friendly getters
+  // ---------------------------------------------------------
+  // FIXED DISPLAY NAME LOGIC
+  // ---------------------------------------------------------
   String get displayName {
-    if (memberName != null && memberName!.isNotEmpty) {
+    // Priority 1: Use actual names from API if available
+    if (memberName != null && memberName!.trim().isNotEmpty) {
       return memberName!;
-    } else if (shareholderName != null && shareholderName!.isNotEmpty) {
+    }
+    
+    if (shareholderName != null && shareholderName!.trim().isNotEmpty) {
       return shareholderName!;
     }
+    
+    // Priority 2: Smart fallbacks based on transaction type and IDs
     switch (type) {
       case 'INVESTMENT':
-        return shareholderId != null ? 'Shareholder #$shareholderId' : 'Investment';
       case 'WITHDRAWAL':
-        return shareholderId != null ? 'Shareholder #$shareholderId' : 'Withdrawal';
+        // For shareholder transactions, check if we at least have an ID
+        if (shareholderId != null) {
+          return 'Shareholder #$shareholderId';
+        }
+        return type == 'INVESTMENT' ? 'Investment' : 'Withdrawal';
+        
       case 'INSTALLMENT_RETURN':
       case 'ADVANCED_PAYMENT':
-        return memberId != null ? 'Member #$memberId' : 'Customer';
+        // For member transactions, check if we at least have an ID
+        if (memberId != null) {
+          return 'Customer #$memberId';
+        }
+        return 'Customer Payment';
+        
       case 'PRODUCT_COST':
         return 'Product Purchase';
+        
       case 'MAINTENANCE':
         return 'Maintenance';
+        
       case 'EARNINGS':
         return 'Interest Earnings';
+        
       default:
-        return 'System';
+        return 'Transaction';
     }
   }
 
+  // Check if this is a shareholder transaction
+  bool get isShareholderTransaction {
+    return type == 'INVESTMENT' || type == 'WITHDRAWAL';
+  }
+
+  // Check if this is a member transaction  
+  bool get isMemberTransaction {
+    return type == 'INSTALLMENT_RETURN' || type == 'ADVANCED_PAYMENT';
+  }
+
+  // Positive or negative amount
   bool get isPositive {
     return type == 'INVESTMENT' ||
         type == 'INSTALLMENT_RETURN' ||
@@ -115,11 +155,13 @@ class TransactionModel {
         type == 'EARNINGS';
   }
 
+  // Amount formatting
   String get formattedAmount {
     final sign = isPositive ? '+' : '-';
     return '$sign৳${amount.abs().toStringAsFixed(2)}';
   }
 
+  // Date formatting
   String get formattedDate {
     try {
       return DateFormat('dd/MM/yyyy').format(timestamp);
@@ -128,6 +170,7 @@ class TransactionModel {
     }
   }
 
+  // Time formatting
   String get formattedTime {
     try {
       return DateFormat('HH:mm').format(timestamp);
@@ -136,6 +179,7 @@ class TransactionModel {
     }
   }
 
+  // Display text for type
   String get typeDisplayName {
     switch (type) {
       case 'INVESTMENT':
@@ -157,8 +201,32 @@ class TransactionModel {
     }
   }
 
+  // Debug info to understand missing names
+  String get debugNameInfo {
+    return 'Type: $type, '
+        'MemberID: $memberId, MemberName: $memberName, '
+        'ShareholderID: $shareholderId, ShareholderName: $shareholderName';
+  }
+
   @override
   String toString() {
     return 'TransactionModel(id: $id, type: $type, amount: $amount, timestamp: $timestamp)';
+  }
+
+  // Convert to map for debugging
+  Map<String, dynamic> toDebugMap() {
+    return {
+      'id': id,
+      'type': type,
+      'amount': amount,
+      'description': description,
+      'timestamp': timestamp.toString(),
+      'shareholderId': shareholderId,
+      'shareholderName': shareholderName,
+      'memberId': memberId,
+      'memberName': memberName,
+      'displayName': displayName,
+      'isPositive': isPositive,
+    };
   }
 }

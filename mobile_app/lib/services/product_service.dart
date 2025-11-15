@@ -178,52 +178,51 @@ class ProductService {
     }
   }
 
-  /// Update product
-  Future<ProductModel> updateProduct(ProductModel product) async {
-    try {
-      final headers = await _getHeaders();
+ /// Update product - FIXED
+Future<ProductModel> updateProduct(ProductModel product) async {
+  try {
+    final headers = await _getHeaders();
 
-      final requestBody = {
-        'name': product.name,
-        'category': product.category,
-        'description': product.description,
-        'price': product.price,
-        'costPrice': product.costPrice,
-        'isDeliveryRequired': product.isDeliveryRequired,
-        if (product.soldByAgentId != null)
-          'soldByAgentId': product.soldByAgentId,
-        if (product.whoRequestId != null) 'whoRequestId': product.whoRequestId,
-      };
+    final requestBody = {
+      'name': product.name,
+      'category': product.category,
+      'description': product.description,
+      'price': product.price,
+      'costPrice': product.costPrice,
+      'isDeliveryRequired': product.isDeliveryRequired,
+      'soldByAgentId': product.soldByAgentId, // Ensure this is included
+      'whoRequestId': product.whoRequestId, // Ensure this is included
+    };
 
-      print('Updating product with data: $requestBody');
+    print('Updating product ID: ${product.id} with data: $requestBody');
 
-      final response = await http.put(
-        Uri.parse('$baseUrl/${product.id}'),
-        headers: headers,
-        body: jsonEncode(requestBody),
-      );
+    final response = await http.put(
+      Uri.parse('$baseUrl/${product.id}'),
+      headers: headers,
+      body: jsonEncode(requestBody),
+    );
 
-      print('Update product response status: ${response.statusCode}');
-      print('Update product response body: ${response.body}');
+    print('Update product response status: ${response.statusCode}');
+    print('Update product response body: ${response.body}');
 
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        if (responseData['success'] == true) {
-          return ProductModel.fromJson(responseData['product']);
-        } else {
-          throw Exception(
-              responseData['message'] ?? 'Failed to update product');
-        }
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      if (responseData['success'] == true) {
+        return ProductModel.fromJson(responseData['product']);
       } else {
-        final errorData = jsonDecode(response.body);
-        throw Exception(errorData['message'] ??
-            'Failed to update product: ${response.statusCode}');
+        throw Exception(
+            responseData['message'] ?? 'Failed to update product');
       }
-    } catch (e) {
-      print('Update product error: $e');
-      throw Exception('Error updating product: $e');
+    } else {
+      final errorData = jsonDecode(response.body);
+      throw Exception(errorData['message'] ??
+          'Failed to update product: ${response.statusCode}');
     }
+  } catch (e) {
+    print('Update product error: $e');
+    throw Exception('Error updating product: $e');
   }
+}
 
   /// Delete product
   Future<void> deleteProduct(int id) async {

@@ -12,6 +12,8 @@ public class TransactionHistoryResponseDTO {
     private Double amount;
     private String description;
     private Long shareholderId;
+    private String shareholderName;
     private Long memberId;
+    private String memberName;
     private LocalDateTime timestamp;
 }

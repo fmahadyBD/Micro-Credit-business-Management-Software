@@ -1,6 +1,7 @@
 package com.fmahadybd.backend.controller;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +46,7 @@ public class InstallmentController {
 
     private final InstallmentService installmentService;
     private final InstallmentMapper installmentMapper;
+    
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -57,8 +59,8 @@ public class InstallmentController {
                     content = @Content(schema = @Schema(implementation = InstallmentResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
-    public ResponseEntity<InstallmentResponseDTO> createInstallment(@Valid @RequestBody InstallmentCreateDTO installmentCreateDTO) {
-        InstallmentResponseDTO responseDTO = installmentService.createInstallment(installmentCreateDTO);
+    public ResponseEntity<InstallmentResponseDTO> createInstallment(@Valid @RequestBody InstallmentCreateDTO installmentCreateDTO,  Principal principal) {
+        InstallmentResponseDTO responseDTO = installmentService.createInstallment(installmentCreateDTO,principal.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
@@ -76,15 +78,13 @@ public class InstallmentController {
     })
     public ResponseEntity<InstallmentResponseDTO> createInstallmentWithImages(
             @RequestPart("installment") String installmentJson,
-            @RequestPart(value = "images", required = false) MultipartFile[] images) throws IOException {
+            @RequestPart(value = "images", required = false) MultipartFile[] images,  Principal principal) throws IOException {
         
         InstallmentCreateDTO installmentCreateDTO = objectMapper.readValue(installmentJson, InstallmentCreateDTO.class);
-        InstallmentResponseDTO responseDTO = installmentService.createInstallmentWithImages(installmentCreateDTO, images);
+        InstallmentResponseDTO responseDTO = installmentService.createInstallmentWithImages(installmentCreateDTO, images,principal.getName() );
         
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
-    }
-
-   
+}
    
    
    
@@ -154,9 +154,11 @@ public class InstallmentController {
     })
     public ResponseEntity<InstallmentResponseDTO> updateInstallment(
             @PathVariable Long id,
-            @Valid @RequestBody InstallmentUpdateDTO installmentDTO) {
+            @Valid @RequestBody InstallmentUpdateDTO installmentDTO,
+             Principal principal
+            ) {
 
-        InstallmentResponseDTO updatedInstallment = installmentService.update(id, installmentDTO);
+        InstallmentResponseDTO updatedInstallment = installmentService.update(id, installmentDTO ,principal.getName());
         return ResponseEntity.ok(updatedInstallment);
     }
 

@@ -37,7 +37,7 @@ public class ProductController {
     public ResponseEntity<Map<String, Object>> createProduct(
             @Valid @RequestBody ProductRequestDTO productRequestDTO,
             Principal principal) { // Add Principal parameter
-        
+
         Map<String, Object> response = new HashMap<>();
         try {
             String performedBy = principal.getName(); // Get current username
@@ -59,7 +59,7 @@ public class ProductController {
             @RequestPart("product") @Valid String productJson,
             @RequestPart(value = "images", required = false) MultipartFile[] images,
             Principal principal) { // Add Principal parameter
-        
+
         Map<String, Object> response = new HashMap<>();
         try {
             ProductRequestDTO productDTO = objectMapper.readValue(productJson, ProductRequestDTO.class);
@@ -86,7 +86,7 @@ public class ProductController {
             @PathVariable Long id,
             @RequestPart("images") MultipartFile[] images,
             Principal principal) { // Add Principal parameter
-        
+
         Map<String, Object> response = new HashMap<>();
         try {
             String performedBy = principal.getName(); // Get current username
@@ -107,7 +107,7 @@ public class ProductController {
             @PathVariable Long id,
             @RequestParam String filePath,
             Principal principal) { // Add Principal parameter
-        
+
         Map<String, Object> response = new HashMap<>();
         try {
             String performedBy = principal.getName(); // Get current username
@@ -153,17 +153,23 @@ public class ProductController {
     public ResponseEntity<Map<String, Object>> updateProduct(
             @PathVariable Long id,
             @Valid @RequestBody ProductRequestDTO productRequestDTO,
-            Principal principal) { // Add Principal parameter
-        
+            Principal principal) {
+
         Map<String, Object> response = new HashMap<>();
         try {
-            String performedBy = principal.getName(); // Get current username
+            String performedBy = principal.getName();
+
+            // Log the update attempt
+            System.out.println("Updating product ID: " + id + " with data: " + productRequestDTO);
+
             ProductResponseDTO updatedProduct = productService.updateProduct(id, productRequestDTO, performedBy);
+
             response.put("success", true);
             response.put("message", "Product updated successfully!");
             response.put("product", updatedProduct);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            System.out.println("Error updating product ID: " + id + " - " + e.getMessage());
             response.put("success", false);
             response.put("message", "Error updating product: " + e.getMessage());
             return ResponseEntity.badRequest().body(response);
@@ -177,7 +183,7 @@ public class ProductController {
     public ResponseEntity<Map<String, Object>> deleteProduct(
             @PathVariable Long id,
             Principal principal) { // Add Principal parameter
-        
+
         Map<String, Object> response = new HashMap<>();
         try {
             String performedBy = principal.getName(); // Get current username
