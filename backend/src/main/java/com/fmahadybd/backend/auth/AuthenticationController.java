@@ -34,4 +34,7 @@ public class AuthenticationController {
     ) {
         return ResponseEntity.ok(service.authenticate(request)); // Returns the authentication response.
     }
+    
+    
+    // TODO I need the Logout code
 }

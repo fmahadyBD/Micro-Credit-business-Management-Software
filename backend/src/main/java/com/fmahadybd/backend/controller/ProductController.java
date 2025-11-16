@@ -16,6 +16,7 @@ import com.fmahadybd.backend.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +34,14 @@ public class ProductController {
 
     @PostMapping
     @Operation(summary = "Create product without images")
-    public ResponseEntity<Map<String, Object>> createProduct(@Valid @RequestBody ProductRequestDTO productRequestDTO) {
+    public ResponseEntity<Map<String, Object>> createProduct(
+            @Valid @RequestBody ProductRequestDTO productRequestDTO,
+            Principal principal) { // Add Principal parameter
+
         Map<String, Object> response = new HashMap<>();
         try {
-            ProductResponseDTO savedProduct = productService.createProduct(productRequestDTO);
+            String performedBy = principal.getName(); // Get current username
+            ProductResponseDTO savedProduct = productService.createProduct(productRequestDTO, performedBy);
             response.put("success", true);
             response.put("message", "Product created successfully!");
             response.put("product", savedProduct);
@@ -52,12 +57,14 @@ public class ProductController {
     @Operation(summary = "Create product with images")
     public ResponseEntity<Map<String, Object>> createProductWithImages(
             @RequestPart("product") @Valid String productJson,
-            @RequestPart(value = "images", required = false) MultipartFile[] images) {
+            @RequestPart(value = "images", required = false) MultipartFile[] images,
+            Principal principal) { // Add Principal parameter
 
         Map<String, Object> response = new HashMap<>();
         try {
             ProductRequestDTO productDTO = objectMapper.readValue(productJson, ProductRequestDTO.class);
-            ProductResponseDTO savedProduct = productService.createProductWithImages(productDTO, images);
+            String performedBy = principal.getName(); // Get current username
+            ProductResponseDTO savedProduct = productService.createProductWithImages(productDTO, images, performedBy);
 
             response.put("success", true);
             response.put("message", "Product created successfully!");
@@ -77,11 +84,13 @@ public class ProductController {
     @Operation(summary = "Upload product images")
     public ResponseEntity<Map<String, Object>> uploadProductImages(
             @PathVariable Long id,
-            @RequestPart("images") MultipartFile[] images) {
+            @RequestPart("images") MultipartFile[] images,
+            Principal principal) { // Add Principal parameter
 
         Map<String, Object> response = new HashMap<>();
         try {
-            productService.uploadProductImages(images, id);
+            String performedBy = principal.getName(); // Get current username
+            productService.uploadProductImages(images, id, performedBy);
             response.put("success", true);
             response.put("message", "Images uploaded successfully!");
             return ResponseEntity.ok(response);
@@ -96,11 +105,13 @@ public class ProductController {
     @Operation(summary = "Delete product image")
     public ResponseEntity<Map<String, Object>> deleteProductImage(
             @PathVariable Long id,
-            @RequestParam String filePath) {
+            @RequestParam String filePath,
+            Principal principal) { // Add Principal parameter
 
         Map<String, Object> response = new HashMap<>();
         try {
-            productService.deleteProductImage(id, filePath);
+            String performedBy = principal.getName(); // Get current username
+            productService.deleteProductImage(id, filePath, performedBy);
             response.put("success", true);
             response.put("message", "Image deleted successfully!");
             return ResponseEntity.ok(response);
@@ -115,9 +126,13 @@ public class ProductController {
 
     @GetMapping
     @Operation(summary = "Get all products")
-    // @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+        try {
+            List<ProductResponseDTO> products = productService.getAllProducts();
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(List.of());
+        }
     }
 
     @GetMapping("/{id}")
@@ -137,16 +152,24 @@ public class ProductController {
     @Operation(summary = "Update product")
     public ResponseEntity<Map<String, Object>> updateProduct(
             @PathVariable Long id,
-            @Valid @RequestBody ProductRequestDTO productRequestDTO) {
+            @Valid @RequestBody ProductRequestDTO productRequestDTO,
+            Principal principal) {
 
         Map<String, Object> response = new HashMap<>();
         try {
-            ProductResponseDTO updatedProduct = productService.updateProduct(id, productRequestDTO);
+            String performedBy = principal.getName();
+
+            // Log the update attempt
+            System.out.println("Updating product ID: " + id + " with data: " + productRequestDTO);
+
+            ProductResponseDTO updatedProduct = productService.updateProduct(id, productRequestDTO, performedBy);
+
             response.put("success", true);
             response.put("message", "Product updated successfully!");
             response.put("product", updatedProduct);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            System.out.println("Error updating product ID: " + id + " - " + e.getMessage());
             response.put("success", false);
             response.put("message", "Error updating product: " + e.getMessage());
             return ResponseEntity.badRequest().body(response);
@@ -157,10 +180,14 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete product")
-    public ResponseEntity<Map<String, Object>> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> deleteProduct(
+            @PathVariable Long id,
+            Principal principal) { // Add Principal parameter
+
         Map<String, Object> response = new HashMap<>();
         try {
-            productService.deleteProduct(id);
+            String performedBy = principal.getName(); // Get current username
+            productService.deleteProduct(id, performedBy);
             response.put("success", true);
             response.put("message", "Product deleted successfully!");
             response.put("id", id);

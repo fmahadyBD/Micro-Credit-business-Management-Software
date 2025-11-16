@@ -3,8 +3,9 @@ package com.fmahadybd.backend.dto;
 import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import com.fmahadybd.backend.entity.PaymentStatus;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fmahadybd.backend.entity.PaymentStatus;
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,9 +23,16 @@ public class PaymentScheduleResponseDTO {
     private PaymentStatus status;
     private String agentName;
     private Long agentId;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate paymentDate;
+    
     private String notes;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdTime;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedTime;
     
     // Additional helpful fields for frontend

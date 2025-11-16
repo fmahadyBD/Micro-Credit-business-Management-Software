@@ -22,31 +22,37 @@ public class MainBalance {
     @Column(nullable = false)
     private Double totalBalance = 0.0;
 
+    /** Money received from shareholders */
     @Min(0)
     @Column(nullable = false)
     private Double totalInvestment = 0.0;
 
-    @Min(0)
-    @Column(nullable = false)
-    private Double totalWithdrawal = 0.0;
-
+    /** Total spent to purchase products */
     @Min(0)
     @Column(nullable = false)
     private Double totalProductCost = 0.0;
 
+    /** Office/maintenance cost */
     @Min(0)
     @Column(nullable = false)
     private Double totalMaintenanceCost = 0.0;
 
+    /** Customer installment return (including advanced payments) */
     @Min(0)
     @Column(nullable = false)
     private Double totalInstallmentReturn = 0.0;
 
+    /** 15% interest earnings ONLY */
     @Min(0)
     @Column(nullable = false)
-    private Double totalEarnings = 0.0; // 15% earnings tracked separately
+    private Double totalEarnings = 0.0;
 
     private LocalDateTime lastUpdated;
+
+    @Column(name = "who_changed")
+    private String whoChanged;
+
+    private String reason;
 
     @PrePersist
     @PreUpdate
@@ -54,20 +60,22 @@ public class MainBalance {
         this.lastUpdated = LocalDateTime.now();
     }
 
+    /** Total expense = product cost + maintenance */
     @Transient
     public Double getTotalExpenses() {
-        return (totalProductCost + totalMaintenanceCost + totalWithdrawal);
+        return totalProductCost + totalMaintenanceCost;
     }
 
+    /** Net profit = Only the 15% interest earnings */
     @Transient
     public Double getNetProfit() {
-        // Net profit = Total earnings from interest
         return totalEarnings;
     }
 
+    /** Validate that total balance matches the calculated balance */
     @Transient
-    public Double getTotalRevenue() {
-        // Total money coming in
-        return totalInvestment + totalInstallmentReturn;
+    public boolean isBalanceValid() {
+        Double calculatedBalance = totalInvestment + totalInstallmentReturn + totalEarnings - getTotalExpenses();
+        return totalBalance.equals(calculatedBalance);
     }
 }

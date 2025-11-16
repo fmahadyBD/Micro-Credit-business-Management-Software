@@ -36,26 +36,31 @@ public class Shareholder {
     private String house;
 
     @Column(nullable = false)
+    @Builder.Default
     private Double investment = 0.0;
 
     @Column(name = "total_share")
+    @Builder.Default
     private Integer totalShare = 0;
-
-    @Column(name = "total_earning")
+    
+    @Column(name = "total_earnings", nullable = false)
+    @Builder.Default
     private Double totalEarning = 0.0;
 
     @Column(name = "current_balance")
+    @Builder.Default
     private Double currentBalance = 0.0;
 
     private String role;
 
+    @Builder.Default
     private String status = "Active";
 
     @Column(name = "join_date")
     private LocalDate joinDate;
 
     @Column(name = "user_id", unique = true)
-    private Long userId; // Links to User table
+    private Long userId;
 
     // Calculate ROI
     @Transient
