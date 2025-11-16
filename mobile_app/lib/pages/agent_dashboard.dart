@@ -9,6 +9,8 @@ import 'package:mobile_app/screens/installment/installment_list_screen.dart';
 import 'package:mobile_app/screens/payment/payment_record_screen.dart';
 import 'package:mobile_app/widgets/agent_sidebar.dart';
 import 'package:mobile_app/widgets/topbar.dart';
+import 'package:mobile_app/models/balance_model.dart';
+import 'package:mobile_app/services/transaction_service.dart';
 
 class AgentDashboard extends StatefulWidget {
   const AgentDashboard({super.key});
@@ -23,6 +25,12 @@ class _AgentDashboardState extends State<AgentDashboard>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  
+  // Balance state
+  final TransactionService _transactionService = TransactionService();
+  BalanceModel? _currentBalance;
+  bool _isLoadingBalance = true;
+  String _balanceErrorMessage = '';
 
   @override
   void initState() {
@@ -42,12 +50,38 @@ class _AgentDashboardState extends State<AgentDashboard>
       curve: Curves.easeOutCubic,
     ));
     _animationController.forward();
+    _loadBalanceData();
   }
 
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadBalanceData() async {
+    try {
+      setState(() {
+        _isLoadingBalance = true;
+        _balanceErrorMessage = '';
+      });
+
+      final balance = await _transactionService.getCurrentBalance();
+
+      if (mounted) {
+        setState(() {
+          _currentBalance = balance;
+          _isLoadingBalance = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _balanceErrorMessage = e.toString();
+          _isLoadingBalance = false;
+        });
+      }
+    }
   }
 
   // Add this method to handle profile navigation
@@ -129,6 +163,275 @@ class _AgentDashboardState extends State<AgentDashboard>
     );
   }
 
+  /// Build Main Balance Card
+  Widget _buildBalanceCard() {
+    if (_isLoadingBalance) {
+      return _buildLoadingBalanceCard();
+    }
+
+    if (_balanceErrorMessage.isNotEmpty) {
+      return _buildErrorBalanceCard();
+    }
+
+    if (_currentBalance == null) {
+      return _buildErrorBalanceCard();
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.green.shade600,
+            Colors.green.shade400,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.green.withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.account_balance_wallet,
+                  color: Colors.white,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'মোট ব্যালেন্স',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'বর্তমান মোট ব্যালেন্স',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.refresh, color: Colors.white),
+                onPressed: _loadBalanceData,
+                tooltip: 'রিফ্রেশ',
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Center(
+            child: Text(
+              '৳${_currentBalance!.totalBalance.toStringAsFixed(2)}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 36,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withOpacity(0.2)),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.info_outline, color: Colors.white, size: 16),
+                SizedBox(width: 8),
+                Text(
+                  'মূল ব্যালেন্স সারাংশ',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingBalanceCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.grey.shade600,
+            Colors.grey.shade400,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.account_balance_wallet,
+                  color: Colors.white,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'মোট ব্যালেন্স',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'ব্যালেন্স লোড হচ্ছে...',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          const Center(
+            child: CircularProgressIndicator(
+              color: Colors.white,
+              strokeWidth: 3,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorBalanceCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.red.shade600,
+            Colors.red.shade400,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.error_outline,
+                  color: Colors.white,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ব্যালেন্স লোড ব্যর্থ',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'ডেটা লোড করতে সমস্যা হয়েছে',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Center(
+            child: ElevatedButton.icon(
+              onPressed: _loadBalanceData,
+              icon: const Icon(Icons.refresh, size: 20),
+              label: const Text('পুনরায় চেষ্টা করুন'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.red.shade600,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Agent Dashboard Home with stats
   Widget _buildAgentDashboardHome() {
     return SingleChildScrollView(
@@ -204,6 +507,11 @@ class _AgentDashboardState extends State<AgentDashboard>
               ],
             ),
           ),
+
+          const SizedBox(height: 24),
+
+          // Main Balance Card
+          _buildBalanceCard(),
 
           const SizedBox(height: 32),
 
@@ -447,7 +755,7 @@ class _AgentDashboardState extends State<AgentDashboard>
     return Scaffold(
       appBar: TopBar(
         title: _getPageTitle(),
-        onProfileTap: _navigateToProfile, // ✅ Fixed: Added the callback
+        onProfileTap: _navigateToProfile,
       ),
       drawer: AgentSideBar(
         onItemSelected: (page) {
