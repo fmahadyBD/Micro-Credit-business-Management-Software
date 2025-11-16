@@ -44,7 +44,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
     return Drawer(
       child: Column(
         children: [
-          // Animated Header
+          // Animated Header with Custom Icon
           SlideTransition(
             position: Tween<Offset>(
               begin: const Offset(0, -0.5),
@@ -79,6 +79,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // ✅ UPDATED: Custom App Icon
                       TweenAnimationBuilder(
                         tween: Tween<double>(begin: 0, end: 1),
                         duration: const Duration(milliseconds: 600),
@@ -99,10 +100,22 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                                   ),
                                 ],
                               ),
-                              child: const Icon(
-                                Icons.admin_panel_settings,
-                                size: 36,
-                                color: Colors.deepPurple,
+                              child: ClipOval(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Image.asset(
+                                    'assets/icon/app_icon.png',
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      // Fallback to default icon if image fails to load
+                                      return const Icon(
+                                        Icons.admin_panel_settings,
+                                        size: 36,
+                                        color: Colors.deepPurple,
+                                      );
+                                    },
+                                  ),
+                                ),
                               ),
                             ),
                           );
@@ -110,7 +123,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                       ),
                       const SizedBox(height: 16),
                       const Text(
-                        'Admin Panel',
+                        'তেজপাতা শেয়ার বিজনেস',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -119,7 +132,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Management System',
+                        'এডমিন প্যানেল',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.9),
                           fontSize: 14,
@@ -132,6 +145,10 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
               ),
             ),
           ),
+
+
+
+
 
           // Menu Items
           Expanded(
@@ -210,7 +227,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                     ],
                   ),
 
-                  // ✅ UPDATED: Payment Section (Standalone, not nested)
+                  // Payment Section
                   _buildMenuItem(
                     icon: Icons.receipt_long,
                     title: 'Record Payment',

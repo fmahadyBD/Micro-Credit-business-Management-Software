@@ -42,10 +42,11 @@ class _AgentSideBarState extends State<AgentSideBar>
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDark = themeProvider.isDarkMode;
 
+
     return Drawer(
       child: Column(
         children: [
-          // Animated Header
+          // Animated Header with Custom Icon
           SlideTransition(
             position: Tween<Offset>(
               begin: const Offset(0, -0.5),
@@ -61,14 +62,14 @@ class _AgentSideBarState extends State<AgentSideBar>
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Colors.blue.shade700,
-                    Colors.blue.shade500,
-                    Colors.blue.shade400,
+                    Colors.deepPurple.shade700,
+                    Colors.deepPurple.shade500,
+                    Colors.deepPurple.shade400,
                   ],
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.blue.withOpacity(0.3),
+                    color: Colors.deepPurple.withOpacity(0.3),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -80,6 +81,7 @@ class _AgentSideBarState extends State<AgentSideBar>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // ✅ UPDATED: Custom App Icon
                       TweenAnimationBuilder(
                         tween: Tween<double>(begin: 0, end: 1),
                         duration: const Duration(milliseconds: 600),
@@ -100,10 +102,22 @@ class _AgentSideBarState extends State<AgentSideBar>
                                   ),
                                 ],
                               ),
-                              child: const Icon(
-                                Icons.support_agent,
-                                size: 36,
-                                color: Colors.blue,
+                              child: ClipOval(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Image.asset(
+                                    'assets/icon/app_icon.png',
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      // Fallback to default icon if image fails to load
+                                      return const Icon(
+                                        Icons.admin_panel_settings,
+                                        size: 36,
+                                        color: Colors.deepPurple,
+                                      );
+                                    },
+                                  ),
+                                ),
                               ),
                             ),
                           );
@@ -111,7 +125,7 @@ class _AgentSideBarState extends State<AgentSideBar>
                       ),
                       const SizedBox(height: 16),
                       const Text(
-                        'Agent Panel',
+                        'তেজপাতা শেয়ার বিজনেস',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -120,7 +134,7 @@ class _AgentSideBarState extends State<AgentSideBar>
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Management System',
+                        'ম্যানেজমেন্ট প্যানেল',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.9),
                           fontSize: 14,
@@ -134,7 +148,11 @@ class _AgentSideBarState extends State<AgentSideBar>
             ),
           ),
 
-          // Menu Items (Agent has limited access)
+
+
+
+
+          // Menu Items
           Expanded(
             child: FadeTransition(
               opacity: _animationController,
@@ -163,7 +181,17 @@ class _AgentSideBarState extends State<AgentSideBar>
                     ],
                   ),
 
-                  // Members Section (Agent can manage members)
+                  // Users Section
+                  _buildExpansionTile(
+                    icon: Icons.people_outline,
+                    title: 'Users',
+                    children: [
+                      _buildSubMenuItem(
+                          'All Users', 'all_users', Icons.people_alt_outlined),
+                    ],
+                  ),
+
+                  // Members Section
                   _buildExpansionTile(
                     icon: Icons.card_membership_outlined,
                     title: 'Members',
@@ -172,6 +200,18 @@ class _AgentSideBarState extends State<AgentSideBar>
                           'All Members', 'all_members', Icons.group),
                       _buildSubMenuItem(
                           'New Member', 'new_member', Icons.person_add_alt),
+                    ],
+                  ),
+
+                  // Shareholders Section
+                  _buildExpansionTile(
+                    icon: Icons.business_center_outlined,
+                    title: 'Shareholders',
+                    children: [
+                      _buildSubMenuItem('All Shareholders', 'all_shareholders',
+                          Icons.business),
+                      _buildSubMenuItem('Add Shareholder', 'add_shareholder',
+                          Icons.add_business),
                     ],
                   ),
 
@@ -196,14 +236,16 @@ class _AgentSideBarState extends State<AgentSideBar>
                     page: 'record_payment',
                   ),
 
-                  const Divider(height: 1, indent: 16, endIndent: 16),
-                  const SizedBox(height: 8),
-
-                  // Profile Section
-                  _buildMenuItem(
-                    icon: Icons.person_outline,
-                    title: 'My Profile',
-                    page: 'profile',
+                  // Agent Section
+                  _buildExpansionTile(
+                    icon: Icons.support_agent_outlined,
+                    title: 'Agents',
+                    children: [
+                      _buildSubMenuItem(
+                          'All Agents', 'all_agents', Icons.people_alt),
+                      _buildSubMenuItem(
+                          'New Agent', 'new_agent', Icons.person_add_alt_1),
+                    ],
                   ),
                 ],
               ),
@@ -221,7 +263,7 @@ class _AgentSideBarState extends State<AgentSideBar>
             child: ListTile(
               leading: Icon(
                 isDark ? Icons.light_mode : Icons.dark_mode_outlined,
-                color: Colors.blue,
+                color: Colors.deepPurple,
               ),
               title: Text(
                 isDark ? 'Light Mode' : 'Dark Mode',
@@ -230,7 +272,7 @@ class _AgentSideBarState extends State<AgentSideBar>
               trailing: Switch(
                 value: isDark,
                 onChanged: (value) => themeProvider.toggleTheme(),
-                activeColor: Colors.blue,
+                activeColor: Colors.deepPurple,
               ),
               onTap: () => themeProvider.toggleTheme(),
             ),
@@ -239,6 +281,7 @@ class _AgentSideBarState extends State<AgentSideBar>
       ),
     );
   }
+
 
   Widget _buildMenuItem({
     required IconData icon,
