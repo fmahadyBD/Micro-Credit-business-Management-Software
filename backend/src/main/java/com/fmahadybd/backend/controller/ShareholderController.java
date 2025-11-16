@@ -14,6 +14,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -278,4 +280,39 @@ public class ShareholderController {
         }
     }
 
+    @GetMapping("/me")
+    @Operation(summary = "Get current logged-in shareholder's profile")
+    public ResponseEntity<?> getCurrentShareholderProfile() {
+        try {
+            // Get current user's email from security context
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+
+            ShareholderDTO shareholder = shareholderService.getShareholderByEmail(email);
+            return ResponseEntity.ok(shareholder);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "আপনার শেয়ারহোল্ডার প্রোফাইল পাওয়া যায়নি"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "প্রোফাইল লোড করতে সমস্যা হয়েছে"));
+        }
+    }
+
+    @GetMapping("/me/investment-history")
+    @Operation(summary = "Get current shareholder's investment history")
+    public ResponseEntity<?> getMyInvestmentHistory() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+
+            ShareholderDTO shareholder = shareholderService.getShareholderByEmail(email);
+            List<InvestmentHistoryDTO> history = shareholderService.getInvestmentHistory(shareholder.getId());
+
+            return ResponseEntity.ok(history);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "বিনিয়োগ ইতিহাস লোড করতে সমস্যা হয়েছে"));
+        }
+    }
 }

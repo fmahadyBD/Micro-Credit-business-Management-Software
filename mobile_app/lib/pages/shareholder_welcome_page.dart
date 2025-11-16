@@ -1,15 +1,15 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mobile_app/pages/login_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile_app/models/shareholder_model.dart';
+import 'package:mobile_app/models/investment_history_model.dart';
 import 'package:mobile_app/models/balance_model.dart';
-import 'package:mobile_app/models/transaction_model.dart';
-import 'package:mobile_app/services/transaction_service.dart';
 import 'package:mobile_app/screens/installment/installment_model.dart';
+import 'package:mobile_app/services/shareholder_service.dart';
+import 'package:mobile_app/services/transaction_service.dart';
 import 'package:mobile_app/screens/installment/installment_service.dart';
+import 'package:mobile_app/widgets/topbar.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile_app/widgets/topbar.dart'; // Add this import
 
 class ShareholderWelcomePage extends StatefulWidget {
   const ShareholderWelcomePage({super.key});
@@ -23,15 +23,23 @@ class _ShareholderWelcomePageState extends State<ShareholderWelcomePage>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  String userName = 'Shareholder';
-  
-  // New state variables for balance and installments
+
+  final ShareholderService _shareholderService = ShareholderService();
   final TransactionService _transactionService = TransactionService();
   final InstallmentService _installmentService = InstallmentService();
+  
+  ShareholderModel? _shareholderProfile;
+  List<InvestmentHistoryModel> _investmentHistory = [];
   BalanceModel? _currentBalance;
   List<InstallmentModel> _installments = [];
+  
+  bool _isLoadingProfile = true;
+  bool _isLoadingHistory = true;
   bool _isLoadingBalance = true;
   bool _isLoadingInstallments = true;
+  
+  String _profileErrorMessage = '';
+  String _historyErrorMessage = '';
   String _balanceErrorMessage = '';
   String _installmentsErrorMessage = '';
 
@@ -56,9 +64,7 @@ class _ShareholderWelcomePageState extends State<ShareholderWelcomePage>
     ));
 
     _animationController.forward();
-    _loadUserInfo();
-    _loadBalanceData();
-    _loadInstallmentsData();
+    _loadAllData();
   }
 
   @override
@@ -67,18 +73,62 @@ class _ShareholderWelcomePageState extends State<ShareholderWelcomePage>
     super.dispose();
   }
 
-  Future<void> _loadUserInfo() async {
+  Future<void> _loadAllData() async {
+    await Future.wait([
+      _loadProfile(),
+      _loadInvestmentHistory(),
+      _loadBalanceData(),
+      _loadInstallmentsData(),
+    ]);
+  }
+
+  Future<void> _loadProfile() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('jwt_token');
-      if (token != null && !JwtDecoder.isExpired(token)) {
-        final decodedToken = JwtDecoder.decode(token);
+      setState(() {
+        _isLoadingProfile = true;
+        _profileErrorMessage = '';
+      });
+
+      final profile = await _shareholderService.getCurrentShareholderProfile();
+
+      if (mounted) {
         setState(() {
-          userName = decodedToken['sub'] ?? 'Shareholder';
+          _shareholderProfile = profile;
+          _isLoadingProfile = false;
         });
       }
     } catch (e) {
-      print('Error loading user info: $e');
+      if (mounted) {
+        setState(() {
+          _profileErrorMessage = e.toString().replaceAll('Exception: ', '');
+          _isLoadingProfile = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _loadInvestmentHistory() async {
+    try {
+      setState(() {
+        _isLoadingHistory = true;
+        _historyErrorMessage = '';
+      });
+
+      final history = await _shareholderService.getMyInvestmentHistory();
+
+      if (mounted) {
+        setState(() {
+          _investmentHistory = history;
+          _isLoadingHistory = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _historyErrorMessage = e.toString().replaceAll('Exception: ', '');
+          _isLoadingHistory = false;
+        });
+      }
     }
   }
 
@@ -100,7 +150,7 @@ class _ShareholderWelcomePageState extends State<ShareholderWelcomePage>
     } catch (e) {
       if (mounted) {
         setState(() {
-          _balanceErrorMessage = e.toString();
+          _balanceErrorMessage = e.toString().replaceAll('Exception: ', '');
           _isLoadingBalance = false;
         });
       }
@@ -125,32 +175,16 @@ class _ShareholderWelcomePageState extends State<ShareholderWelcomePage>
     } catch (e) {
       if (mounted) {
         setState(() {
-          _installmentsErrorMessage = e.toString();
+          _installmentsErrorMessage = e.toString().replaceAll('Exception: ', '');
           _isLoadingInstallments = false;
         });
       }
     }
   }
 
-  Future<void> _handleLogout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('jwt_token');
-
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
-    }
-  }
-
-  // Add this method for profile navigation (required by TopBar)
   void _navigateToProfile() {
-    // You can add profile navigation logic here if needed
-    print('Shareholder Dashboard: Profile navigation');
-    // For now, we'll just show a snackbar or you can navigate to profile page
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profile page coming soon')),
+      const SnackBar(content: Text('প্রোফাইল পেজ শীঘ্রই আসছে')),
     );
   }
 
@@ -175,175 +209,6 @@ class _ShareholderWelcomePageState extends State<ShareholderWelcomePage>
       default:
         return Colors.grey;
     }
-  }
-
-  Widget _buildBalanceCard() {
-    if (_isLoadingBalance) {
-      return _buildLoadingCard('ব্যালেন্স লোড হচ্ছে...');
-    }
-
-    if (_balanceErrorMessage.isNotEmpty) {
-      return _buildErrorCard('ব্যালেন্স লোড করতে সমস্যা: $_balanceErrorMessage', _loadBalanceData);
-    }
-
-    if (_currentBalance == null) {
-      return _buildErrorCard('ব্যালেন্স ডেটা পাওয়া যায়নি', _loadBalanceData);
-    }
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.3),
-              width: 2,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(Icons.account_balance_wallet,
-                        color: Colors.amber.shade300, size: 24),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'মোট ব্যালেন্স',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.95),
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Text(
-                '৳${_currentBalance!.totalBalance.toStringAsFixed(2)}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withOpacity(0.2)),
-                ),
-                child: Column(
-                  children: [
-                    // First row - Main metrics
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildMiniStat('মোট বিনিয়োগ',
-                            _currentBalance!.totalInvestment, Colors.blue.shade300),
-                        _buildMiniStat(
-                            'মোট মুনাফা',
-                            _currentBalance!.totalEarnings,
-                            Colors.green.shade300),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    // Second row - Cost metrics
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildMiniStat('পণ্য খরচ',
-                            _currentBalance!.totalProductCost, Colors.red.shade300),
-                        _buildMiniStat(
-                            'রক্ষণাবেক্ষণ',
-                            _currentBalance!.totalMaintenanceCost,
-                            Colors.orange.shade300),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Divider(color: Colors.white.withOpacity(0.3), thickness: 1),
-                    const SizedBox(height: 12),
-                    // Net profit row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'নিট লাভ',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Text(
-                          '৳${_currentBalance!.netProfit.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            color: _currentBalance!.netProfit >= 0
-                                ? Colors.green.shade300
-                                : Colors.red.shade300,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMiniStat(String title, double value, Color color) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '৳${value.toStringAsFixed(0)}',
-            style: TextStyle(
-              color: color,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildLoadingCard(String message) {
@@ -414,148 +279,551 @@ class _ShareholderWelcomePageState extends State<ShareholderWelcomePage>
     );
   }
 
-  Widget _buildInstallmentCard(InstallmentModel installment) {
+  Widget _buildProfileCard() {
+    if (_isLoadingProfile) {
+      return _buildLoadingCard('প্রোফাইল লোড হচ্ছে...');
+    }
+
+    if (_profileErrorMessage.isNotEmpty) {
+      return _buildErrorCard(_profileErrorMessage, _loadProfile);
+    }
+
+    if (_shareholderProfile == null) {
+      return _buildErrorCard('প্রোফাইল পাওয়া যায়নি', _loadProfile);
+    }
+
+    final profile = _shareholderProfile!;
+
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withOpacity(0.3),
+              width: 2,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            installment.member?.name ?? 'N/A',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white.withOpacity(0.95),
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            installment.product?.name ?? 'N/A',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white.withOpacity(0.7),
-                            ),
-                          ),
-                        ],
-                      ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: _getStatusColor(installment.status).withOpacity(0.8),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        installment.status,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                    child: Icon(Icons.person, color: Colors.amber.shade300, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          profile.name,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.95),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: _getStatusColor(profile.status).withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            profile.status == 'Active' ? 'সক্রিয়' : 'নিষ্ক্রিয়',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                  Text(
+                    '#${profile.id}',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.6),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              
+              // Financial Overview
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white.withOpacity(0.2)),
                 ),
-                const SizedBox(height: 16),
-                Row(
+                child: Column(
                   children: [
-                    Expanded(
-                      child: _buildInstallmentInfoColumn(
-                        'মোট টাকা',
-                        '৳${installment.totalAmountOfProduct.toStringAsFixed(2)}',
-                      ),
-                    ),
-                    Expanded(
-                      child: _buildInstallmentInfoColumn(
-                        'অগ্রিম',
-                        '৳${installment.advancedPaid.toStringAsFixed(2)}',
-                      ),
-                    ),
+                    _buildFinancialRow('মোট বিনিয়োগ', profile.getFormattedInvestment(), 
+                        Colors.blue.shade300, Icons.trending_up),
+                    const SizedBox(height: 12),
+                    _buildFinancialRow('মোট আয়', '৳${profile.totalEarning.toStringAsFixed(2)}', 
+                        Colors.green.shade300, Icons.account_balance),
+                    const SizedBox(height: 12),
+                    _buildFinancialRow('বর্তমান ব্যালেন্স', profile.getFormattedBalance(), 
+                        Colors.amber.shade300, Icons.account_balance_wallet),
+                    const SizedBox(height: 12),
+                    _buildFinancialRow('মোট শেয়ার', profile.totalShare.toString(), 
+                        Colors.purple.shade300, Icons.pie_chart),
+                    const SizedBox(height: 12),
+                    _buildFinancialRow('ROI', '${profile.roi.toStringAsFixed(2)}%', 
+                        Colors.orange.shade300, Icons.percent),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Row(
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Contact Information
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white.withOpacity(0.2)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: _buildInstallmentInfoColumn(
-                        'মাসিক কিস্তি',
-                        '৳${installment.monthlyInstallmentAmount?.toStringAsFixed(2) ?? 'N/A'}',
+                    Text(
+                      'যোগাযোগের তথ্য',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Expanded(
-                      child: _buildInstallmentInfoColumn(
-                        'মেয়াদ',
-                        '${installment.installmentMonths} মাস',
-                      ),
-                    ),
+                    const SizedBox(height: 12),
+                    _buildInfoRow(Icons.email, profile.email),
+                    const SizedBox(height: 8),
+                    _buildInfoRow(Icons.phone, profile.phone),
+                    const SizedBox(height: 8),
+                    _buildInfoRow(Icons.location_city, '${profile.house}, ${profile.zila}'),
+                    const SizedBox(height: 8),
+                    _buildInfoRow(Icons.calendar_today, 'যোগদান: ${profile.getFormattedJoinDate()}'),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildInstallmentInfoColumn(
-                        'সুদ হার',
-                        '${installment.interestRate}%',
-                      ),
-                    ),
-                    Expanded(
-                      child: _buildInstallmentInfoColumn(
-                        'এজেন্ট',
-                        installment.givenProductAgent?.name ?? 'N/A',
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildInstallmentInfoColumn(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildFinancialRow(String label, String value, Color color, IconData icon) {
+    return Row(
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.white.withOpacity(0.6),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: color, size: 16),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.8),
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
-        const SizedBox(height: 4),
         Text(
           value,
           style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.white.withOpacity(0.9),
+            color: color,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.white.withOpacity(0.6), size: 16),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.8),
+              fontSize: 13,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBalanceCard() {
+    if (_isLoadingBalance) {
+      return _buildLoadingCard('ব্যালেন্স লোড হচ্ছে...');
+    }
+
+    if (_balanceErrorMessage.isNotEmpty) {
+      return _buildErrorCard('ব্যালেন্স লোড করতে সমস্যা: $_balanceErrorMessage', _loadBalanceData);
+    }
+
+    if (_currentBalance == null) {
+      return _buildErrorCard('ব্যালেন্স ডেটা পাওয়া যায়নি', _loadBalanceData);
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.3),
+              width: 2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(Icons.account_balance_wallet,
+                        color: Colors.amber.shade300, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'প্রধান ব্যালেন্স',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.95),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: Icon(Icons.refresh, color: Colors.amber.shade300),
+                    onPressed: _loadBalanceData,
+                    tooltip: 'রিফ্রেশ',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Text(
+                '৳${_currentBalance!.totalBalance.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white.withOpacity(0.2)),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildMiniStat('মোট বিনিয়োগ',
+                            _currentBalance!.totalInvestment, Colors.blue.shade300),
+                        _buildMiniStat(
+                            'মোট মুনাফা',
+                            _currentBalance!.totalEarnings,
+                            Colors.green.shade300),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildMiniStat('পণ্য খরচ',
+                            _currentBalance!.totalProductCost, Colors.red.shade300),
+                        _buildMiniStat(
+                            'রক্ষণাবেক্ষণ',
+                            _currentBalance!.totalMaintenanceCost,
+                            Colors.orange.shade300),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Divider(color: Colors.white.withOpacity(0.3), thickness: 1),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'নিট লাভ',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          '৳${_currentBalance!.netProfit.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            color: _currentBalance!.netProfit >= 0
+                                ? Colors.green.shade300
+                                : Colors.red.shade300,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMiniStat(String title, double value, Color color) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.8),
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '৳${value.toStringAsFixed(0)}',
+            style: TextStyle(
+              color: color,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInvestmentHistorySection() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.3),
+              width: 2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.history, color: Colors.amber.shade300, size: 24),
+                  const SizedBox(width: 12),
+                  Text(
+                    'বিনিয়োগ ইতিহাস',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.95),
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: Icon(Icons.refresh, color: Colors.amber.shade300),
+                    onPressed: _loadInvestmentHistory,
+                    tooltip: 'রিফ্রেশ',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              
+              if (_isLoadingHistory)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(40),
+                    child: CircularProgressIndicator(color: Colors.amber.shade300),
+                  ),
+                )
+              else if (_historyErrorMessage.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      Icon(Icons.error_outline, size: 48, color: Colors.red.shade300),
+                      const SizedBox(height: 12),
+                      Text(
+                        _historyErrorMessage,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white.withOpacity(0.7)),
+                      ),
+                    ],
+                  ),
+                )
+              else if (_investmentHistory.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(40),
+                  child: Column(
+                    children: [
+                      Icon(Icons.inbox, size: 64, color: Colors.white.withOpacity(0.5)),
+                      const SizedBox(height: 16),
+                      Text(
+                        'কোন বিনিয়োগ ইতিহাস পাওয়া যায়নি',
+                        style: TextStyle(color: Colors.white.withOpacity(0.7)),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Column(
+                  children: _investmentHistory.map(_buildInvestmentHistoryCard).toList(),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInvestmentHistoryCard(InvestmentHistoryModel history) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                history.getFormattedAmount(),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green.shade300,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade700.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.blue.shade300.withOpacity(0.5)),
+                ),
+                child: Text(
+                  history.getFormattedDate(),
+                  style: TextStyle(
+                    color: Colors.blue.shade100,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            history.description,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.8),
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(Icons.person_outline, size: 14, color: Colors.white.withOpacity(0.5)),
+              const SizedBox(width: 6),
+              Text(
+                'দ্বারা: ${history.performedBy}',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.5),
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -608,9 +876,27 @@ class _ShareholderWelcomePageState extends State<ShareholderWelcomePage>
               const SizedBox(height: 16),
               
               if (_isLoadingInstallments)
-                _buildLoadingCard('কিস্তি ডেটা লোড হচ্ছে...')
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(40),
+                    child: CircularProgressIndicator(color: Colors.amber.shade300),
+                  ),
+                )
               else if (_installmentsErrorMessage.isNotEmpty)
-                _buildErrorCard('কিস্তি লোড করতে সমস্যা: $_installmentsErrorMessage', _loadInstallmentsData)
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      Icon(Icons.error_outline, size: 48, color: Colors.red.shade300),
+                      const SizedBox(height: 12),
+                      Text(
+                        'কিস্তি লোড করতে সমস্যা: $_installmentsErrorMessage',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white.withOpacity(0.7)),
+                      ),
+                    ],
+                  ),
+                )
               else if (_installments.isEmpty)
                 Container(
                   padding: const EdgeInsets.all(40),
@@ -627,14 +913,150 @@ class _ShareholderWelcomePageState extends State<ShareholderWelcomePage>
                 )
               else
                 Column(
-                  children: [
-                    ..._installments.map(_buildInstallmentCard).toList(),
-                  ],
+                  children: _installments.map(_buildInstallmentCard).toList(),
                 ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildInstallmentCard(InstallmentModel installment) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      installment.member?.name ?? 'N/A',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white.withOpacity(0.95),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      installment.product?.name ?? 'N/A',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _getStatusColor(installment.status).withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  installment.status == 'ACTIVE' ? 'সক্রিয়' :
+                  installment.status == 'COMPLETED' ? 'সম্পন্ন' :
+                  installment.status == 'PENDING' ? 'অপেক্ষমাণ' :
+                  installment.status == 'OVERDUE' ? 'বকেয়া' : installment.status,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInstallmentInfoColumn(
+                  'মোট টাকা',
+                  '৳${installment.totalAmountOfProduct.toStringAsFixed(2)}',
+                ),
+              ),
+              Expanded(
+                child: _buildInstallmentInfoColumn(
+                  'অগ্রিম',
+                  '৳${installment.advancedPaid.toStringAsFixed(2)}',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInstallmentInfoColumn(
+                  'মাসিক কিস্তি',
+                  '৳${installment.monthlyInstallmentAmount?.toStringAsFixed(2) ?? 'N/A'}',
+                ),
+              ),
+              Expanded(
+                child: _buildInstallmentInfoColumn(
+                  'মেয়াদ',
+                  '${installment.installmentMonths} মাস',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInstallmentInfoColumn(
+                  'সুদ হার',
+                  '${installment.interestRate}%',
+                ),
+              ),
+              Expanded(
+                child: _buildInstallmentInfoColumn(
+                  'এজেন্ট',
+                  installment.givenProductAgent?.name ?? 'N/A',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInstallmentInfoColumn(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.white.withOpacity(0.6),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.white.withOpacity(0.9),
+          ),
+        ),
+      ],
     );
   }
 
@@ -648,8 +1070,8 @@ class _ShareholderWelcomePageState extends State<ShareholderWelcomePage>
 
     return Scaffold(
       appBar: TopBar(
-        title: 'Shareholder Dashboard', // You can customize this title
-        onProfileTap: _navigateToProfile, // Added profile navigation callback
+        title: 'শেয়ারহোল্ডার ড্যাশবোর্ড',
+        onProfileTap: _navigateToProfile,
       ),
       body: AnimatedContainer(
         duration: const Duration(seconds: 6),
@@ -662,151 +1084,83 @@ class _ShareholderWelcomePageState extends State<ShareholderWelcomePage>
           ),
         ),
         child: SafeArea(
-          child: Center(
+          child: RefreshIndicator(
+            onRefresh: _loadAllData,
+            color: Colors.amber.shade300,
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(20),
               child: FadeTransition(
                 opacity: _fadeAnimation,
                 child: SlideTransition(
                   position: _slideAnimation,
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Main Welcome Card
+                      // Welcome Header
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(32),
+                        borderRadius: BorderRadius.circular(20),
                         child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                           child: Container(
-                            padding: const EdgeInsets.all(48),
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(24),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(32),
+                              borderRadius: BorderRadius.circular(20),
                               border: Border.all(
                                 color: Colors.white.withOpacity(0.3),
                                 width: 2,
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
                             ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
+                            child: Row(
                               children: [
-                                // Logo/Icon
-                                TweenAnimationBuilder(
-                                  tween: Tween<double>(begin: 0, end: 1),
-                                  duration: const Duration(milliseconds: 800),
-                                  builder: (context, double value, child) {
-                                    return Transform.scale(
-                                      scale: value,
-                                      child: Container(
-                                        width: 120,
-                                        height: 120,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              Colors.amber.shade400,
-                                              Colors.orange.shade500,
-                                            ],
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.amber
-                                                  .withOpacity(0.5),
-                                              blurRadius: 25,
-                                              spreadRadius: 5,
-                                            ),
-                                          ],
-                                        ),
-                                        child: const Icon(
-                                          Icons.business_center,
-                                          color: Colors.white,
-                                          size: 60,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-
-                                const SizedBox(height: 32),
-
-                                // Welcome Text
-                                Text(
-                                  'Welcome Back!',
-                                  style: TextStyle(
-                                    fontSize: 36,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white.withOpacity(0.95),
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-
-                                const SizedBox(height: 12),
-
-                                // User Name
-                                Text(
-                                  userName,
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.amber.shade300,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-
-                                const SizedBox(height: 24),
-
-                                // Role Badge
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 12,
-                                  ),
+                                  padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: Colors.white.withOpacity(0.3),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.amber.shade400,
+                                        Colors.orange.shade500,
+                                      ],
                                     ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.verified_user,
-                                        color: Colors.amber.shade300,
-                                        size: 20,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.amber.withOpacity(0.5),
+                                        blurRadius: 15,
+                                        spreadRadius: 2,
                                       ),
-                                      const SizedBox(width: 8),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.business_center,
+                                    color: Colors.white,
+                                    size: 32,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
                                       Text(
-                                        'Shareholder',
+                                        'স্বাগতম!',
                                         style: TextStyle(
-                                          color: Colors.white.withOpacity(0.9),
                                           fontSize: 16,
-                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white.withOpacity(0.8),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        _shareholderProfile?.name ?? 'শেয়ারহোল্ডার',
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white.withOpacity(0.95),
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
-
-                                const SizedBox(height: 32),
-
-                                // Welcome Message
-                                Text(
-                                  'Thank you for being a valued shareholder.\nManage your investments and track installments.',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white.withOpacity(0.8),
-                                    height: 1.5,
-                                  ),
-                                  textAlign: TextAlign.center,
                                 ),
                               ],
                             ),
@@ -814,112 +1168,32 @@ class _ShareholderWelcomePageState extends State<ShareholderWelcomePage>
                         ),
                       ),
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 20),
+
+                      // Profile Card
+                      _buildProfileCard(),
+
+                      const SizedBox(height: 20),
 
                       // Balance Card
                       _buildBalanceCard(),
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 20),
+
+                      // Investment History
+                      _buildInvestmentHistorySection(),
+
+                      const SizedBox(height: 20),
 
                       // Installments Section
                       _buildInstallmentsSection(),
 
-                      const SizedBox(height: 32),
-
-                      // Info Cards
-                      Wrap(
-                        spacing: 16,
-                        runSpacing: 16,
-                        alignment: WrapAlignment.center,
-                        children: [
-                          _buildInfoCard(
-                            icon: Icons.insights,
-                            title: 'Analytics',
-                            subtitle: 'Coming Soon',
-                            color: Colors.blue,
-                          ),
-                          _buildInfoCard(
-                            icon: Icons.account_balance,
-                            title: 'Reports',
-                            subtitle: 'Coming Soon',
-                            color: Colors.green,
-                          ),
-                          _buildInfoCard(
-                            icon: Icons.notifications_active,
-                            title: 'Updates',
-                            subtitle: 'Coming Soon',
-                            color: Colors.orange,
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 40),
-
-                      // Remove the old logout button since we now have TopBar
-                      // The logout functionality is now in the TopBar
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-  }) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          width: 140,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.2),
-            ),
-          ),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.3),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 32,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
-                  fontSize: 12,
-                ),
-              ),
-            ],
           ),
         ),
       ),
