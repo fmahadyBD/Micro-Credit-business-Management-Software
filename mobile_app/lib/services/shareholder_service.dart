@@ -177,4 +177,54 @@ Future<ShareholderModel> createShareholder(ShareholderModel shareholder) async {
       throw Exception('Error fetching inactive shareholders: $e');
     }
   }
+
+// Add to lib/services/shareholder_service.dart
+
+Future<ShareholderModel> getShareholderByEmail(String email) async {
+  try {
+    final headers = await _getHeaders();
+    final response = await http.get(
+      Uri.parse('$baseUrl/by-email/$email'),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      return ShareholderModel.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 404) {
+      throw Exception('Shareholder not found with email: $email');
+    } else {
+      throw Exception('Failed to find shareholder');
+    }
+  } catch (e) {
+    throw Exception('Error searching shareholder: $e');
+  }
+}
+
+Future<ShareholderModel> addInvestment(
+  int shareholderId,
+  double amount,
+  String description,
+) async {
+  try {
+    final headers = await _getHeaders();
+    final response = await http.post(
+      Uri.parse('$baseUrl/$shareholderId/add-investment'),
+      headers: headers,
+      body: jsonEncode({
+        'amount': amount,
+        'description': description,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return ShareholderModel.fromJson(jsonDecode(response.body));
+    } else {
+      final errorData = jsonDecode(response.body);
+      throw Exception(errorData['error'] ?? 'Failed to add investment');
+    }
+  } catch (e) {
+    throw Exception('Error adding investment: $e');
+  }
+}
+
 }

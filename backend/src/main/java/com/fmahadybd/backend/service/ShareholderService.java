@@ -11,16 +11,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fmahadybd.backend.dto.AddInvestmentDTO;
+import com.fmahadybd.backend.dto.InvestmentHistoryDTO;
 import com.fmahadybd.backend.dto.ShareholderCreateDTO;
 import com.fmahadybd.backend.dto.ShareholderDTO;
 import com.fmahadybd.backend.dto.ShareholderDashboardDTO;
 import com.fmahadybd.backend.dto.ShareholderDetailsDTO;
 import com.fmahadybd.backend.dto.ShareholderUpdateDTO;
 import com.fmahadybd.backend.dto.StatisticsDTO;
+import com.fmahadybd.backend.entity.InvestmentHistory;
 import com.fmahadybd.backend.entity.MainBalance;
 import com.fmahadybd.backend.entity.Shareholder;
 import com.fmahadybd.backend.entity.TransactionHistory;
 import com.fmahadybd.backend.mapper.ShareholderMapper;
+import com.fmahadybd.backend.repository.InvestmentHistoryRepository;
 import com.fmahadybd.backend.repository.MainBalanceRepository;
 import com.fmahadybd.backend.repository.ShareholderRepository;
 import com.fmahadybd.backend.repository.TransactionHistoryRepository;
@@ -37,6 +41,7 @@ public class ShareholderService {
     private final ShareholderMapper shareholderMapper;
     private final MainBalanceRepository mainBalanceRepository;
     private final TransactionHistoryRepository transactionHistoryRepository;
+    private final InvestmentHistoryRepository investmentHistoryRepository;
 
     @Transactional
     public ShareholderDTO saveShareholder(ShareholderCreateDTO shareholderDTO) {
@@ -429,4 +434,79 @@ public class ShareholderService {
 
         return shareholderMapper.toDTO(shareholder);
     }
+
+
+
+
+
+
+
+
+    @Transactional
+public ShareholderDTO addInvestment(Long shareholderId, AddInvestmentDTO investmentDTO) {
+    log.info("Adding investment for shareholder ID: {}", shareholderId);
+    
+    // Get shareholder
+    Shareholder shareholder = shareholderRepository.findById(shareholderId)
+            .orElseThrow(() -> new RuntimeException("Shareholder not found with id: " + shareholderId));
+    
+    String performedBy = getLoggedInUsername();
+    Double amount = investmentDTO.getAmount();
+    
+    // Update shareholder investment and balance
+    Double currentInvestment = shareholder.getInvestment() != null ? shareholder.getInvestment() : 0.0;
+    Double currentBalance = shareholder.getCurrentBalance() != null ? shareholder.getCurrentBalance() : 0.0;
+    
+    shareholder.setInvestment(currentInvestment + amount);
+    shareholder.setCurrentBalance(currentBalance + amount);
+    
+    Shareholder updatedShareholder = shareholderRepository.save(shareholder);
+    
+    // Update main balance
+    updateMainBalanceForInvestment(amount, shareholder.getName(), performedBy);
+    
+    // Create transaction history
+    createTransactionHistory(
+        "INVESTMENT",
+        amount,
+        String.format("নতুন বিনিয়োগ: %s | পরিমাণ: ৳%.2f | %s", 
+            shareholder.getName(), amount, investmentDTO.getDescription()),
+        shareholderId,
+        null,
+        performedBy
+    );
+    
+    // Create investment history
+    InvestmentHistory history = InvestmentHistory.builder()
+            .shareholderId(shareholderId)
+            .amount(amount)
+            .investmentDate(LocalDateTime.now())
+            .description(investmentDTO.getDescription())
+            .performedBy(performedBy)
+            .build();
+    
+    investmentHistoryRepository.save(history);
+    
+    log.info("Investment added successfully for shareholder: {}", shareholder.getName());
+    return shareholderMapper.toDTO(updatedShareholder);
+}
+
+public List<InvestmentHistoryDTO> getInvestmentHistory(Long shareholderId) {
+    log.info("Fetching investment history for shareholder ID: {}", shareholderId);
+    
+    List<InvestmentHistory> histories = investmentHistoryRepository
+            .findByShareholderIdOrderByInvestmentDateDesc(shareholderId);
+    
+    return histories.stream()
+            .map(history -> InvestmentHistoryDTO.builder()
+                    .id(history.getId())
+                    .shareholderId(history.getShareholderId())
+                    .amount(history.getAmount())
+                    .investmentDate(history.getInvestmentDate())
+                    .description(history.getDescription())
+                    .performedBy(history.getPerformedBy())
+                    .createdAt(history.getCreatedAt())
+                    .build())
+            .collect(Collectors.toList());
+}
 }

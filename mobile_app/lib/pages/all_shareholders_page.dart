@@ -11,7 +11,8 @@ class AllShareholdersPage extends StatefulWidget {
   State<AllShareholdersPage> createState() => _AllShareholdersPageState();
 }
 
-class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTickerProviderStateMixin {
+class _AllShareholdersPageState extends State<AllShareholdersPage>
+    with SingleTickerProviderStateMixin {
   final ShareholderService _shareholderService = ShareholderService();
   final AuthService _authService = AuthService();
   List<ShareholderModel> _shareholders = [];
@@ -56,7 +57,7 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
         _isLoading = true;
         _errorMessage = '';
       });
-      
+
       final shareholders = await _shareholderService.getAllShareholders();
       setState(() {
         _shareholders = shareholders;
@@ -75,11 +76,16 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
   void _filterShareholders() {
     setState(() {
       _filteredShareholders = _shareholders.where((shareholder) {
-        final matchesSearch = shareholder.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            shareholder.email.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+        final matchesSearch = shareholder.name
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase()) ||
+            shareholder.email
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase()) ||
             shareholder.phone.contains(_searchQuery) ||
             shareholder.nidCard.contains(_searchQuery);
-        final matchesStatus = _filterStatus == 'ALL' || shareholder.status == _filterStatus;
+        final matchesStatus =
+            _filterStatus == 'ALL' || shareholder.status == _filterStatus;
         return matchesSearch && matchesStatus;
       }).toList();
     });
@@ -98,7 +104,8 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.blue.shade50,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(16)),
                 ),
                 child: Row(
                   children: [
@@ -107,7 +114,8 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                     Expanded(
                       child: Text(
                         shareholder.name,
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
                     IconButton(
@@ -129,7 +137,8 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                         _buildDetailRow('Phone', shareholder.phone),
                         _buildDetailRow('NID', shareholder.nidCard),
                         _buildDetailRow('Role', shareholder.role),
-                        _buildDetailRow('Join Date', shareholder.getFormattedJoinDate()),
+                        _buildDetailRow(
+                            'Join Date', shareholder.getFormattedJoinDate()),
                         _buildDetailRow('Status', shareholder.status),
                       ]),
                       const SizedBox(height: 16),
@@ -143,12 +152,18 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                       ]),
                       const SizedBox(height: 16),
                       _buildDetailSection('Financial Information', [
-                        _buildDetailRow('Investment', shareholder.getFormattedInvestment()),
-                        _buildDetailRow('Total Shares', shareholder.totalShare.toString()),
-                        _buildDetailRow('Total Earnings', '৳${shareholder.totalEarning.toStringAsFixed(2)}'),
-                        _buildDetailRow('Current Balance', shareholder.getFormattedBalance()),
-                        _buildDetailRow('ROI', '${shareholder.roi.toStringAsFixed(2)}%'),
-                        _buildDetailRow('Total Value', shareholder.getFormattedTotalValue()),
+                        _buildDetailRow(
+                            'Investment', shareholder.getFormattedInvestment()),
+                        _buildDetailRow(
+                            'Total Shares', shareholder.totalShare.toString()),
+                        _buildDetailRow('Total Earnings',
+                            '৳${shareholder.totalEarning.toStringAsFixed(2)}'),
+                        _buildDetailRow('Current Balance',
+                            shareholder.getFormattedBalance()),
+                        _buildDetailRow(
+                            'ROI', '${shareholder.roi.toStringAsFixed(2)}%'),
+                        _buildDetailRow('Total Value',
+                            shareholder.getFormattedTotalValue()),
                       ]),
                     ],
                   ),
@@ -201,7 +216,8 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(title,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.all(12),
@@ -250,7 +266,8 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
     final nomineeController = TextEditingController(text: shareholder.nominee);
     final zilaController = TextEditingController(text: shareholder.zila);
     final houseController = TextEditingController(text: shareholder.house);
-    final investmentController = TextEditingController(text: shareholder.investment.toString());
+    final investmentController =
+        TextEditingController(text: shareholder.investment.toString());
     final roleController = TextEditingController(text: shareholder.role);
     String selectedStatus = shareholder.status;
 
@@ -258,7 +275,8 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: Container(
             constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
             child: Column(
@@ -267,13 +285,16 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.blue.shade50,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(16)),
                   ),
                   child: Row(
                     children: [
                       const Icon(Icons.edit, color: Colors.blue),
                       const SizedBox(width: 12),
-                      const Text('Edit Shareholder', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      const Text('Edit Shareholder',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
                       const Spacer(),
                       IconButton(
                         icon: const Icon(Icons.close),
@@ -359,7 +380,8 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                             border: OutlineInputBorder(),
                           ),
                           items: ['Active', 'Inactive'].map((status) {
-                            return DropdownMenuItem(value: status, child: Text(status));
+                            return DropdownMenuItem(
+                                value: status, child: Text(status));
                           }).toList(),
                           onChanged: (value) {
                             setDialogState(() => selectedStatus = value!);
@@ -368,7 +390,9 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                         const SizedBox(height: 16),
                         const Divider(),
                         const SizedBox(height: 8),
-                        const Text('Nominee Information', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        const Text('Nominee Information',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 12),
                         TextField(
                           controller: nomineeController,
@@ -384,7 +408,8 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: Colors.grey.shade300)),
+                    border:
+                        Border(top: BorderSide(color: Colors.grey.shade300)),
                   ),
                   child: Row(
                     children: [
@@ -408,7 +433,8 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                               nomineeController.text,
                               zilaController.text,
                               houseController.text,
-                              double.tryParse(investmentController.text) ?? shareholder.investment,
+                              double.tryParse(investmentController.text) ??
+                                  shareholder.investment,
                               roleController.text,
                               selectedStatus,
                             );
@@ -469,7 +495,8 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: const Row(
             children: [
               Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
@@ -506,7 +533,8 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Are you sure you want to permanently delete this shareholder?'),
+            const Text(
+                'Are you sure you want to permanently delete this shareholder?'),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
@@ -517,7 +545,8 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(shareholder.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text(shareholder.name,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
                   Text('Email: ${shareholder.email}'),
                   Text('Phone: ${shareholder.phone}'),
                   Text('Investment: ${shareholder.getFormattedInvestment()}'),
@@ -635,13 +664,15 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                         color: Colors.blue.shade50,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.people_outline, color: Colors.blue.shade700, size: 24),
+                      child: Icon(Icons.people_outline,
+                          color: Colors.blue.shade700, size: 24),
                     ),
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Text(
                         'Shareholders Management',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
                     FadeTransition(
@@ -670,7 +701,8 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
                         ),
                       ),
                     ),
@@ -682,10 +714,12 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                         decoration: InputDecoration(
                           labelText: 'Status',
                           prefixIcon: const Icon(Icons.filter_alt_outlined),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         items: ['ALL', 'Active', 'Inactive'].map((status) {
-                          return DropdownMenuItem(value: status, child: Text(status));
+                          return DropdownMenuItem(
+                              value: status, child: Text(status));
                         }).toList(),
                         onChanged: (value) {
                           setState(() => _filterStatus = value!);
@@ -698,7 +732,7 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
               ],
             ),
           ),
-          
+
           // Shareholders Count and Stats
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -712,12 +746,14 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                     children: [
                       Text(
                         'Total Shareholders: ${_filteredShareholders.length}',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '${_shareholders.where((s) => s.status == 'Active').length} Active • ${_shareholders.where((s) => s.status == 'Inactive').length} Inactive',
-                        style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                        style: TextStyle(
+                            fontSize: 14, color: Colors.grey.shade600),
                       ),
                     ],
                   ),
@@ -725,7 +761,7 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
               ],
             ),
           ),
-          
+
           // Shareholders List
           Expanded(
             child: _isLoading
@@ -735,9 +771,11 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.error_outline, size: 64, color: Colors.red.shade400),
+                            Icon(Icons.error_outline,
+                                size: 64, color: Colors.red.shade400),
                             const SizedBox(height: 16),
-                            Text('Error: $_errorMessage', textAlign: TextAlign.center),
+                            Text('Error: $_errorMessage',
+                                textAlign: TextAlign.center),
                             const SizedBox(height: 16),
                             ElevatedButton.icon(
                               onPressed: _loadShareholders,
@@ -752,18 +790,24 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.people_outline, size: 80, color: Colors.grey.shade400),
+                                Icon(Icons.people_outline,
+                                    size: 80, color: Colors.grey.shade400),
                                 const SizedBox(height: 16),
                                 Text(
-                                  _searchQuery.isEmpty ? 'No shareholders found' : 'No matching shareholders',
-                                  style: const TextStyle(fontSize: 18, color: Colors.grey),
+                                  _searchQuery.isEmpty
+                                      ? 'No shareholders found'
+                                      : 'No matching shareholders',
+                                  style: const TextStyle(
+                                      fontSize: 18, color: Colors.grey),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  _searchQuery.isEmpty 
-                                    ? 'Add your first shareholder to get started'
-                                    : 'Try adjusting your search criteria',
-                                  style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                                  _searchQuery.isEmpty
+                                      ? 'Add your first shareholder to get started'
+                                      : 'Try adjusting your search criteria',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade500),
                                 ),
                               ],
                             ),
@@ -783,25 +827,64 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
           ),
         ],
       ),
-      
-      // Floating Action Button for New Shareholder
-      floatingActionButton: ScaleTransition(
-        scale: _fadeAnimation,
-        child: FloatingActionButton.extended(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const NewShareholderPage()),
-            ).then((_) => _loadShareholders());
-          },
-          backgroundColor: Colors.blue.shade700,
-          foregroundColor: Colors.white,
-          elevation: 4,
-          icon: const Icon(Icons.person_add_alt_1),
-          label: const Text('New Shareholder'),
-        ),
+
+      // // Floating Action Button for New Shareholder
+      // floatingActionButton: ScaleTransition(
+      //   scale: _fadeAnimation,
+      //   child: FloatingActionButton.extended(
+      //     onPressed: () {
+      //       Navigator.push(
+      //         context,
+      //         MaterialPageRoute(builder: (context) => const NewShareholderPage()),
+      //       ).then((_) => _loadShareholders());
+      //     },
+      //     backgroundColor: Colors.blue.shade700,
+      //     foregroundColor: Colors.white,
+      //     elevation: 4,
+      //     icon: const Icon(Icons.person_add_alt_1),
+      //     label: const Text('New Shareholder'),
+      //   ),
+      // ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+
+      // Add this button next to the "New Shareholder" button
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          ScaleTransition(
+            scale: _fadeAnimation,
+            child: FloatingActionButton.extended(
+              onPressed: _showAddInvestmentDialog,
+              heroTag: 'add_investment',
+              backgroundColor: Colors.green.shade700,
+              foregroundColor: Colors.white,
+              elevation: 4,
+              icon: const Icon(Icons.add_card),
+              label: const Text('Add Investment'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          ScaleTransition(
+            scale: _fadeAnimation,
+            child: FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const NewShareholderPage()),
+                ).then((_) => _loadShareholders());
+              },
+              heroTag: 'new_shareholder',
+              backgroundColor: Colors.blue.shade700,
+              foregroundColor: Colors.white,
+              elevation: 4,
+              icon: const Icon(Icons.person_add_alt_1),
+              label: const Text('New Shareholder'),
+            ),
+          ),
+        ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -814,10 +897,12 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: _getStatusColor(shareholder.status).withOpacity(0.2),
+              backgroundColor:
+                  _getStatusColor(shareholder.status).withOpacity(0.2),
               child: Icon(
                 Icons.person_outline,
                 color: _getStatusColor(shareholder.status),
@@ -888,16 +973,36 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
               borderRadius: BorderRadius.circular(12),
             ),
             columns: const [
-              DataColumn(label: Text('ID', style: TextStyle(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('Name', style: TextStyle(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('Email', style: TextStyle(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('Phone', style: TextStyle(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('Investment', style: TextStyle(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('Balance', style: TextStyle(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('Shares', style: TextStyle(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('Join Date', style: TextStyle(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('Status', style: TextStyle(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(
+                  label: Text('ID',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(
+                  label: Text('Name',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(
+                  label: Text('Email',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(
+                  label: Text('Phone',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(
+                  label: Text('Investment',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(
+                  label: Text('Balance',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(
+                  label: Text('Shares',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(
+                  label: Text('Join Date',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(
+                  label: Text('Status',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(
+                  label: Text('Actions',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
             ],
             rows: _filteredShareholders.map((shareholder) {
               return DataRow(
@@ -907,7 +1012,8 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                     Row(
                       children: [
                         CircleAvatar(
-                          backgroundColor: _getStatusColor(shareholder.status).withOpacity(0.2),
+                          backgroundColor: _getStatusColor(shareholder.status)
+                              .withOpacity(0.2),
                           radius: 16,
                           child: Icon(
                             Icons.person_outline,
@@ -929,9 +1035,11 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                   DataCell(Text(shareholder.getFormattedJoinDate())),
                   DataCell(
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: _getStatusColor(shareholder.status).withOpacity(0.1),
+                        color: _getStatusColor(shareholder.status)
+                            .withOpacity(0.1),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
@@ -949,12 +1057,14 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: Icon(Icons.visibility_outlined, size: 18, color: Colors.blue.shade600),
+                          icon: Icon(Icons.visibility_outlined,
+                              size: 18, color: Colors.blue.shade600),
                           onPressed: () => _showShareholderDetails(shareholder),
                           tooltip: 'View Details',
                         ),
                         IconButton(
-                          icon: Icon(Icons.edit_outlined, size: 18, color: Colors.orange.shade600),
+                          icon: Icon(Icons.edit_outlined,
+                              size: 18, color: Colors.orange.shade600),
                           onPressed: () => _showEditDialog(shareholder),
                           tooltip: 'Edit',
                         ),
@@ -963,15 +1073,15 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
                             icon: Icon(
                               Icons.delete_outline,
                               size: 18,
-                              color: shareholder.currentBalance == 0 
-                                  ? Colors.red.shade600 
+                              color: shareholder.currentBalance == 0
+                                  ? Colors.red.shade600
                                   : Colors.grey.shade400,
                             ),
-                            onPressed: shareholder.currentBalance == 0 
+                            onPressed: shareholder.currentBalance == 0
                                 ? () => _handleDelete(shareholder)
                                 : null,
-                            tooltip: shareholder.currentBalance == 0 
-                                ? 'Delete' 
+                            tooltip: shareholder.currentBalance == 0
+                                ? 'Delete'
                                 : 'Clear balance first',
                           ),
                       ],
@@ -984,5 +1094,392 @@ class _AllShareholdersPageState extends State<AllShareholdersPage> with SingleTi
         ),
       ),
     );
+  }
+
+  // Add this method to _AllShareholdersPageState class
+
+  void _showAddInvestmentDialog() {
+    final searchController = TextEditingController();
+    final amountController = TextEditingController(text: '1000');
+    final descriptionController = TextEditingController();
+    ShareholderModel? selectedShareholder;
+    bool isSearching = false;
+    String searchError = '';
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
+            child: Column(
+              children: [
+                // Header
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.blue.shade700, Colors.blue.shade500],
+                    ),
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(16)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.add_card, color: Colors.white, size: 28),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Text(
+                          'Add New Investment',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                ),
+
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Search Section
+                        const Text(
+                          'Search Shareholder',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: searchController,
+                                decoration: InputDecoration(
+                                  labelText: 'Email or ID',
+                                  hintText: 'Enter email or shareholder ID',
+                                  prefixIcon: const Icon(Icons.search),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  errorText:
+                                      searchError.isEmpty ? null : searchError,
+                                ),
+                                onChanged: (value) {
+                                  setDialogState(() {
+                                    searchError = '';
+                                    selectedShareholder = null;
+                                  });
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            ElevatedButton.icon(
+                              onPressed: isSearching
+                                  ? null
+                                  : () async {
+                                      final query =
+                                          searchController.text.trim();
+                                      if (query.isEmpty) {
+                                        setDialogState(() {
+                                          searchError =
+                                              'Please enter email or ID';
+                                        });
+                                        return;
+                                      }
+
+                                      setDialogState(() {
+                                        isSearching = true;
+                                        searchError = '';
+                                        selectedShareholder = null;
+                                      });
+
+                                      try {
+                                        ShareholderModel? shareholder;
+
+                                        // Try to parse as ID first
+                                        final id = int.tryParse(query);
+                                        if (id != null) {
+                                          shareholder =
+                                              await _shareholderService
+                                                  .getShareholderById(id);
+                                        } else {
+                                          // Search by email
+                                          shareholder =
+                                              await _shareholderService
+                                                  .getShareholderByEmail(query);
+                                        }
+
+                                        setDialogState(() {
+                                          selectedShareholder = shareholder;
+                                          isSearching = false;
+                                        });
+                                      } catch (e) {
+                                        setDialogState(() {
+                                          searchError = e
+                                              .toString()
+                                              .replaceAll('Exception: ', '');
+                                          isSearching = false;
+                                        });
+                                      }
+                                    },
+                              icon: isSearching
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : const Icon(Icons.search),
+                              label:
+                                  Text(isSearching ? 'Searching...' : 'Search'),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 16,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // Shareholder Details (if found)
+                        if (selectedShareholder != null) ...[
+                          const SizedBox(height: 24),
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.green.shade200),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green.shade100,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.check_circle,
+                                        color: Colors.green.shade700,
+                                        size: 24,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Text(
+                                      'Shareholder Found',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const Divider(height: 24),
+                                _buildInfoRow(
+                                    'Name', selectedShareholder!.name),
+                                _buildInfoRow(
+                                    'ID', '#${selectedShareholder!.id}'),
+                                _buildInfoRow(
+                                    'Email', selectedShareholder!.email),
+                                _buildInfoRow(
+                                    'Phone', selectedShareholder!.phone),
+                                _buildInfoRow(
+                                  'Current Investment',
+                                  selectedShareholder!.getFormattedInvestment(),
+                                ),
+                                _buildInfoRow(
+                                  'Current Balance',
+                                  selectedShareholder!.getFormattedBalance(),
+                                ),
+                                _buildInfoRow(
+                                  'Total Shares',
+                                  selectedShareholder!.totalShare.toString(),
+                                ),
+                                _buildInfoRow(
+                                  'Status',
+                                  selectedShareholder!.status,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 24),
+                          const Divider(),
+                          const SizedBox(height: 24),
+
+                          // Investment Details
+                          const Text(
+                            'Investment Details',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          TextField(
+                            controller: amountController,
+                            decoration: InputDecoration(
+                              labelText: 'Amount (৳)',
+                              hintText: 'Enter investment amount',
+                              prefixIcon: const Icon(Icons.attach_money),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              helperText: 'Suggested: ৳1000',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          TextField(
+                            controller: descriptionController,
+                            decoration: InputDecoration(
+                              labelText: 'Description',
+                              hintText: 'Enter investment description',
+                              prefixIcon: const Icon(Icons.description),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            maxLines: 3,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Footer Actions
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border:
+                        Border(top: BorderSide(color: Colors.grey.shade300)),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: const Text('Cancel'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: selectedShareholder == null
+                              ? null
+                              : () async {
+                                  final amount =
+                                      double.tryParse(amountController.text);
+                                  final description =
+                                      descriptionController.text.trim();
+
+                                  if (amount == null || amount <= 0) {
+                                    setDialogState(() {
+                                      searchError =
+                                          'Please enter a valid amount';
+                                    });
+                                    return;
+                                  }
+
+                                  if (description.isEmpty) {
+                                    setDialogState(() {
+                                      searchError =
+                                          'Please enter a description';
+                                    });
+                                    return;
+                                  }
+
+                                  Navigator.pop(context);
+                                  await _addInvestment(
+                                    selectedShareholder!.id,
+                                    amount,
+                                    description,
+                                  );
+                                },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: const Text('Add Investment'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 140,
+            child: Text(
+              '$label:',
+              style: TextStyle(
+                color: Colors.grey.shade700,
+                fontSize: 13,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _addInvestment(
+      int shareholderId, double amount, String description) async {
+    try {
+      await _shareholderService.addInvestment(
+          shareholderId, amount, description);
+      _showSuccessSnackbar('Investment added successfully!');
+      _loadShareholders();
+    } catch (e) {
+      _showErrorSnackbar('Failed to add investment: $e');
+    }
   }
 }
