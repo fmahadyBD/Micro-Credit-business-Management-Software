@@ -13,13 +13,13 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
-    @Value("${cors.allowed.origins}")
+    @Value("${cors.allowed.origins:*}")
     private String allowedOrigins;
 
-    @Value("${cors.allowed.methods}")
+    @Value("${cors.allowed.methods:GET,POST,PUT,DELETE,OPTIONS}")
     private String allowedMethods;
 
-    @Value("${cors.allowed.headers}")
+    @Value("${cors.allowed.headers:Authorization,Content-Type}")
     private String allowedHeaders;
 
     @Value("${cors.exposed.headers:Authorization,Content-Type}")
@@ -34,31 +34,17 @@ public class CorsConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        List<String> origins = Arrays.asList(allowedOrigins.split("\\s*,\\s*"));
-        List<String> methods = Arrays.asList(allowedMethods.split("\\s*,\\s*"));
-        List<String> headers = Arrays.asList(allowedHeaders.split("\\s*,\\s*"));
-        List<String> exposed = Arrays.asList(exposedHeaders.split("\\s*,\\s*"));
-
-        // ✅ use allowedOriginPatterns, never allowedOrigins
-        configuration.setAllowedOriginPatterns(origins);
-        configuration.setAllowedMethods(methods);
-        configuration.setAllowedHeaders(headers);
-        configuration.setExposedHeaders(exposed);
+        configuration.setAllowedOriginPatterns(Arrays.asList(allowedOrigins.split("\\s*,\\s*")));
+        configuration.setAllowedMethods(Arrays.asList(allowedMethods.split("\\s*,\\s*")));
+        configuration.setAllowedHeaders(Arrays.asList(allowedHeaders.split("\\s*,\\s*")));
+        configuration.setExposedHeaders(Arrays.asList(exposedHeaders.split("\\s*,\\s*")));
         configuration.setAllowCredentials(allowCredentials);
         configuration.setMaxAge(maxAge);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
 
-        System.out.println("✅ CORS Config Loaded:");
-        System.out.println("   Origins: " + origins);
-        System.out.println("   Methods: " + methods);
-        System.out.println("   Headers: " + headers);
-        System.out.println("   Exposed: " + exposed);
-        System.out.println("   AllowCredentials: " + allowCredentials);
-        System.out.println("   MaxAge: " + maxAge);
-
+        System.out.println("✅ CORS Config Loaded");
         return source;
     }
 }
