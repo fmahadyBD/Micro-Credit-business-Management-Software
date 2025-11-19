@@ -1,5 +1,8 @@
 {
     "java.project.sourcePaths": [
         "mobile_app/lib"
+    ],
+    "cSpell.words": [
+        "allprojects"
     ]
 }

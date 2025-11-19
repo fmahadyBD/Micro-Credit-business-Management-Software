@@ -100,6 +100,15 @@ sudo update-alternatives --config jlink
 
 
 
+
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+export PATH=$JAVA_HOME/bin:$PATH
+echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' >> ~/.bashrc
+echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.bashrc
+source ~/.bashrc
+
+
+
 ## Delpoyment note for Frontend:
 in environments.ts
 // ✅ Correct

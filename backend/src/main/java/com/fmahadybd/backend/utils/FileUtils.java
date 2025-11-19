@@ -1,26 +1,41 @@
 package com.fmahadybd.backend.utils;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
-import java.io.IOException;
+
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Slf4j
+@UtilityClass
 public class FileUtils {
 
-    public static byte[] readFileFromLocation(String fileUrl) {
-        if (StringUtils.isBlank(fileUrl)) {
-            return null;
-        }
+    /**
+     * Ensure upload directory exists
+     */
+    public static void createUploadDirectory(String uploadPath) {
         try {
-            Path filePath = new File(fileUrl).toPath();
-            return Files.readAllBytes(filePath);
-        } catch (IOException e) {
-            log.warn("No file found in the path {}", fileUrl);
+            Path path = Paths.get(uploadPath);
+            if (!Files.exists(path)) {
+                Files.createDirectories(path);
+                log.info("Created upload directory: {}", path.toAbsolutePath());
+            }
+        } catch (Exception e) {
+            log.error("Failed to create upload directory: {}", uploadPath, e);
         }
-        return null;
+    }
+
+    /**
+     * Check if file exists
+     */
+    public static boolean fileExists(String filePath) {
+        try {
+            return Files.exists(Paths.get(filePath));
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
