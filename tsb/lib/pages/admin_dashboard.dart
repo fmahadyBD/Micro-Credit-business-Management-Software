@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/pages/MonthlyInstallmentReturnsPage.dart';
 import 'all_shareholders_page.dart';
 import 'new_shareholder_page.dart';
 import '../screens/installment/installment_add_screen.dart';
@@ -13,7 +14,7 @@ import 'new_member_page.dart';
 import 'all_products_page.dart';
 import 'new_product_page.dart';
 import 'profile_page.dart';
-import 'dashboard_page.dart'; 
+import 'dashboard_page.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -81,6 +82,7 @@ class _AdminDashboardState extends State<AdminDashboard>
       'all_agents': 'সমস্ত এজেন্ট', // All Agents
       'new_agent': 'নতুন এজেন্ট', // New Agent
       'profile': 'আমার প্রোফাইল', // My Profile
+      'monthly_installment_returns': 'এই মাসের কিস্তি ফেরত', // ⭐ ADD THIS LINE
     };
     return titles[currentPage] ?? 'ড্যাশবোর্ড'; // Default to Dashboard
   }
@@ -131,6 +133,9 @@ class _AdminDashboardState extends State<AdminDashboard>
         break;
       case 'profile':
         pageContent = const ProfilePage();
+        break;
+      case 'monthly_installment_returns': // ⭐ ADD THIS CASE
+        pageContent = const MonthlyInstallmentReturnsPage();
         break;
       default:
         pageContent = const DashboardPage(); // Default to dashboard

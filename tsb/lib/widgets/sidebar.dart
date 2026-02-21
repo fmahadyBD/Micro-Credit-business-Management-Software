@@ -123,7 +123,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                       ),
                       const SizedBox(height: 16),
                       const Text(
-                        'তেজপাতা শেয়ার বিজনেস',
+                        'তেজপাতা শেয়ার বিজনেস',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -209,7 +209,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                     ],
                   ),
 
-                  // Installment Section
+                  // Installment Section ⭐ UPDATED
                   _buildExpansionTile(
                     icon: Icons.payment_outlined,
                     title: 'কিস্তি',
@@ -220,6 +220,10 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                           Icons.account_balance_wallet_outlined),
                       _buildSubMenuItem(
                           'নতুন কিস্তি', 'add_installment', Icons.add_card),
+                      _buildSubMenuItem(
+                          'কালেকশন', // ⭐ NEW ITEM
+                          'monthly_installment_returns',
+                          Icons.calendar_month),
                     ],
                   ),
 

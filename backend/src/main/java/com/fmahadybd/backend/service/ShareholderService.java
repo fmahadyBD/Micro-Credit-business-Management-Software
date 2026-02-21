@@ -11,6 +11,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fmahadybd.backend.auth.AuthenticationService;
+import com.fmahadybd.backend.auth.RegistrationRequest;
 import com.fmahadybd.backend.dto.AddInvestmentDTO;
 import com.fmahadybd.backend.dto.InvestmentHistoryDTO;
 import com.fmahadybd.backend.dto.ShareholderCreateDTO;
@@ -42,6 +44,7 @@ public class ShareholderService {
     private final MainBalanceRepository mainBalanceRepository;
     private final TransactionHistoryRepository transactionHistoryRepository;
     private final InvestmentHistoryRepository investmentHistoryRepository;
+    private final AuthenticationService authenticationService;
 
     @Transactional
     public ShareholderDTO saveShareholder(ShareholderCreateDTO shareholderDTO) {
@@ -67,6 +70,14 @@ public class ShareholderService {
         if (shareholder.getCurrentBalance() == null) {
             shareholder.setCurrentBalance(0.0);
         }
+
+
+        RegistrationRequest registrationRequest = RegistrationRequest.builder()
+                .firstname(shareholderDTO.getName())
+                .lastname("") // No lastname field in ShareholderCreateDTO
+                .email(shareholderDTO.getEmail())
+                .password("12345") // Default password, should be changed later
+                .build();
 
         // Save shareholder
         Shareholder savedShareholder = shareholderRepository.save(shareholder);

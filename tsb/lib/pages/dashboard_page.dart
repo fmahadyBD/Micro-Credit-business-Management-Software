@@ -38,15 +38,19 @@ class _DashboardPageState extends State<DashboardPage>
     return _filteredTransactions.sublist(startIndex, endIndex);
   }
 
+  // Transaction type definitions - Match your Java backend types
   final Map<String, Color> _typeColors = {
-    'INVESTMENT': const Color(0xFF10B981),
-    'WITHDRAWAL': const Color(0xFFEF4444),
-    'PRODUCT_COST': const Color(0xFFF59E0B),
-    'MAINTENANCE': const Color(0xFF8B5CF6),
-    'INSTALLMENT_RETURN': const Color(0xFF3B82F6),
-    'ADVANCED_PAYMENT': const Color(0xFF14B8A6),
-    'EARNINGS': const Color(0xFF6366F1),
-    'INSTALLMENT_PAYMENT': const Color(0xFF10B981),
+    'INVESTMENT': const Color(0xFF10B981),        // Green
+    'WITHDRAWAL': const Color(0xFFEF4444),        // Red
+    'PRODUCT_COST': const Color(0xFFF59E0B),      // Amber
+    'MAINTENANCE': const Color(0xFF8B5CF6),       // Purple
+    'INSTALLMENT_RETURN': const Color(0xFF3B82F6), // Blue
+    'ADVANCED_PAYMENT': const Color(0xFF14B8A6),   // Teal
+    'EARNINGS': const Color(0xFF6366F1),          // Indigo
+    'INSTALLMENT_PAYMENT': const Color(0xFF10B981), // Green (same as INVESTMENT)
+    'OTHER_COST_DEDUCTION': const Color(0xFFDC2626), // Dark Red
+    'OTHER_COST_RETURN': const Color(0xFF059669),   // Dark Green
+    'UPDATE_INSTALLMENT': const Color(0xFFF97316),  // Orange
   };
 
   final Map<String, IconData> _typeIcons = {
@@ -58,9 +62,12 @@ class _DashboardPageState extends State<DashboardPage>
     'ADVANCED_PAYMENT': Icons.payment,
     'EARNINGS': Icons.attach_money,
     'INSTALLMENT_PAYMENT': Icons.payment,
+    'OTHER_COST_DEDUCTION': Icons.money_off,
+    'OTHER_COST_RETURN': Icons.undo,
+    'UPDATE_INSTALLMENT': Icons.edit,
   };
 
-  // Bengali translations
+  // Bengali translations for all types
   final Map<String, String> _typeBengali = {
     'INVESTMENT': 'বিনিয়োগ',
     'WITHDRAWAL': 'উত্তোলন',
@@ -70,6 +77,9 @@ class _DashboardPageState extends State<DashboardPage>
     'ADVANCED_PAYMENT': 'অগ্রিম পেমেন্ট',
     'EARNINGS': 'আয়',
     'INSTALLMENT_PAYMENT': 'কিস্তি পেমেন্ট',
+    'OTHER_COST_DEDUCTION': 'অন্যান্য খরচ কাটা',
+    'OTHER_COST_RETURN': 'অন্যান্য খরচ ফেরত',
+    'UPDATE_INSTALLMENT': 'কিস্তি আপডেট',
     'ALL': 'সব ধরনের',
   };
 
@@ -79,7 +89,31 @@ class _DashboardPageState extends State<DashboardPage>
     'ADVANCED_PAYMENT',
     'EARNINGS',
     'INSTALLMENT_PAYMENT',
+    'OTHER_COST_RETURN',  // Money returning to balance
   };
+
+  final Set<String> _negativeTransactionTypes = {
+    'WITHDRAWAL',
+    'PRODUCT_COST',
+    'MAINTENANCE',
+    'OTHER_COST_DEDUCTION',  // Money deducted from balance
+  };
+
+  // All available transaction types for filtering
+  final List<String> _availableTypes = [
+    'ALL',
+    'INVESTMENT',
+    'WITHDRAWAL',
+    'PRODUCT_COST',
+    'MAINTENANCE',
+    'INSTALLMENT_RETURN',
+    'ADVANCED_PAYMENT',
+    'EARNINGS',
+    'INSTALLMENT_PAYMENT',
+    'OTHER_COST_DEDUCTION',
+    'OTHER_COST_RETURN',
+    'UPDATE_INSTALLMENT',
+  ];
 
   @override
   void initState() {
@@ -134,10 +168,12 @@ class _DashboardPageState extends State<DashboardPage>
             transaction.displayName.toLowerCase().contains(q) ||
             transaction.description.toLowerCase().contains(q) ||
             transaction.type.toLowerCase().contains(q) ||
+            _typeBengali[transaction.type]!.toLowerCase().contains(q) ?? false ||
             (transaction.shareholderName?.toLowerCase().contains(q) ?? false) ||
             (transaction.memberName?.toLowerCase().contains(q) ?? false);
-        final matchesType =
-            _filterType == 'ALL' || transaction.type == _filterType;
+        
+        final matchesType = _filterType == 'ALL' || transaction.type == _filterType;
+        
         return matchesSearch && matchesType;
       }).toList();
       _currentPage = 0;
@@ -512,12 +548,15 @@ class _DashboardPageState extends State<DashboardPage>
     if (_filteredTransactions.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(40),
-        child: const Column(
+        child: Column(
           children: [
             Icon(Icons.receipt_long, size: 64, color: Colors.grey),
             SizedBox(height: 16),
             Text('কোন লেনদেন পাওয়া যায়নি',
                 style: TextStyle(color: Colors.grey)),
+            if (_filterType != 'ALL')
+              Text('ফিল্টার: ${_typeBengali[_filterType] ?? _filterType}',
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
           ],
         ),
       );
@@ -525,6 +564,48 @@ class _DashboardPageState extends State<DashboardPage>
 
     return Column(
       children: [
+        // Filter info
+        if (_filterType != 'ALL' || _searchQuery.isNotEmpty)
+          Container(
+            padding: EdgeInsets.all(12),
+            margin: EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.blue.shade100),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.filter_alt, size: 16, color: Colors.blue.shade700),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'ফিল্টার করা হয়েছে: ${_filterType != 'ALL' ? '${_typeBengali[_filterType] ?? _filterType}' : ''}${_searchQuery.isNotEmpty ? ' | সার্চ: "$_searchQuery"' : ''} | মোট: ${_filteredTransactions.length} টি',
+                    style: TextStyle(color: Colors.blue.shade700, fontSize: 12),
+                  ),
+                ),
+                if (_filterType != 'ALL' || _searchQuery.isNotEmpty)
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        _filterType = 'ALL';
+                        _searchQuery = '';
+                        _filterTransactions();
+                      });
+                    },
+                    child: Row(
+                      children: [
+                        Icon(Icons.clear, size: 16, color: Colors.blue.shade700),
+                        SizedBox(width: 4),
+                        Text('সব ফিল্টার সরান', 
+                            style: TextStyle(color: Colors.blue.shade700, fontSize: 12)),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -681,11 +762,21 @@ class _DashboardPageState extends State<DashboardPage>
     return transaction.displayName;
   }
 
+  bool _isPositiveTransaction(TransactionModel transaction) {
+    if (_positiveTransactionTypes.contains(transaction.type)) return true;
+    if (_negativeTransactionTypes.contains(transaction.type)) return false;
+    
+    // For types not explicitly defined, check the description or name
+    return !transaction.description.toLowerCase().contains('কাটা') &&
+           !transaction.description.toLowerCase().contains('খরচ') &&
+           !transaction.description.toLowerCase().contains('deduction');
+  }
+
   Widget _buildTransactionItem(TransactionModel transaction) {
     final color = _typeColors[transaction.type] ?? Colors.grey;
     final icon = _typeIcons[transaction.type] ?? Icons.receipt;
     final displayName = _getTransactionDisplayName(transaction);
-    final isPositive = _positiveTransactionTypes.contains(transaction.type);
+    final isPositive = _isPositiveTransaction(transaction);
     final amountColor = isPositive ? Colors.green : Colors.red;
     final amountPrefix = isPositive ? '+' : '-';
 
@@ -742,7 +833,7 @@ class _DashboardPageState extends State<DashboardPage>
 
   void _showTransactionDetails(TransactionModel transaction) {
     final displayName = _getTransactionDisplayName(transaction);
-    final isPositive = _positiveTransactionTypes.contains(transaction.type);
+    final isPositive = _isPositiveTransaction(transaction);
     final amountPrefix = isPositive ? '+' : '-';
 
     showDialog(
@@ -787,6 +878,8 @@ class _DashboardPageState extends State<DashboardPage>
                 _buildDetailRow('পরিমাণ',
                     '$amountPrefix৳${transaction.amount.toStringAsFixed(2)}',
                     color: isPositive ? Colors.green : Colors.red),
+                _buildDetailRow('ধরন', 
+                    '${transaction.type} (${_typeBengali[transaction.type] ?? transaction.typeDisplayName})'),
                 _buildDetailRow('নাম', displayName),
                 if (transaction.shareholderName != null &&
                     transaction.shareholderName!.isNotEmpty)
@@ -923,35 +1016,47 @@ class _DashboardPageState extends State<DashboardPage>
                                         setState(() => _searchQuery = value);
                                         _filterTransactions();
                                       },
+                                      controller: TextEditingController(text: _searchQuery),
                                       decoration: InputDecoration(
                                         hintText: 'লেনদেন খুঁজুন...',
                                         prefixIcon: const Icon(Icons.search),
                                         border: OutlineInputBorder(
                                             borderRadius:
                                                 BorderRadius.circular(12)),
+                                        suffixIcon: _searchQuery.isNotEmpty
+                                            ? IconButton(
+                                                icon: const Icon(Icons.clear),
+                                                onPressed: () {
+                                                  setState(() => _searchQuery = '');
+                                                  _filterTransactions();
+                                                },
+                                              )
+                                            : null,
                                       ),
                                     ),
                                     const SizedBox(height: 12),
                                     DropdownButtonFormField<String>(
-                                      initialValue: _filterType,
+                                      value: _filterType,
                                       decoration: InputDecoration(
                                         labelText: 'ধরন অনুসারে ফিল্টার',
                                         border: OutlineInputBorder(
                                             borderRadius:
                                                 BorderRadius.circular(12)),
                                       ),
-                                      items: [
-                                        'ALL',
-                                        ..._typeColors.keys
-                                      ].map((type) {
+                                      items: _availableTypes.map((type) {
                                         return DropdownMenuItem(
                                           value: type,
                                           child: Row(
                                             children: [
                                               if (type != 'ALL')
-                                                Icon(_typeIcons[type],
+                                                Container(
+                                                  width: 16,
+                                                  height: 16,
+                                                  decoration: BoxDecoration(
                                                     color: _typeColors[type],
-                                                    size: 16),
+                                                    borderRadius: BorderRadius.circular(4),
+                                                  ),
+                                                ),
                                               const SizedBox(width: 8),
                                               Text(_typeBengali[type] ?? type),
                                             ],

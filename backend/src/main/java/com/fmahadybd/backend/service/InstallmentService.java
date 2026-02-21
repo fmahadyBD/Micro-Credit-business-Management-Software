@@ -49,25 +49,50 @@ public class InstallmentService {
         Double balance = currentBalance.getTotalBalance();
         MainBalance newBalance = createNewMainBalanceRecord(currentBalance);
         double advancedPayment = dto.getAdvanced_paid();
+        double otherCost = dto.getOtherCost() != null ? dto.getOtherCost() : 0.0;
+        
+        // Update balances - earnings should be 15% of the advanced payment received
         newBalance.setTotalBalance(balance + advancedPayment);
         newBalance.setTotalInstallmentReturn(currentBalance.getTotalInstallmentReturn() + advancedPayment);
-        newBalance.setTotalEarnings(currentBalance.getTotalEarnings()+balance*.15);
+        newBalance.setTotalEarnings(currentBalance.getTotalEarnings() + (advancedPayment * 0.15));
         newBalance.setWhoChanged(performedBy);
+        
         String memberViaInstallment = memberRepository.findById(dto.getMemberId())
-        .map(Member::getName)
-        .orElse("অজানা সদস্য");
-        newBalance.setReason("ইন্সটলমেন্টের অ্যাডভান্সড পেমেন্ট যোগ করা হয়েছে: " + memberViaInstallment);
+            .map(Member::getName)
+            .orElse("অজানা সদস্য");
+        String reason = "ইন্সটলমেন্টের অ্যাডভান্সড পেমেন্ট যোগ করা হয়েছে: " + memberViaInstallment;
+        
+        // Handle otherCost if greater than 0
+        if (otherCost > 0) {
+            // Deduct otherCost from total balance
+            newBalance.setTotalBalance(newBalance.getTotalBalance() - otherCost);
+            newBalance.setTotalProductCost(currentBalance.getTotalProductCost() + otherCost);
+            reason += " | অন্যান্য খরচ: " + otherCost + " টাকা";
+            
+            // Create transaction history for otherCost deduction
+            createTransactionHistory(
+                "OTHER_COST_DEDUCTION",
+                otherCost,
+                "ইন্সটলমেন্টের অন্যান্য খরচ কাটা হয়েছে: " + memberViaInstallment + " | খরচ: " + otherCost + " টাকা",
+                null,
+                dto.getMemberId(),
+                performedBy);
+        }
+        
+        newBalance.setReason(reason);
+        
         MainBalance savedBalance = mainBalanceRepository.save(newBalance);
         Installment savedInstallment = save(installment);
+        
+        // Create transaction history for advanced payment
         createTransactionHistory(
                 "ADVANCED_PAYMENT",
                 advancedPayment,
-                "নতুন ইন্সটলমেন্ট তৈরি হয়েছে: " + memberViaInstallment + " | অ্যাডভান্সড: " + advancedPayment + " টাকা",
+                "নতুন ইন্সটলমেন্ট তৈরি হয়েছে: " + memberViaInstallment + " | অ্যাডভান্সড: " + advancedPayment + " টাকা | অন্যান্য খরচ: " + otherCost + " টাকা",
                 null,
                 dto.getMemberId(),
                 performedBy);
 
-        
         log.info("ইন্সটলমেন্ট তৈরি হয়েছে ID: {}", savedInstallment.getId());
         return installmentMapper.toResponseDTO(savedInstallment);
     }
@@ -88,20 +113,46 @@ public class InstallmentService {
         Double balance = currentBalance.getTotalBalance();
         MainBalance newBalance = createNewMainBalanceRecord(currentBalance);
         double advancedPayment = dto.getAdvanced_paid();
+        double otherCost = dto.getOtherCost() != null ? dto.getOtherCost() : 0.0;
+        
+        // Update balances - earnings should be 15% of the advanced payment received
         newBalance.setTotalBalance(balance + advancedPayment);
         newBalance.setTotalInstallmentReturn(currentBalance.getTotalInstallmentReturn() + advancedPayment);
-        newBalance.setTotalEarnings(currentBalance.getTotalEarnings()+balance*.15);
+        newBalance.setTotalEarnings(currentBalance.getTotalEarnings() + (advancedPayment * 0.15));
         newBalance.setWhoChanged(performedBy);
+        
         String memberViaInstallment = memberRepository.findById(dto.getMemberId())
-        .map(Member::getName)
-        .orElse("অজানা সদস্য");
-        newBalance.setReason("ইন্সটলমেন্টের অ্যাডভান্সড পেমেন্ট যোগ করা হয়েছে: " + memberViaInstallment);
+            .map(Member::getName)
+            .orElse("অজানা সদস্য");
+        String reason = "ইন্সটলমেন্টের অ্যাডভান্সড পেমেন্ট যোগ করা হয়েছে: " + memberViaInstallment;
+        
+        // Handle otherCost if greater than 0
+        if (otherCost > 0) {
+            // Deduct otherCost from total balance
+            newBalance.setTotalBalance(newBalance.getTotalBalance() - otherCost);
+            newBalance.setTotalProductCost(currentBalance.getTotalProductCost() + otherCost);
+            reason += " | অন্যান্য খরচ: " + otherCost + " টাকা";
+            
+            // Create transaction history for otherCost deduction
+            createTransactionHistory(
+                "OTHER_COST_DEDUCTION",
+                otherCost,
+                "ইন্সটলমেন্টের অন্যান্য খরচ কাটা হয়েছে: " + memberViaInstallment + " | খরচ: " + otherCost + " টাকা",
+                null,
+                dto.getMemberId(),
+                performedBy);
+        }
+        
+        newBalance.setReason(reason);
+        
         MainBalance savedBalance = mainBalanceRepository.save(newBalance);
         Installment savedInstallment = save(installment);
+        
+        // Create transaction history for advanced payment
         createTransactionHistory(
                 "ADVANCED_PAYMENT",
                 advancedPayment,
-                "নতুন ইন্সটলমেন্ট তৈরি হয়েছে: " + memberViaInstallment + " | অ্যাডভান্সড: " + advancedPayment + " টাকা",
+                "নতুন ইন্সটলমেন্ট তৈরি হয়েছে: " + memberViaInstallment + " | অ্যাডভান্সড: " + advancedPayment + " টাকা | অন্যান্য খরচ: " + otherCost + " টাকা",
                 null,
                 dto.getMemberId(),
                 performedBy);
@@ -172,6 +223,7 @@ public class InstallmentService {
         Double totalWithInterest = total + (total * interest / 100);
 
         // Calculate total amount needed to be paid (before advance)
+        // Add otherCost to the total amount to be paid
         Double totalAmountToPay = totalWithInterest + other;
 
         // Calculate monthly installment if months are specified
@@ -191,10 +243,6 @@ public class InstallmentService {
             // Store the adjusted values
             installment.setMonthlyInstallmentAmount(monthlyPayment.doubleValue());
             installment.setNeedPaidAmount(adjustedRemainingTotal.doubleValue());
-
-            // Important: Store the actual advance paid (not adjusted)
-            // The difference will be handled as "overpayment" or part of the calculation
-            // Don't modify advance_paid here as it's already processed in main balance
 
             log.info(
                     "ইন্সটলমেন্ট ক্যালকুলেট করা হয়েছে - মূল মোট: {}, অ্যাডভান্সড পর: {}, মাসিক: {}, সমন্বয়কৃত পরিশোধযোগ্য: {}, রাউন্ডিং পার্থক্য: {}",
@@ -216,17 +264,6 @@ public class InstallmentService {
             product.setIsDeliveryRequired(true);
             productRepository.save(product);
         }
-    }
-
-    private void logTransaction(String type, double amount, String desc, Long memberId) {
-        TransactionHistory txn = TransactionHistory.builder()
-                .type(type)
-                .amount(amount)
-                .description(desc)
-                .memberId(memberId)
-                .timestamp(LocalDateTime.now())
-                .build();
-        transactionHistoryRepository.save(txn);
     }
 
     public void uploadInstallmentImages(MultipartFile[] files, Long installmentId) {
@@ -258,36 +295,97 @@ public class InstallmentService {
                 .orElseThrow(() -> new RuntimeException("ইন্সটলমেন্ট খুঁজে পাওয়া যায়নি ID: " + id));
 
         MainBalance currentBalance = getMainBalance();
-        Double balance = currentBalance.getTotalBalance();
         MainBalance newBalance = createNewMainBalanceRecord(currentBalance);
 
         double existingAdvancedPayment = existing.getAdvanced_paid();
+        double newAdvancedPayment = dto.getAdvanced_paid() != null ? dto.getAdvanced_paid() : existingAdvancedPayment;
+        double existingOtherCost = existing.getOtherCost() != null ? existing.getOtherCost() : 0.0;
+        double newOtherCost = dto.getOtherCost() != null ? dto.getOtherCost() : existingOtherCost;
+        boolean balanceUpdated = false;
 
-        if(dto.getAdvanced_paid() > 0){
-            currentBalance.setTotalBalance(currentBalance.getTotalBalance()- existingAdvancedPayment);
-            currentBalance.setTotalEarnings(currentBalance.getTotalEarnings()-existing.getAdvanced_paid()*.15);
-            currentBalance.setTotalInstallmentReturn(currentBalance.getTotalInstallmentReturn() -existing.getAdvanced_paid());
+        // Only update balance if advanced payment is being changed
+        if (dto.getAdvanced_paid() != null && dto.getAdvanced_paid() != existingAdvancedPayment) {
+            // Calculate the difference in advanced payment
+            double advancedPaymentDifference = newAdvancedPayment - existingAdvancedPayment;
+            
+            // Update all balance fields based on the difference
+            newBalance.setTotalBalance(currentBalance.getTotalBalance() + advancedPaymentDifference);
+            newBalance.setTotalInstallmentReturn(currentBalance.getTotalInstallmentReturn() + advancedPaymentDifference);
+            newBalance.setTotalEarnings(currentBalance.getTotalEarnings() + (advancedPaymentDifference * 0.15));
+            
+            balanceUpdated = true;
         }
 
-        double advancedPayment = dto.getAdvanced_paid();
+        // Handle otherCost update if changed
+        if (dto.getOtherCost() != null && dto.getOtherCost() != existingOtherCost) {
+            double otherCostDifference = newOtherCost - existingOtherCost;
+            
+            if (otherCostDifference > 0) {
+                // Additional otherCost added - deduct from balance
+                newBalance.setTotalBalance(newBalance.getTotalBalance() - otherCostDifference);
+                newBalance.setTotalProductCost(currentBalance.getTotalProductCost() + otherCostDifference);
+                
+                // Create transaction history for otherCost addition
+                createTransactionHistory(
+                    "OTHER_COST_DEDUCTION",
+                    otherCostDifference,
+                    "ইন্সটলমেন্ট আপডেট - অন্যান্য খরচ যোগ করা হয়েছে: " + existing.getMember().getName() + 
+                    " | পূর্ববর্তী খরচ: " + existingOtherCost + " টাকা | নতুন খরচ: " + newOtherCost + 
+                    " টাকা | পার্থক্য: " + otherCostDifference + " টাকা",
+                    null,
+                    existing.getMember().getId(),
+                    performedBy);
+            } else if (otherCostDifference < 0) {
+                // otherCost reduced - add back to balance
+                double reductionAmount = Math.abs(otherCostDifference);
+                newBalance.setTotalBalance(newBalance.getTotalBalance() + reductionAmount);
+                newBalance.setTotalProductCost(currentBalance.getTotalProductCost() - reductionAmount);
+                
+                // Create transaction history for otherCost reduction
+                createTransactionHistory(
+                    "OTHER_COST_RETURN",
+                    reductionAmount,
+                    "ইন্সটলমেন্ট আপডেট - অন্যান্য খরচ হ্রাস করা হয়েছে: " + existing.getMember().getName() + 
+                    " | পূর্ববর্তী খরচ: " + existingOtherCost + " টাকা | নতুন খরচ: " + newOtherCost + 
+                    " টাকা | ফেরত: " + reductionAmount + " টাকা",
+                    null,
+                    existing.getMember().getId(),
+                    performedBy);
+            }
+            
+            balanceUpdated = true;
+        }
 
-        newBalance.setTotalBalance(balance + advancedPayment);
-        newBalance.setTotalInstallmentReturn(currentBalance.getTotalInstallmentReturn() + advancedPayment);
-        newBalance.setTotalEarnings(currentBalance.getTotalEarnings()+balance*.15);
-
-        newBalance.setWhoChanged(performedBy);
-        String memberViaInstallment = existing.getMember().getName();
-        // .map(Member::getName)
-        // .orElse("অজানা সদস্য");
-        newBalance.setReason("ইন্সটলমেন্টের অ্যাডভান্সড পেমেন্ট আপডেট করা হয়েছে: " + memberViaInstallment);
-        MainBalance savedBalance = mainBalanceRepository.save(newBalance);
-        createTransactionHistory(
-                "UPDATE_INSTALLMENT",
-                advancedPayment,
-                "ইন্সটলমেন্ট আপডেট করা হয়েছে: " + memberViaInstallment + " | অ্যাডভান্সড: " + advancedPayment + " টাকা",
-                null,
-                existing.getMember().getId(),
-                performedBy);
+        if (balanceUpdated) {
+            newBalance.setWhoChanged(performedBy);
+            String memberViaInstallment = existing.getMember().getName();
+            String reason = "ইন্সটলমেন্ট আপডেট করা হয়েছে: " + memberViaInstallment;
+            
+            if (dto.getAdvanced_paid() != null && dto.getAdvanced_paid() != existingAdvancedPayment) {
+                reason += " | পূর্ববর্তী অ্যাডভান্সড: " + existingAdvancedPayment + " টাকা, নতুন: " + newAdvancedPayment + " টাকা";
+            }
+            if (dto.getOtherCost() != null && dto.getOtherCost() != existingOtherCost) {
+                reason += " | পূর্ববর্তী অন্যান্য খরচ: " + existingOtherCost + " টাকা, নতুন: " + newOtherCost + " টাকা";
+            }
+            
+            newBalance.setReason(reason);
+            mainBalanceRepository.save(newBalance);
+            
+            if (dto.getAdvanced_paid() != null && dto.getAdvanced_paid() != existingAdvancedPayment) {
+                createTransactionHistory(
+                    "UPDATE_INSTALLMENT",
+                    newAdvancedPayment - existingAdvancedPayment,
+                    "ইন্সটলমেন্ট আপডেট করা হয়েছে: " + memberViaInstallment + 
+                    " | পূর্ববর্তী অ্যাডভান্সড: " + existingAdvancedPayment + 
+                    " টাকা | নতুন অ্যাডভান্সড: " + newAdvancedPayment + 
+                    " টাকা | পূর্ববর্তী অন্যান্য খরচ: " + existingOtherCost + 
+                    " টাকা | নতুন অন্যান্য খরচ: " + newOtherCost + 
+                    " টাকা",
+                    null,
+                    existing.getMember().getId(),
+                    performedBy);
+            }
+        }
 
         updateFields(existing, dto);
         calculateInstallmentAmounts(existing);
@@ -380,9 +478,11 @@ public class InstallmentService {
                 .shareholderId(shareholderId)
                 .memberId(memberId)
                 .timestamp(LocalDateTime.now())
+                // .performedBy(performedBy) // Added performedBy field
                 .build();
 
         transactionHistoryRepository.save(transaction);
+        log.info("ট্রান্সাকশন হিস্ট্রি তৈরি হয়েছে - ধরন: {}, পরিমাণ: {}, বর্ণনা: {}", type, amount, description);
     }
 
     /** Helper method to get current main balance */
